@@ -9,12 +9,12 @@ export default function KidDashboard({ kid }: KidDashboardProps) {
   const isThriving = savingPercentage >= 50;
 
   return (
-    <div className="mx-auto w-full max-w-md overflow-hidden rounded-3xl bg-slate-900 text-slate-100 shadow-2xl ring-1 ring-slate-800 transition-all duration-300 hover:shadow-cyan-950/20">
+    <div className="mx-auto w-full max-w-md overflow-hidden rounded-3xl bg-[#111827] text-slate-100 shadow-2xl ring-1 ring-orange-500/10 transition-all duration-300 hover:shadow-orange-950/10">
       {/* Header Section */}
-      <div className="relative bg-gradient-to-br from-cyan-600 to-blue-700 px-6 py-8 text-right font-sans">
+      <div className="relative bg-gradient-to-br from-orange-500 to-amber-600 px-6 py-8 text-right font-sans">
         {/* Subtle decorative background shapes */}
-        <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-cyan-400 opacity-20 blur-xl"></div>
-        <div className="absolute -left-10 -bottom-10 h-32 w-32 rounded-full bg-blue-500 opacity-20 blur-xl"></div>
+        <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-orange-400 opacity-20 blur-xl"></div>
+        <div className="absolute -left-10 -bottom-10 h-32 w-32 rounded-full bg-amber-400 opacity-20 blur-xl"></div>
 
         <div className="flex items-center justify-between">
           <span className="rounded-full bg-white/20 px-3 py-1 text-xs font-semibold backdrop-blur-md">
@@ -26,7 +26,7 @@ export default function KidDashboard({ kid }: KidDashboardProps) {
         </div>
 
         <div className="mt-6 flex flex-col items-end">
-          <p className="text-sm font-medium text-cyan-100">إجمالي المدخرات</p>
+          <p className="text-sm font-medium text-orange-100">إجمالي المدخرات</p>
           <p className="text-4xl font-extrabold tracking-tight text-white mt-1">
             {kid.saved} <span className="text-lg font-bold">ريال</span>
           </p>
@@ -34,11 +34,11 @@ export default function KidDashboard({ kid }: KidDashboardProps) {
 
         <div className="mt-4 grid grid-cols-2 gap-4 rounded-2xl bg-white/10 p-3 text-sm backdrop-blur-md">
           <div className="text-left">
-            <span className="block text-xs text-cyan-200">نسبة الادخار</span>
+            <span className="block text-xs text-orange-200">نسبة الادخار</span>
             <span className="font-bold text-white text-base">{savingPercentage}%</span>
           </div>
           <div className="text-right">
-            <span className="block text-xs text-cyan-200">المصروف الأسبوعي</span>
+            <span className="block text-xs text-orange-200">المصروف الأسبوعي</span>
             <span className="font-bold text-white text-base">{kid.allowance} ريال</span>
           </div>
         </div>
