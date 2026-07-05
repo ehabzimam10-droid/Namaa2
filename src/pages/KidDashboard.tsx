@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import type { Kid } from '../data/mockData';
 
 interface KidDashboardProps {
@@ -5,6 +6,7 @@ interface KidDashboardProps {
 }
 
 export default function KidDashboard({ kid }: KidDashboardProps) {
+  const [donations, setDonations] = useState(kid.donationPoints);
   const savingPercentage = Math.round((kid.saved / kid.allowance) * 100);
   const isThriving = savingPercentage >= 50;
 
@@ -103,6 +105,44 @@ export default function KidDashboard({ kid }: KidDashboardProps) {
               </div>
             </div>
           )}
+        </div>
+
+        {/* CSR / Donations Card */}
+        <div className="space-y-3">
+          <h3 className="text-right text-xs font-bold uppercase tracking-wider text-orange-400">
+            المسؤولية المجتمعية 💚
+          </h3>
+          <div className="relative overflow-hidden bg-[#111C2E]/60 backdrop-blur-2xl border border-white/10 shadow-2xl rounded-3xl p-5 text-right transition-all hover:scale-[1.02] duration-300">
+            <div className="absolute -left-4 -top-4 text-6xl opacity-20">🤲</div>
+            <div className="absolute right-0 top-0 -z-10 h-full w-24 bg-emerald-500/10 blur-xl"></div>
+            
+            <div className="flex items-center justify-between">
+              <span className="inline-flex items-center rounded-full bg-emerald-500/20 px-2.5 py-0.5 text-xs font-semibold text-emerald-400">
+                مستمر 🌟
+              </span>
+              <h4 className="text-lg font-bold text-emerald-400 flex items-center justify-end gap-1">
+                <span>المسؤولية المجتمعية 💚</span>
+              </h4>
+            </div>
+
+            <div className="mt-4 flex justify-between items-center bg-white/5 rounded-2xl p-4 border border-white/5">
+              <div className="text-left">
+                <span className="text-2xl font-extrabold text-white">{donations}</span>
+                <span className="text-xs text-emerald-400 font-medium block">ريال متبرع به</span>
+              </div>
+              <div className="text-right">
+                <span className="text-xs text-slate-400 block">مساهماتك الخيرية</span>
+                <span className="text-sm font-semibold text-slate-200">النقاط الحالية</span>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setDonations(prev => prev + 10)}
+              className="w-full mt-4 bg-gradient-to-r from-[#8c7355] to-[#009639] hover:from-[#9c8466] hover:to-[#00a840] text-white font-extrabold py-3 px-4 rounded-2xl shadow-lg hover:shadow-emerald-500/10 transition-all duration-300 transform active:scale-95 text-center flex items-center justify-center gap-2"
+            >
+              <span>تبرع بـ 10 ريال 🤲</span>
+            </button>
+          </div>
         </div>
 
         {/* Transactions Section */}
