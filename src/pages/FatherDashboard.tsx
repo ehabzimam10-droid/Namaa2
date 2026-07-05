@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import type { FamilyData } from '../data/mockData';
 
 interface FatherDashboardProps {
@@ -6,6 +7,7 @@ interface FatherDashboardProps {
 }
 
 export default function FatherDashboard({ familyData }: FatherDashboardProps) {
+  const navigate = useNavigate();
   // Calculate total family balance (sum of all kids' saved amounts)
   const totalBalance = familyData.kids.reduce((sum, kid) => sum + kid.saved, 0);
 
@@ -26,11 +28,19 @@ export default function FatherDashboard({ familyData }: FatherDashboardProps) {
             <h2 className="text-sm font-semibold text-orange-400">مرحباً بك، ولي الأمر</h2>
             <h3 className="text-3xl font-black text-white mt-1">{familyData.father.name}</h3>
           </div>
-          <div className="flex flex-col items-end md:items-start text-right md:text-left mt-4 md:mt-0">
-            <span className="text-xs text-slate-400">إجمالي مدخرات الأبناء</span>
-            <span className="text-4xl font-extrabold text-white mt-1">
-              {totalBalance} <span className="text-lg font-bold text-orange-400">ريال</span>
-            </span>
+          <div className="flex items-center gap-4 mt-4 md:mt-0 justify-between md:justify-end w-full md:w-auto">
+            <button
+              onClick={() => navigate('/')}
+              className="rounded-xl bg-white/10 hover:bg-white/20 px-3 py-2 text-xs font-bold text-white transition-all border border-white/5 order-2 md:order-1"
+            >
+              تسجيل الخروج ➜
+            </button>
+            <div className="flex flex-col items-end text-right order-1 md:order-2">
+              <span className="text-xs text-slate-400">إجمالي مدخرات الأبناء</span>
+              <span className="text-3xl font-extrabold text-white mt-1">
+                {totalBalance} <span className="text-lg font-bold text-orange-400">ريال</span>
+              </span>
+            </div>
           </div>
         </div>
       </div>

@@ -1,11 +1,15 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { mockFamilyData } from '../data/mockData';
 import type { Kid } from '../data/mockData';
 
 interface KidDashboardProps {
-  kid: Kid;
+  kid?: Kid;
 }
 
-export default function KidDashboard({ kid }: KidDashboardProps) {
+export default function KidDashboard({ kid: propKid }: KidDashboardProps) {
+  const navigate = useNavigate();
+  const kid = propKid || mockFamilyData.kids.find(k => k.id === 'kid_salem') || mockFamilyData.kids[1];
   const [donations, setDonations] = useState(kid.donationPoints);
   const savingPercentage = Math.round((kid.saved / kid.allowance) * 100);
   const isThriving = savingPercentage >= 50;
@@ -19,12 +23,20 @@ export default function KidDashboard({ kid }: KidDashboardProps) {
         <div className="absolute -left-10 -bottom-10 h-32 w-32 rounded-full bg-amber-400 opacity-20 blur-xl"></div>
 
         <div className="flex items-center justify-between">
-          <span className="rounded-full bg-white/20 px-3 py-1 text-xs font-semibold backdrop-blur-md text-white">
-            العمر: {kid.age} سنوات
-          </span>
-          <h2 className="text-2xl font-black tracking-wide text-white">
-            لوحة تحكم {kid.name}
-          </h2>
+          <button
+            onClick={() => navigate('/')}
+            className="rounded-xl bg-white/10 hover:bg-white/20 px-2.5 py-1 text-xs font-bold backdrop-blur-md text-white transition-all border border-white/5"
+          >
+            تسجيل الخروج ➜
+          </button>
+          <div className="flex items-center gap-2">
+            <span className="rounded-full bg-white/20 px-2.5 py-1 text-xs font-semibold backdrop-blur-md text-white">
+              العمر: {kid.age} سنوات
+            </span>
+            <h2 className="text-xl font-black tracking-wide text-white">
+              لوحة تحكم {kid.name}
+            </h2>
+          </div>
         </div>
 
         <div className="mt-6 flex flex-col items-end">
