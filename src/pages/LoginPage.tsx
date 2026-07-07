@@ -155,7 +155,46 @@ export default function LoginPage() {
         </button>
       </form>
 
-      <div className="mt-8 text-center border-t border-white/5 pt-4">
+      {/* Quick Login Section (Dev Mode Bypass) */}
+      <div className="mt-6 pt-4 border-t border-white/5 space-y-3">
+        <p className="text-center text-xs text-slate-400 font-sans mb-1">الدخول التجريبي السريع (تجاوز المصادقة) ⚡</p>
+        <div className="grid grid-cols-3 gap-2">
+          <button
+            type="button"
+            onClick={() => {
+              setProfile({ name: 'أبو خالد', role: 'father' });
+              navigate('/father');
+            }}
+            className="bg-[#8c7355]/10 border border-[#8c7355]/20 hover:border-[#8c7355]/50 text-orange-300 text-[11px] font-bold py-2.5 rounded-xl transition-all active:scale-95 text-center focus:outline-none"
+          >
+            دخول كولي أمر 👤
+          </button>
+          
+          <button
+            type="button"
+            onClick={() => {
+              setProfile({ name: 'سالم', role: 'kid' });
+              navigate('/kid');
+            }}
+            className="bg-emerald-500/10 border border-emerald-500/20 hover:border-emerald-500/50 text-emerald-300 text-[11px] font-bold py-2.5 rounded-xl transition-all active:scale-95 text-center focus:outline-none"
+          >
+            دخول كابن 👦
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              setProfile({ name: 'المطور', role: 'dev' });
+              navigate('/dev');
+            }}
+            className="bg-blue-500/10 border border-blue-500/20 hover:border-blue-500/50 text-blue-300 text-[11px] font-bold py-2.5 rounded-xl transition-all active:scale-95 text-center focus:outline-none"
+          >
+            دخول كمطور 🛠️
+          </button>
+        </div>
+      </div>
+
+      <div className="mt-6 text-center border-t border-white/5 pt-4">
         <button
           onClick={() => navigate('/dev')}
           className="text-xs text-slate-500 hover:text-[#8c7355] transition-colors font-sans"
