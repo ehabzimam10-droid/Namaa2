@@ -1,5 +1,4 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { mockFamilyData } from './data/mockData';
 import LoginPage from './pages/LoginPage';
 import KidDashboard from './pages/KidDashboard';
 import FatherDashboard from './pages/FatherDashboard';
@@ -28,7 +27,7 @@ function App() {
           <main className="w-full px-4 flex justify-center">
             <Routes>
               <Route path="/" element={<LoginPage />} />
-              <Route path="/father" element={<FatherDashboard familyData={mockFamilyData} />} />
+              <Route path="/father" element={<FatherDashboard />} />
               <Route path="/kid" element={<KidDashboard />} />
               <Route path="/dev" element={<DeveloperDashboard />} />
             </Routes>

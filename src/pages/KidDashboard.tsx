@@ -1,9 +1,11 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 
 export default function KidDashboard() {
   const navigate = useNavigate();
-  const { kids, addDonation, profile, projects } = useApp();
+  const { kids, addDonation, profile, projects, investInProject } = useApp();
+  const [investAmounts, setInvestAmounts] = useState<Record<string, number>>({});
 
   const kid = kids.find(k => k.name === profile?.name) || kids.find(k => k.id === 'kid_salem') || kids[1];
   const savingPercentage = Math.round((kid.saved / kid.allowance) * 100);
@@ -161,33 +163,62 @@ export default function KidDashboard() {
           <div className="space-y-4">
             {projects && projects.length > 0 ? (
               projects.map((project) => {
-                const percentage = Math.min(Math.round((project.currentInvested / project.totalRequired) * 100), 100);
-                return (
-                  <div
-                    key={project.id}
-                    className="relative overflow-hidden bg-[#111C2E]/60 backdrop-blur-2xl border border-white/10 rounded-3xl p-5 text-right transition-all hover:scale-[1.02] duration-300"
-                  >
-                    <div className="absolute right-0 top-0 -z-10 h-full w-24 bg-[#8c7355]/10 blur-xl"></div>
-                    
-                    <div className="flex flex-row-reverse items-center justify-between gap-4">
-                      <div>
-                        <h4 className="font-bold text-sm text-white">{project.title}</h4>
-                        <span className="text-[10px] text-orange-300 block font-sans mt-1">
-                          العائد الاستثماري المتوقع: {project.roiPercentage}%
-                        </span>
-                      </div>
-                      
-                      <button
-                        type="button"
-                        onClick={() => {
-                          console.log('Invested');
-                          alert(`شكراً لمساهمتك بـ 50 ريال في ${project.title}! 💰✨`);
-                        }}
-                        className="bg-gradient-to-r from-[#8c7355] to-[#009639] hover:from-[#9c8466] hover:to-[#00a840] text-white text-[11px] font-extrabold px-3 py-2 rounded-xl transition-all duration-300 transform active:scale-95 shadow-md shrink-0"
+                    const customAmount = investAmounts[project.id] || 0;
+                    const percentage = Math.min(Math.round((project.currentInvested / project.totalRequired) * 100), 100);
+                    return (
+                      <div
+                        key={project.id}
+                        className="relative overflow-hidden bg-[#111C2E]/60 backdrop-blur-2xl border border-white/10 rounded-3xl p-5 text-right transition-all hover:scale-[1.02] duration-300"
                       >
-                        ساهم بـ 50 ريال 💰
-                      </button>
-                    </div>
+                        <div className="absolute right-0 top-0 -z-10 h-full w-24 bg-[#8c7355]/10 blur-xl"></div>
+                        
+                        <div className="flex flex-col gap-3">
+                          <div className="flex flex-row-reverse items-center justify-between gap-4">
+                            <div>
+                              <h4 className="font-bold text-sm text-white">{project.title}</h4>
+                              <span className="text-[10px] text-orange-300 block font-sans mt-1">
+                                العائد الاستثماري المتوقع: {project.roiPercentage}%
+                              </span>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-2 mt-1">
+                            <button
+                              type="button"
+                              disabled={customAmount <= 0 || customAmount > kid.saved}
+                              onClick={() => {
+                                investInProject(profile?.name || '', project.id, customAmount);
+                                alert(`شكراً لمساهمتك بـ ${customAmount} ريال في ${project.title}! 💰✨`);
+                                setInvestAmounts(prev => ({ ...prev, [project.id]: 0 }));
+                              }}
+                              className={`bg-gradient-to-r from-[#8c7355] to-[#009639] hover:from-[#9c8466] hover:to-[#00a840] text-white text-xs font-extrabold px-4 py-2.5 rounded-xl transition-all duration-300 transform active:scale-95 shadow-md shrink-0 ${
+                                (customAmount <= 0 || customAmount > kid.saved)
+                                  ? 'opacity-40 cursor-not-allowed active:scale-100'
+                                  : ''
+                              }`}
+                            >
+                              ساهم 💰
+                            </button>
+
+                            <div className="relative flex-1">
+                              <input
+                                type="number"
+                                min="1"
+                                max={kid.saved}
+                                value={investAmounts[project.id] !== undefined ? (investAmounts[project.id] === 0 ? '' : investAmounts[project.id]) : ''}
+                                onChange={(e) => {
+                                  const val = e.target.value === '' ? 0 : Number(e.target.value);
+                                  setInvestAmounts(prev => ({
+                                    ...prev,
+                                    [project.id]: val,
+                                  }));
+                                }}
+                                placeholder="المبلغ بالريال..."
+                                className="w-full bg-[#111C2E]/80 border border-white/10 focus:border-[#8c7355] focus:ring-1 focus:ring-[#8c7355] rounded-xl px-3 py-2 text-left text-white text-xs outline-none transition-all placeholder:text-slate-600 font-sans"
+                              />
+                            </div>
+                          </div>
+                        </div>
 
                     {/* Progress Bar for Kids to see how close the project is to completion */}
                     <div className="mt-4">

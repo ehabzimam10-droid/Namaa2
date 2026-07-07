@@ -17,6 +17,7 @@ interface AppContextType {
   addDonation: (kidId: string, amount: number) => void;
   approveTask: (kidId: string, taskTitle: string, rewardAmount: number, rewardType: 'cash' | 'points' | 'custom', customReward?: string) => Promise<void>;
   addProject: (title: string, totalRequired: number, roiPercentage: number) => Promise<void>;
+  investInProject: (kidName: string, projectId: string, amount: number) => Promise<void>;
   logout: () => void;
 }
 
@@ -190,6 +191,56 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   };
 
+  const investInProject = async (kidName: string, projectId: string, amount: number) => {
+    // a. Find target project and add amount locally
+    const targetProj = projects.find(p => p.id === projectId);
+    const newInvestedAmount = targetProj ? targetProj.currentInvested + amount : amount;
+
+    setProjects((prevProj) =>
+      prevProj.map((proj) => {
+        if (proj.id === projectId) {
+          return {
+            ...proj,
+            currentInvested: newInvestedAmount,
+          };
+        }
+        return proj;
+      })
+    );
+
+    // c. Update the specific kid's local state (subtract amount from saved balance)
+    setKids((prevKids) =>
+      prevKids.map((kid) => {
+        if (kid.name === kidName) {
+          const updatedSaved = Math.max(0, kid.saved - amount);
+          const newTx: Transaction = {
+            id: `tx_invest_${Date.now()}`,
+            title: `مساهمة استثمارية عائلية 📈`,
+            amount: amount,
+            type: 'withdrawal',
+            date: new Date().toISOString().split('T')[0],
+          };
+          return {
+            ...kid,
+            saved: updatedSaved,
+            transactions: [newTx, ...(kid.transactions || [])],
+          };
+        }
+        return kid;
+      })
+    );
+
+    // b. Supabase Call
+    try {
+      await supabase
+        .from('family_projects')
+        .update({ current_invested: newInvestedAmount })
+        .eq('id', projectId);
+    } catch (err) {
+      console.error('Failed to update project investment in Supabase:', err);
+    }
+  };
+
   return (
     <AppContext.Provider
       value={{
@@ -200,6 +251,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         addDonation,
         approveTask,
         addProject,
+        investInProject,
         logout,
       }}
     >
