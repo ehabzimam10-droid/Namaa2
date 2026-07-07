@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { mockFamilyData } from '../data/mockData';
 import type { Kid, FamilyProject, Task, Transaction } from '../data/mockData';
+import { supabase } from '../utils/supabaseClient';
 
 export interface UserProfile {
   name: string;
@@ -14,8 +15,8 @@ interface AppContextType {
   projects: FamilyProject[];
   setProfile: (profile: UserProfile | null) => void;
   addDonation: (kidId: string, amount: number) => void;
-  approveTask: (kidId: string, taskTitle: string, rewardAmount: number, rewardType: 'cash' | 'points' | 'custom', customReward?: string) => void;
-  addProject: (title: string, totalRequired: number, roiPercentage: number) => void;
+  approveTask: (kidId: string, taskTitle: string, rewardAmount: number, rewardType: 'cash' | 'points' | 'custom', customReward?: string) => Promise<void>;
+  addProject: (title: string, totalRequired: number, roiPercentage: number) => Promise<void>;
   logout: () => void;
 }
 
@@ -27,27 +28,68 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return savedProfile ? JSON.parse(savedProfile) : null;
   });
 
-  const [kids, setKids] = useState<Kid[]>(() => {
-    const savedKids = localStorage.getItem('namaa_kids');
-    return savedKids ? JSON.parse(savedKids) : mockFamilyData.kids;
-  });
-
-  const [projects, setProjects] = useState<FamilyProject[]>(() => {
-    const savedProjects = localStorage.getItem('namaa_projects');
-    return savedProjects ? JSON.parse(savedProjects) : mockFamilyData.projects;
-  });
+  const [kids, setKids] = useState<Kid[]>(mockFamilyData.kids);
+  const [projects, setProjects] = useState<FamilyProject[]>(mockFamilyData.projects);
 
   useEffect(() => {
     localStorage.setItem('namaa_profile', JSON.stringify(profile));
   }, [profile]);
 
+  // Fetch data on mount
   useEffect(() => {
-    localStorage.setItem('namaa_kids', JSON.stringify(kids));
-  }, [kids]);
+    const fetchData = async () => {
+      try {
+        // Fetch family projects from Supabase
+        const { data: dbProjects, error: projError } = await supabase
+          .from('family_projects')
+          .select('*');
 
-  useEffect(() => {
-    localStorage.setItem('namaa_projects', JSON.stringify(projects));
-  }, [projects]);
+        if (!projError && dbProjects && dbProjects.length > 0) {
+          const mappedProjects: FamilyProject[] = dbProjects.map((p: any) => ({
+            id: p.id?.toString() || `project_${Date.now()}_${Math.random()}`,
+            title: p.title,
+            totalRequired: p.total_required,
+            currentInvested: p.current_invested || 0,
+            roiPercentage: p.roi_percentage,
+          }));
+          setProjects(mappedProjects);
+        }
+
+        // Fetch kid tasks from Supabase
+        const { data: dbTasks, error: taskError } = await supabase
+          .from('kid_tasks')
+          .select('*');
+
+        if (!taskError && dbTasks) {
+          setKids((prevKids) =>
+            prevKids.map((kid) => {
+              const kidDbTasks = dbTasks.filter((t: any) => t.kid_name === kid.name);
+              const mappedTasks: Task[] = mappedTasksFromDb(kidDbTasks);
+              return {
+                ...kid,
+                tasks: mappedTasks,
+              };
+            })
+          );
+        }
+      } catch (err) {
+        console.error('Error fetching data from Supabase:', err);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const mappedTasksFromDb = (dbTasks: any[]): Task[] => {
+    return dbTasks.map((t: any) => ({
+      id: t.id?.toString() || `task_${Date.now()}_${Math.random()}`,
+      title: t.title,
+      rewardAmount: t.reward_amount,
+      rewardType: t.reward_type,
+      customReward: t.reward_type === 'custom' ? t.title : undefined, // Keep title or map to standard format
+      status: t.status || 'pending',
+    }));
+  };
 
   const setProfile = (newProfile: UserProfile | null) => {
     setProfileState(newProfile);
@@ -81,24 +123,26 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     );
   };
 
-  const approveTask = (
+  const approveTask = async (
     kidId: string,
     taskTitle: string,
     rewardAmount: number,
     rewardType: 'cash' | 'points' | 'custom',
     customReward?: string
   ) => {
+    // Optimistic UI update
+    const newTask: Task = {
+      id: `task_${Date.now()}`,
+      title: taskTitle,
+      rewardAmount,
+      rewardType,
+      customReward,
+      status: 'pending',
+    };
+
     setKids((prevKids) =>
       prevKids.map((kid) => {
         if (kid.id === kidId) {
-          const newTask: Task = {
-            id: `task_${Date.now()}`,
-            title: taskTitle,
-            rewardAmount,
-            rewardType,
-            customReward,
-            status: 'pending',
-          };
           return {
             ...kid,
             tasks: [...(kid.tasks || []), newTask],
@@ -107,9 +151,24 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         return kid;
       })
     );
+
+    try {
+      const kid = kids.find(k => k.id === kidId);
+      const kid_name = kid ? kid.name : '';
+      await supabase.from('kid_tasks').insert({
+        title: taskTitle,
+        reward_amount: rewardAmount,
+        reward_type: rewardType,
+        status: 'pending',
+        kid_name
+      });
+    } catch (err) {
+      console.error('Failed to sync approved task to Supabase:', err);
+    }
   };
 
-  const addProject = (title: string, totalRequired: number, roiPercentage: number) => {
+  const addProject = async (title: string, totalRequired: number, roiPercentage: number) => {
+    // Optimistic UI update
     const newProj: FamilyProject = {
       id: `project_${Date.now()}`,
       title,
@@ -118,6 +177,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       roiPercentage,
     };
     setProjects((prevProj) => [newProj, ...prevProj]);
+
+    try {
+      await supabase.from('family_projects').insert({
+        title,
+        total_required: totalRequired,
+        current_invested: 0,
+        roi_percentage: roiPercentage
+      });
+    } catch (err) {
+      console.error('Failed to sync added project to Supabase:', err);
+    }
   };
 
   return (
