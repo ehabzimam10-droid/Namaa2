@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from '../utils/supabaseClient';
 
 export default function DeveloperDashboard() {
   const navigate = useNavigate();
+  const [loginLoading, setLoginLoading] = useState<string | null>(null);
   const [flags, setFlags] = useState({
     enableAIAssistant: true,
     enableGamifiedStreak: false,
@@ -15,6 +17,31 @@ export default function DeveloperDashboard() {
       ...prev,
       [flagName]: !prev[flagName],
     }));
+  };
+
+  const handleQuickLogin = async (email: string, role: 'father' | 'kid') => {
+    setLoginLoading(email);
+    try {
+      // Attempt sign-in with default password
+      await supabase.auth.signInWithPassword({
+        email,
+        password: 'password123',
+      });
+      if (email === 'father@namaa.com') {
+        navigate('/father');
+      } else {
+        navigate('/kid');
+      }
+    } catch (err) {
+      console.error(err);
+      if (email === 'father@namaa.com') {
+        navigate('/father');
+      } else {
+        navigate('/kid');
+      }
+    } finally {
+      setLoginLoading(null);
+    }
   };
 
   return (
@@ -37,6 +64,54 @@ export default function DeveloperDashboard() {
           <p className="text-xs text-slate-400 font-sans">
             إدارة وتفعيل ميزات تطبيق نماء العائلي التجريبية
           </p>
+        </div>
+      </div>
+
+      {/* Quick Login Section */}
+      <div className="space-y-4 mb-8">
+        <h3 className="text-sm font-bold text-slate-200">الدخول السريع للحسابات (بوابة المطورين) ⚡</h3>
+        <div className="grid grid-cols-1 gap-3">
+          <button
+            onClick={() => handleQuickLogin('father@namaa.com', 'father')}
+            disabled={loginLoading !== null}
+            className="w-full flex items-center justify-between p-4 bg-orange-500/5 border border-orange-500/20 hover:border-orange-500/50 rounded-2xl transition-all duration-200 hover:scale-[1.01] active:scale-[0.99] group focus:outline-none"
+          >
+            <span className="text-xs text-orange-400 font-sans group-hover:underline">
+              {loginLoading === 'father@namaa.com' ? 'جاري الدخول... ⏳' : 'دخول مباشر ➜'}
+            </span>
+            <div className="text-right">
+              <span className="font-bold text-sm text-white block">حساب الأب (أبو خالد)</span>
+              <span className="text-[10px] text-slate-400 block font-sans">البريد الإلكتروني: father@namaa.com</span>
+            </div>
+          </button>
+
+          <button
+            onClick={() => handleQuickLogin('salem@namaa.com', 'kid')}
+            disabled={loginLoading !== null}
+            className="w-full flex items-center justify-between p-4 bg-emerald-500/5 border border-emerald-500/20 hover:border-emerald-500/50 rounded-2xl transition-all duration-200 hover:scale-[1.01] active:scale-[0.99] group focus:outline-none"
+          >
+            <span className="text-xs text-emerald-400 font-sans group-hover:underline">
+              {loginLoading === 'salem@namaa.com' ? 'جاري الدخول... ⏳' : 'دخول مباشر ➜'}
+            </span>
+            <div className="text-right">
+              <span className="font-bold text-sm text-white block">حساب الابن (سالم)</span>
+              <span className="text-[10px] text-slate-400 block font-sans">البريد الإلكتروني: salem@namaa.com</span>
+            </div>
+          </button>
+
+          <button
+            onClick={() => handleQuickLogin('khalid@namaa.com', 'kid')}
+            disabled={loginLoading !== null}
+            className="w-full flex items-center justify-between p-4 bg-blue-500/5 border border-blue-500/20 hover:border-blue-500/50 rounded-2xl transition-all duration-200 hover:scale-[1.01] active:scale-[0.99] group focus:outline-none"
+          >
+            <span className="text-xs text-blue-400 font-sans group-hover:underline">
+              {loginLoading === 'khalid@namaa.com' ? 'جاري الدخول... ⏳' : 'دخول مباشر ➜'}
+            </span>
+            <div className="text-right">
+              <span className="font-bold text-sm text-white block">حساب الابن (خالد)</span>
+              <span className="text-[10px] text-slate-400 block font-sans">البريد الإلكتروني: khalid@namaa.com</span>
+            </div>
+          </button>
         </div>
       </div>
 
