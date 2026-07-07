@@ -1,18 +1,15 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import type { FamilyData, FamilyProject } from '../data/mockData';
+import { useApp } from '../context/AppContext';
 
-interface FatherDashboardProps {
-  familyData: FamilyData;
-}
-
-export default function FatherDashboard({ familyData }: FatherDashboardProps) {
+export default function FatherDashboard() {
   const navigate = useNavigate();
+  const { kids, projects, addProject, approveTask } = useApp();
+
   // Calculate total family balance (sum of all kids' saved amounts)
-  const totalBalance = familyData.kids.reduce((sum, kid) => sum + kid.saved, 0);
+  const totalBalance = kids.reduce((sum, kid) => sum + kid.saved, 0);
 
   // States for projects
-  const [projects, setProjects] = useState<FamilyProject[]>(familyData.projects || []);
   const [showAddForm, setShowAddForm] = useState(false);
   const [newProjTitle, setNewProjTitle] = useState('');
   const [newProjRoi, setNewProjRoi] = useState<number>(10);
@@ -28,15 +25,7 @@ export default function FatherDashboard({ familyData }: FatherDashboardProps) {
     e.preventDefault();
     if (!newProjTitle.trim()) return;
 
-    const newProject: FamilyProject = {
-      id: `project_${Date.now()}`,
-      title: newProjTitle,
-      totalRequired: newProjRequired,
-      currentInvested: newProjInvested,
-      roiPercentage: newProjRoi,
-    };
-
-    setProjects([newProject, ...projects]);
+    addProject(newProjTitle, newProjRequired, newProjRoi);
     
     // Reset Form
     setNewProjTitle('');
@@ -44,6 +33,17 @@ export default function FatherDashboard({ familyData }: FatherDashboardProps) {
     setNewProjRequired(1000);
     setNewProjInvested(0);
     setShowAddForm(false);
+  };
+
+  const handleApproveTask = () => {
+    approveTask(
+      'kid_khalid',
+      'المساعدة في أعمال المنزل 🧹',
+      rewardAmount,
+      rewardType,
+      rewardType === 'custom' ? customRewardText : undefined
+    );
+    alert('تم اعتماد المهمة وإرسالها لخالد بنجاح! ✅');
   };
 
   return (
@@ -56,7 +56,7 @@ export default function FatherDashboard({ familyData }: FatherDashboardProps) {
         <div className="flex flex-col md:flex-row-reverse md:items-center md:justify-between gap-4">
           <div>
             <h2 className="text-sm font-semibold text-orange-400">مرحباً بك، ولي الأمر</h2>
-            <h3 className="text-3xl font-black text-white mt-1">{familyData.father.name}</h3>
+            <h3 className="text-3xl font-black text-white mt-1">أبو خالد</h3>
           </div>
           <div className="flex items-center gap-4 mt-4 md:mt-0 justify-between md:justify-end w-full md:w-auto">
             <button
@@ -82,59 +82,46 @@ export default function FatherDashboard({ familyData }: FatherDashboardProps) {
         </h3>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Kid 1 - Khalid */}
-          <div className="bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl rounded-3xl p-5 space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="rounded-full bg-rose-500/10 border border-rose-500/20 px-2.5 py-0.5 text-xs font-semibold text-rose-400">
-                يحتاج اهتمام ⚠️
-              </span>
-              <h4 className="text-xl font-bold text-white">خالد</h4>
-            </div>
-            <div className="space-y-2 text-sm text-slate-300">
-              <div className="flex justify-between">
-                <span>20%</span>
-                <span>نسبة الادخار:</span>
+          {kids.map((kid) => {
+            const savingPercent = Math.round((kid.saved / kid.allowance) * 100);
+            const needsAttention = savingPercent < 50;
+            return (
+              <div key={kid.id} className="bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl rounded-3xl p-5 space-y-4">
+                <div className="flex items-center justify-between">
+                  {needsAttention ? (
+                    <span className="rounded-full bg-rose-500/10 border border-rose-500/20 px-2.5 py-0.5 text-xs font-semibold text-rose-400">
+                      يحتاج اهتمام ⚠️
+                    </span>
+                  ) : (
+                    <span className="rounded-full bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 text-xs font-semibold text-emerald-400">
+                      أداء ممتاز 🌟
+                    </span>
+                  )}
+                  <h4 className="text-xl font-bold text-white">{kid.name}</h4>
+                </div>
+                <div className="space-y-2 text-sm text-slate-300">
+                  <div className="flex justify-between">
+                    <span>{savingPercent}%</span>
+                    <span>نسبة الادخار:</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>{kid.saved} ريال</span>
+                    <span>المدخرات الحالية:</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>{kid.allowance} ريال</span>
+                    <span>المصروف الأسبوعي:</span>
+                  </div>
+                </div>
+                <div className="h-1.5 w-full rounded-full bg-slate-800/50">
+                  <div
+                    className={`h-1.5 rounded-full ${needsAttention ? 'bg-rose-500' : 'bg-emerald-500'}`}
+                    style={{ width: `${Math.min(savingPercent, 100)}%` }}
+                  ></div>
+                </div>
               </div>
-              <div className="flex justify-between">
-                <span>100 ريال</span>
-                <span>المدخرات الحالية:</span>
-              </div>
-              <div className="flex justify-between">
-                <span>500 ريال</span>
-                <span>المصروف الأسبوعي:</span>
-              </div>
-            </div>
-            <div className="h-1.5 w-full rounded-full bg-slate-800/50">
-              <div className="h-1.5 rounded-full bg-rose-500" style={{ width: '20%' }}></div>
-            </div>
-          </div>
-
-          {/* Kid 2 - Salem */}
-          <div className="bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl rounded-3xl p-5 space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="rounded-full bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 text-xs font-semibold text-emerald-400">
-                أداء ممتاز 🌟
-              </span>
-              <h4 className="text-xl font-bold text-white">سالم</h4>
-            </div>
-            <div className="space-y-2 text-sm text-slate-300">
-              <div className="flex justify-between">
-                <span>60%</span>
-                <span>نسبة الادخار:</span>
-              </div>
-              <div className="flex justify-between">
-                <span>60 ريال</span>
-                <span>المدخرات الحالية:</span>
-              </div>
-              <div className="flex justify-between">
-                <span>100 ريال</span>
-                <span>المصروف الأسبوعي:</span>
-              </div>
-            </div>
-            <div className="h-1.5 w-full rounded-full bg-slate-800/50">
-              <div className="h-1.5 rounded-full bg-emerald-500" style={{ width: '60%' }}></div>
-            </div>
-          </div>
+            );
+          })}
         </div>
       </div>
 
@@ -214,6 +201,7 @@ export default function FatherDashboard({ familyData }: FatherDashboardProps) {
         <div className="flex flex-row-reverse gap-4 pt-2">
           <button 
             type="button"
+            onClick={handleApproveTask}
             className="flex-1 bg-orange-500 hover:bg-orange-600 active:scale-[0.98] text-white font-bold py-3 px-6 rounded-2xl transition-all duration-200 shadow-lg shadow-orange-500/20 text-center"
           >
             اعتماد المهمة ✅

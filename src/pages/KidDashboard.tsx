@@ -1,16 +1,11 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { mockFamilyData } from '../data/mockData';
-import type { Kid } from '../data/mockData';
+import { useApp } from '../context/AppContext';
 
-interface KidDashboardProps {
-  kid?: Kid;
-}
-
-export default function KidDashboard({ kid: propKid }: KidDashboardProps) {
+export default function KidDashboard() {
   const navigate = useNavigate();
-  const kid = propKid || mockFamilyData.kids.find(k => k.id === 'kid_salem') || mockFamilyData.kids[1];
-  const [donations, setDonations] = useState(kid.donationPoints);
+  const { kids, addDonation, profile } = useApp();
+
+  const kid = kids.find(k => k.name === profile?.name) || kids.find(k => k.id === 'kid_salem') || kids[1];
   const savingPercentage = Math.round((kid.saved / kid.allowance) * 100);
   const isThriving = savingPercentage >= 50;
 
@@ -139,7 +134,7 @@ export default function KidDashboard({ kid: propKid }: KidDashboardProps) {
 
             <div className="mt-4 flex justify-between items-center bg-white/5 rounded-2xl p-4 border border-white/5">
               <div className="text-left">
-                <span className="text-2xl font-extrabold text-white">{donations}</span>
+                <span className="text-2xl font-extrabold text-white">{kid.donationPoints}</span>
                 <span className="text-xs text-emerald-400 font-medium block">ريال متبرع به</span>
               </div>
               <div className="text-right">
@@ -149,11 +144,40 @@ export default function KidDashboard({ kid: propKid }: KidDashboardProps) {
             </div>
 
             <button
-              onClick={() => setDonations(prev => prev + 10)}
+              onClick={() => addDonation(kid.id, 10)}
               className="w-full mt-4 bg-gradient-to-r from-[#8c7355] to-[#009639] hover:from-[#9c8466] hover:to-[#00a840] text-white font-extrabold py-3 px-4 rounded-2xl shadow-lg hover:shadow-emerald-500/10 transition-all duration-300 transform active:scale-95 text-center flex items-center justify-center gap-2"
             >
               <span>تبرع بـ 10 ريال 🤲</span>
             </button>
+          </div>
+        </div>
+
+        {/* Tasks Section */}
+        <div className="space-y-3">
+          <h3 className="text-right text-xs font-bold uppercase tracking-wider text-orange-400">
+            المهام والمسؤوليات الحالية 🧹📅
+          </h3>
+
+          <div className="overflow-hidden bg-[#111C2E]/60 backdrop-blur-2xl border border-white/10 shadow-2xl rounded-3xl p-5 space-y-3 text-right">
+            {kid.tasks && kid.tasks.length > 0 ? (
+              <div className="space-y-3">
+                {kid.tasks.map((task) => (
+                  <div key={task.id} className="p-4 bg-white/5 border border-white/5 rounded-2xl flex flex-row-reverse items-center justify-between gap-4">
+                    <div>
+                      <h4 className="font-bold text-sm text-white">{task.title}</h4>
+                      <span className="text-[10px] text-orange-300 block font-sans mt-1">
+                        المكافأة: {task.rewardType === 'custom' ? task.customReward : `${task.rewardAmount} ${task.rewardType === 'cash' ? 'ريال' : 'نقطة'}`}
+                      </span>
+                    </div>
+                    <span className="inline-flex items-center rounded-full bg-orange-500/20 px-2.5 py-0.5 text-[10px] font-bold text-orange-300">
+                      قيد التنفيذ ⏳
+                    </span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-xs text-slate-400 py-2">لا توجد مهام معلقة حالياً. حافظ على نشاطك! ✨</p>
+            )}
           </div>
         </div>
 

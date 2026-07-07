@@ -6,6 +6,15 @@ export interface Transaction {
   date: string;
 }
 
+export interface Task {
+  id: string;
+  title: string;
+  rewardAmount: number;
+  rewardType: 'cash' | 'points' | 'custom';
+  customReward?: string;
+  status: 'pending' | 'completed' | 'approved';
+}
+
 export interface Kid {
   id: string;
   name: string;
@@ -14,6 +23,7 @@ export interface Kid {
   saved: number;
   donationPoints: number;
   transactions: Transaction[];
+  tasks: Task[];
 }
 
 export interface Father {
@@ -76,6 +86,7 @@ export const mockFamilyData: FamilyData = {
           date: "2026-06-29",
         },
       ],
+      tasks: [],
     },
     {
       id: "kid_salem",
@@ -114,6 +125,7 @@ export const mockFamilyData: FamilyData = {
           date: "2026-06-28",
         },
       ],
+      tasks: [],
     },
   ],
   projects: [
