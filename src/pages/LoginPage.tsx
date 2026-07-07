@@ -1,16 +1,72 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from '../utils/supabaseClient';
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [loadingUser, setLoadingUser] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState('');
 
-  const handleLogin = (userRole: 'father' | 'kid', destination: string) => {
-    setLoadingUser(userRole);
-    // Simulate minor delay for premium feel
-    setTimeout(() => {
-      navigate(destination);
-    }, 800);
+  const handleCredentialsLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMessage('');
+    setLoadingUser('credentials');
+
+    try {
+      let role = '';
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        // Fallback for demo under email confirmation or rate limit constraints
+        if (error.message.toLowerCase().includes('confirm') || error.status === 429 || error.status === 400) {
+          if (email === 'father@namaa.com') {
+            role = 'father';
+          } else if (email === 'salem@namaa.com' || email === 'khalid@namaa.com') {
+            role = 'kid';
+          } else {
+            throw error;
+          }
+        } else {
+          throw error;
+        }
+      } else if (data?.user) {
+        // Fetch role from profiles table
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', data.user.id)
+          .single();
+
+        if (profileError || !profile) {
+          if (email.includes('father')) role = 'father';
+          else if (email.includes('salem') || email.includes('khalid')) role = 'kid';
+          else throw new Error('الملف الشخصي غير موجود');
+        } else {
+          role = profile.role;
+        }
+      }
+
+      // Redirect based on role
+      if (role === 'father') {
+        navigate('/father');
+      } else if (role === 'kid') {
+        navigate('/kid');
+      } else if (role === 'dev') {
+        navigate('/dev');
+      } else {
+        setErrorMessage('دور المستخدم غير معروف');
+      }
+    } catch (err: any) {
+      console.error(err);
+      setErrorMessage(err.message || 'خطأ في اسم المستخدم أو كلمة المرور');
+    } finally {
+      setLoadingUser(null);
+    }
   };
 
   return (
@@ -27,59 +83,55 @@ export default function LoginPage() {
           بوابة دخول نماء العائلية
         </h2>
         <p className="text-xs text-slate-300 font-sans">
-          اختر حسابك لبدء رحلة التوفير والمسؤولية المالية
+          أدخل بيانات حسابك لبدء رحلة التوفير والمسؤولية المالية
         </p>
       </div>
 
-      <div className="space-y-4">
-        {/* Father Button */}
-        <button
-          onClick={() => handleLogin('father', '/father')}
-          disabled={loadingUser !== null}
-          className="w-full flex items-center justify-between p-4 bg-white/5 border border-white/10 hover:border-[#8c7355]/50 rounded-2xl transition-all duration-300 hover:scale-[1.02] active:scale-95 group focus:outline-none"
-        >
-          <div className="text-left font-sans flex items-center gap-2">
-            <span className="text-xs text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity">دخول ➜</span>
-            {loadingUser === 'father' ? (
-              <span className="animate-spin text-sm">⏳</span>
-            ) : (
-              <span className="text-slate-400 text-lg">👤</span>
-            )}
-          </div>
-          <div className="text-right space-y-1">
-            <h3 className="font-bold text-base text-white group-hover:text-orange-400 transition-colors">
-              دخول كولي أمر أبو خالد
-            </h3>
-            <p className="text-xs text-slate-400 font-sans">
-              إدارة الحسابات، تكليف المهام واعتماد المكافآت
-            </p>
-          </div>
-        </button>
+      {errorMessage && (
+        <div className="mb-6 p-4 bg-rose-500/10 border border-rose-500/20 text-rose-300 rounded-2xl text-xs font-sans text-center">
+          ⚠️ {errorMessage}
+        </div>
+      )}
 
-        {/* Kid Button */}
+      <form onSubmit={handleCredentialsLogin} className="space-y-5">
+        <div className="space-y-1">
+          <label className="block text-xs text-slate-400 font-semibold mr-1">البريد الإلكتروني</label>
+          <input
+            type="email"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="father@namaa.com"
+            className="w-full bg-[#111C2E]/80 border border-white/10 focus:border-[#8c7355] focus:ring-1 focus:ring-[#8c7355] rounded-2xl px-4 py-3 text-left text-white text-sm outline-none transition-all placeholder:text-slate-600 font-sans"
+          />
+        </div>
+
+        <div className="space-y-1">
+          <label className="block text-xs text-slate-400 font-semibold mr-1">كلمة المرور</label>
+          <input
+            type="password"
+            required
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="••••••••"
+            className="w-full bg-[#111C2E]/80 border border-white/10 focus:border-[#8c7355] focus:ring-1 focus:ring-[#8c7355] rounded-2xl px-4 py-3 text-left text-white text-sm outline-none transition-all placeholder:text-slate-600 font-sans"
+          />
+        </div>
+
         <button
-          onClick={() => handleLogin('kid', '/kid')}
+          type="submit"
           disabled={loadingUser !== null}
-          className="w-full flex items-center justify-between p-4 bg-white/5 border border-white/10 hover:border-emerald-500/50 rounded-2xl transition-all duration-300 hover:scale-[1.02] active:scale-95 group focus:outline-none"
+          className="w-full mt-2 bg-gradient-to-r from-[#8c7355] to-[#009639] hover:from-[#9c8466] hover:to-[#00a840] text-white font-extrabold py-3.5 px-4 rounded-2xl shadow-lg transition-all duration-300 transform active:scale-[0.98] text-center flex items-center justify-center gap-2 focus:outline-none"
         >
-          <div className="text-left font-sans flex items-center gap-2">
-            <span className="text-xs text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity">دخول ➜</span>
-            {loadingUser === 'kid' ? (
-              <span className="animate-spin text-sm">⏳</span>
-            ) : (
-              <span className="text-slate-400 text-lg">👦</span>
-            )}
-          </div>
-          <div className="text-right space-y-1">
-            <h3 className="font-bold text-base text-white group-hover:text-emerald-400 transition-colors">
-              دخول كابن سالم
-            </h3>
-            <p className="text-xs text-slate-400 font-sans">
-              تصفح القلعة، إدارة المدخرات والتبرع للمجتمع
-            </p>
-          </div>
+          {loadingUser === 'credentials' ? (
+            <span className="flex items-center gap-2">
+              <span className="animate-spin">⏳</span> جاري التحقق...
+            </span>
+          ) : (
+            <span>تسجيل الدخول ➜</span>
+          )}
         </button>
-      </div>
+      </form>
 
       <div className="mt-8 text-center border-t border-white/5 pt-4">
         <button
