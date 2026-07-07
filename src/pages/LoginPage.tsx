@@ -1,12 +1,16 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useApp } from '../context/AppContext';
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const { setProfile } = useApp();
   const [loadingUser, setLoadingUser] = useState<string | null>(null);
 
   const handleLogin = (userRole: 'father' | 'kid', destination: string) => {
     setLoadingUser(userRole);
+    const name = userRole === 'father' ? 'أبو خالد' : 'سالم';
+    setProfile({ name, role: userRole });
     // Simulate minor delay for premium feel
     setTimeout(() => {
       navigate(destination);
