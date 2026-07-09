@@ -1,3 +1,11 @@
+export interface SavingsGoal {
+  id: string;
+  title: string;
+  targetAmount: number;
+  currentAmount: number;
+  isLocked: boolean;
+}
+
 export interface Transaction {
   id: string;
   title: string;
@@ -24,6 +32,7 @@ export interface Kid {
   donationPoints: number;
   transactions: Transaction[];
   tasks: Task[];
+  savingsGoals: SavingsGoal[];
 }
 
 export interface Father {
@@ -87,6 +96,7 @@ export const mockFamilyData: FamilyData = {
         },
       ],
       tasks: [],
+      savingsGoals: [],
     },
     {
       id: "kid_salem",
@@ -126,6 +136,7 @@ export const mockFamilyData: FamilyData = {
         },
       ],
       tasks: [],
+      savingsGoals: [],
     },
   ],
   projects: [

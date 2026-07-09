@@ -3,6 +3,7 @@ import LoginPage from './pages/LoginPage';
 import KidDashboard from './pages/KidDashboard';
 import FatherDashboard from './pages/FatherDashboard';
 import DeveloperDashboard from './pages/DeveloperDashboard';
+import KidSavingsPage from './pages/KidSavingsPage';
 import DashboardLayout from './components/layout/DashboardLayout';
 
 function AuthLayout() {
@@ -51,6 +52,7 @@ function App() {
         <Route element={<DashboardLayout />}>
           <Route path="/father" element={<FatherDashboard />} />
           <Route path="/kid" element={<KidDashboard />} />
+          <Route path="/kid/savings" element={<KidSavingsPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

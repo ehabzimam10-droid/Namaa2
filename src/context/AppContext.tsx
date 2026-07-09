@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { mockFamilyData } from '../data/mockData';
-import type { Kid, FamilyProject, Task, Transaction } from '../data/mockData';
+import type { Kid, FamilyProject, Task, Transaction, SavingsGoal } from '../data/mockData';
 import { supabase } from '../utils/supabaseClient';
 
 export interface UserProfile {
@@ -18,6 +18,9 @@ interface AppContextType {
   approveTask: (kidId: string, taskTitle: string, rewardAmount: number, rewardType: 'cash' | 'points' | 'custom', customReward?: string) => Promise<void>;
   addProject: (title: string, totalRequired: number, roiPercentage: number) => Promise<void>;
   investInProject: (kidName: string, projectId: string, amount: number) => Promise<void>;
+  addSavingsGoal: (kidName: string, title: string, targetAmount: number) => void;
+  addToGoal: (kidName: string, goalId: string, amount: number) => void;
+  withdrawGoal: (kidName: string, goalId: string) => void;
   logout: () => void;
 }
 
@@ -29,12 +32,27 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return savedProfile ? JSON.parse(savedProfile) : null;
   });
 
-  const [kids, setKids] = useState<Kid[]>(mockFamilyData.kids);
-  const [projects, setProjects] = useState<FamilyProject[]>(mockFamilyData.projects);
+  const [kids, setKids] = useState<Kid[]>(() => {
+    const savedKids = localStorage.getItem('namaa_kids_v10');
+    return savedKids ? JSON.parse(savedKids) : mockFamilyData.kids;
+  });
+  
+  const [projects, setProjects] = useState<FamilyProject[]>(() => {
+    const savedProjects = localStorage.getItem('namaa_projects_v10');
+    return savedProjects ? JSON.parse(savedProjects) : mockFamilyData.projects;
+  });
 
   useEffect(() => {
     localStorage.setItem('namaa_profile', JSON.stringify(profile));
   }, [profile]);
+
+  useEffect(() => {
+    localStorage.setItem('namaa_kids_v10', JSON.stringify(kids));
+  }, [kids]);
+
+  useEffect(() => {
+    localStorage.setItem('namaa_projects_v10', JSON.stringify(projects));
+  }, [projects]);
 
   // Fetch data on mount
   useEffect(() => {
@@ -87,7 +105,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       title: t.title,
       rewardAmount: t.reward_amount,
       rewardType: t.reward_type,
-      customReward: t.reward_type === 'custom' ? t.title : undefined, // Keep title or map to standard format
+      customReward: t.reward_type === 'custom' ? t.title : undefined,
       status: t.status || 'pending',
     }));
   };
@@ -241,6 +259,96 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   };
 
+  const addSavingsGoal = (kidName: string, title: string, targetAmount: number) => {
+    setKids((prevKids) =>
+      prevKids.map((kid) => {
+        if (kid.name === kidName) {
+          const newGoal: SavingsGoal = {
+            id: `goal_${Date.now()}`,
+            title,
+            targetAmount,
+            currentAmount: 0,
+            isLocked: true,
+          };
+          return {
+            ...kid,
+            savingsGoals: [...(kid.savingsGoals || []), newGoal],
+          };
+        }
+        return kid;
+      })
+    );
+  };
+
+  const addToGoal = (kidName: string, goalId: string, amount: number) => {
+    setKids((prevKids) =>
+      prevKids.map((kid) => {
+        if (kid.name === kidName) {
+          if (kid.saved < amount) return kid;
+
+          const newTx: Transaction = {
+            id: `tx_goal_${Date.now()}`,
+            title: `إيداع في حصالة الادخار 🔒`,
+            amount,
+            type: 'withdrawal',
+            date: new Date().toISOString().split('T')[0],
+          };
+
+          const updatedGoals = (kid.savingsGoals || []).map((goal) => {
+            if (goal.id === goalId) {
+              const newCurrent = goal.currentAmount + amount;
+              return {
+                ...goal,
+                currentAmount: newCurrent,
+                isLocked: newCurrent < goal.targetAmount,
+              };
+            }
+            return goal;
+          });
+
+          return {
+            ...kid,
+            saved: Math.max(0, kid.saved - amount),
+            savingsGoals: updatedGoals,
+            transactions: [newTx, ...(kid.transactions || [])],
+          };
+        }
+        return kid;
+      })
+    );
+  };
+
+  const withdrawGoal = (kidName: string, goalId: string) => {
+    setKids((prevKids) =>
+      prevKids.map((kid) => {
+        if (kid.name === kidName) {
+          const goal = (kid.savingsGoals || []).find((g) => g.id === goalId);
+          if (!goal || goal.isLocked) return kid;
+
+          const amountToWithdraw = goal.currentAmount;
+
+          const newTx: Transaction = {
+            id: `tx_withdraw_goal_${Date.now()}`,
+            title: `سحب مدخرات حصالة: ${goal.title} 🔓🎉`,
+            amount: amountToWithdraw,
+            type: 'deposit',
+            date: new Date().toISOString().split('T')[0],
+          };
+
+          const updatedGoals = (kid.savingsGoals || []).filter((g) => g.id !== goalId);
+
+          return {
+            ...kid,
+            saved: kid.saved + amountToWithdraw,
+            savingsGoals: updatedGoals,
+            transactions: [newTx, ...(kid.transactions || [])],
+          };
+        }
+        return kid;
+      })
+    );
+  };
+
   return (
     <AppContext.Provider
       value={{
@@ -252,6 +360,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         approveTask,
         addProject,
         investInProject,
+        addSavingsGoal,
+        addToGoal,
+        withdrawGoal,
         logout,
       }}
     >
