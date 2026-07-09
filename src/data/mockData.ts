@@ -4,6 +4,7 @@ export interface SavingsGoal {
   targetAmount: number;
   currentAmount: number;
   isLocked: boolean;
+  deadlineDate?: string;
 }
 
 export interface Transaction {

@@ -12,6 +12,7 @@ export default function KidSavingsPage() {
   // States for creating new goal
   const [newTitle, setNewTitle] = useState('');
   const [newTarget, setNewTarget] = useState<number | ''>('');
+  const [newDeadline, setNewDeadline] = useState('');
 
   // States for adding money to individual goals
   const [addAmounts, setAddAmounts] = useState<Record<string, number>>({});
@@ -20,9 +21,10 @@ export default function KidSavingsPage() {
     e.preventDefault();
     if (!newTitle.trim() || !newTarget || newTarget <= 0) return;
 
-    addSavingsGoal(kid.name, newTitle.trim(), Number(newTarget));
+    addSavingsGoal(kid.name, newTitle.trim(), Number(newTarget), newDeadline || undefined);
     setNewTitle('');
     setNewTarget('');
+    setNewDeadline('');
     alert('تم إنشاء حصالة ادخار جديدة مقفلة! 🔒✨');
   };
 
@@ -58,7 +60,7 @@ export default function KidSavingsPage() {
             👦 العودة للوحة التحكم
           </button>
           <div>
-            <h2 className="text-xs font-semibold text-orange-400">الحصالة المقفلة ذات الهدف الزمني</h2>
+            <h2 className="text-xs font-semibold text-orange-400">الحصالة المقفلة ذات الهدف المالي والزمني</h2>
             <h3 className="text-2xl font-black text-white mt-1">حصالات الادخار الذكية 🔒</h3>
           </div>
         </div>
@@ -66,15 +68,16 @@ export default function KidSavingsPage() {
 
       {/* Info Banner */}
       <div className="bg-orange-500/10 border border-orange-500/20 text-orange-200 p-4 rounded-2xl text-xs leading-relaxed">
-        <strong>💡 فكرة الحصالة المقفلة:</strong> هنا يمكنك تجميد مبلغ مالي لهدف محدد (مثل شراء دراجة أو حاسوب). 
-        لن تتمكن من سحب أي ريال من الحصالة حتى تصل لكامل هدفك المالي المكتوب! درب نفسك على الالتزام والصبر المالي. 🎯
+        <strong>💡 فكرة الحصالة المقفلة الذكية:</strong> هنا يمكنك ادخار الأموال لهدف محدد أو تاريخ استحقاق معين. 
+        تتحرر الحصالة تلقائياً وتعود الأموال لرصيدك المتاح فور الوصول للهدف المالي المطلوب <strong>أو</strong> فور بلوغ تاريخ الاستحقاق المحدد، 
+        أيهما يأتي أولاً! 📅🎯
       </div>
 
       {/* Top Section: Sleek Form to Create New Goal */}
       <div className="bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl rounded-3xl p-6 space-y-4">
         <h4 className="text-sm font-bold text-white">إنشاء حصالة جديدة واستهداف هدف جديد 🎯</h4>
         
-        <form onSubmit={handleCreateGoal} className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
+        <form onSubmit={handleCreateGoal} className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
           <div className="space-y-1">
             <label className="block text-xs text-slate-400">ما هو هدفك؟ (اسم الحصالة)</label>
             <input
@@ -83,7 +86,7 @@ export default function KidSavingsPage() {
               value={newTitle}
               onChange={(e) => setNewTitle(e.target.value)}
               placeholder="مثال: شراء دراجة هوائية 🚲"
-              className="w-full bg-[#111C2E]/80 border border-white/10 focus:border-[#8c7355] rounded-xl px-3 py-2.5 text-right text-white text-xs outline-none transition-all"
+              className="w-full bg-[#111C2E]/80 border border-white/10 focus:border-[#8c7355] rounded-xl px-3 py-2 text-right text-white text-xs outline-none transition-all"
             />
           </div>
 
@@ -96,7 +99,17 @@ export default function KidSavingsPage() {
               value={newTarget}
               onChange={(e) => setNewTarget(e.target.value === '' ? '' : Number(e.target.value))}
               placeholder="مثال: 500"
-              className="w-full bg-[#111C2E]/80 border border-white/10 focus:border-[#8c7355] rounded-xl px-3 py-2.5 text-right text-white text-xs outline-none transition-all"
+              className="w-full bg-[#111C2E]/80 border border-white/10 focus:border-[#8c7355] rounded-xl px-3 py-2 text-right text-white text-xs outline-none transition-all"
+            />
+          </div>
+
+          <div className="space-y-1">
+            <label className="block text-xs text-slate-400">تاريخ الاستحقاق (اختياري) 📅</label>
+            <input
+              type="date"
+              value={newDeadline}
+              onChange={(e) => setNewDeadline(e.target.value)}
+              className="w-full bg-[#111C2E]/80 border border-white/10 focus:border-[#8c7355] rounded-xl px-3 py-2 text-right text-white text-xs outline-none transition-all font-sans"
             />
           </div>
 
@@ -119,6 +132,8 @@ export default function KidSavingsPage() {
               const percent = Math.min(Math.round((goal.currentAmount / goal.targetAmount) * 100), 100);
               const customAddAmount = addAmounts[goal.id] || 0;
               const isGoalAchieved = goal.currentAmount >= goal.targetAmount;
+              const isDeadlinePassed = goal.deadlineDate && new Date() > new Date(goal.deadlineDate);
+              const isUnlocked = !goal.isLocked || isGoalAchieved || isDeadlinePassed;
 
               return (
                 <div
@@ -130,13 +145,21 @@ export default function KidSavingsPage() {
                   {/* Goal Header */}
                   <div className="flex flex-row-reverse items-start justify-between border-b border-white/5 pb-3">
                     <div className="flex items-center gap-2">
-                      <span className="text-xl">{isGoalAchieved ? '🔓' : '🔒'}</span>
+                      <span className="text-xl">{isUnlocked ? '🔓' : '🔒'}</span>
                       <h5 className="font-bold text-sm text-white">{goal.title}</h5>
                     </div>
-                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${isGoalAchieved ? 'bg-emerald-500/20 text-emerald-400 animate-bounce' : 'bg-orange-500/20 text-orange-400'}`}>
-                      {isGoalAchieved ? 'مكتملة وجاهزة 🎉' : 'مقفلة للادخار 🔒'}
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${isUnlocked ? 'bg-emerald-500/20 text-emerald-400 animate-bounce' : 'bg-orange-500/20 text-orange-400'}`}>
+                      {isUnlocked ? 'محررة وجاهزة 🎉' : 'مقفلة للادخار 🔒'}
                     </span>
                   </div>
+
+                  {/* Goal Deadline Date */}
+                  {goal.deadlineDate && (
+                    <div className="text-[10px] text-orange-300 font-sans flex justify-between items-center bg-white/5 px-3 py-1.5 rounded-xl border border-white/5">
+                      <span>{goal.deadlineDate}</span>
+                      <span className="font-bold">تاريخ فك القفل التلقائي:</span>
+                    </div>
+                  )}
 
                   {/* Progress Info */}
                   <div className="space-y-1">
@@ -149,15 +172,15 @@ export default function KidSavingsPage() {
                     </div>
                     <div className="h-1.5 w-full rounded-full bg-slate-800/60 overflow-hidden">
                       <div
-                        className={`h-full rounded-full bg-gradient-to-l transition-all duration-500 ${isGoalAchieved ? 'from-emerald-500 to-teal-400' : 'from-[#8c7355] to-orange-400'}`}
+                        className={`h-full rounded-full bg-gradient-to-l transition-all duration-500 ${isUnlocked ? 'from-emerald-500 to-teal-400' : 'from-[#8c7355] to-orange-400'}`}
                         style={{ width: `${percent}%` }}
                       ></div>
                     </div>
                   </div>
 
-                  {/* Lock Logic Action Section */}
+                  {/* Lock/Unlock Action Section */}
                   <div className="pt-2">
-                    {isGoalAchieved ? (
+                    {isUnlocked ? (
                       <button
                         type="button"
                         onClick={() => handleWithdraw(goal.id, goal.title)}

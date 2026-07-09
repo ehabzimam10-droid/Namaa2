@@ -14,13 +14,13 @@ interface AppContextType {
   kids: Kid[];
   projects: FamilyProject[];
   setProfile: (profile: UserProfile | null) => void;
-  addDonation: (kidId: string, amount: number) => void;
+  addDonation: (kidId: string, amount: number) => Promise<void>;
   approveTask: (kidId: string, taskTitle: string, rewardAmount: number, rewardType: 'cash' | 'points' | 'custom', customReward?: string) => Promise<void>;
   addProject: (title: string, totalRequired: number, roiPercentage: number) => Promise<void>;
   investInProject: (kidName: string, projectId: string, amount: number) => Promise<void>;
-  addSavingsGoal: (kidName: string, title: string, targetAmount: number) => void;
-  addToGoal: (kidName: string, goalId: string, amount: number) => void;
-  withdrawGoal: (kidName: string, goalId: string) => void;
+  addSavingsGoal: (kidName: string, title: string, targetAmount: number, deadlineDate?: string) => void;
+  addToGoal: (kidName: string, goalId: string, amount: number) => Promise<void>;
+  withdrawGoal: (kidName: string, goalId: string) => Promise<void>;
   submitTaskProof: (taskId: string) => Promise<void>;
   logout: () => void;
 }
@@ -34,12 +34,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   });
 
   const [kids, setKids] = useState<Kid[]>(() => {
-    const savedKids = localStorage.getItem('namaa_kids_v13');
+    const savedKids = localStorage.getItem('namaa_kids_v14');
     return savedKids ? JSON.parse(savedKids) : mockFamilyData.kids;
   });
   
   const [projects, setProjects] = useState<FamilyProject[]>(() => {
-    const savedProjects = localStorage.getItem('namaa_projects_v13');
+    const savedProjects = localStorage.getItem('namaa_projects_v14');
     return savedProjects ? JSON.parse(savedProjects) : mockFamilyData.projects;
   });
 
@@ -48,18 +48,40 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, [profile]);
 
   useEffect(() => {
-    localStorage.setItem('namaa_kids_v13', JSON.stringify(kids));
+    localStorage.setItem('namaa_kids_v14', JSON.stringify(kids));
   }, [kids]);
 
   useEffect(() => {
-    localStorage.setItem('namaa_projects_v13', JSON.stringify(projects));
+    localStorage.setItem('namaa_projects_v14', JSON.stringify(projects));
   }, [projects]);
 
   // Fetch data on mount
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch family projects from Supabase
+        // 1. Fetch kids profiles from Supabase first
+        const { data: dbKids, error: kidsError } = await supabase
+          .from('kids_profiles')
+          .select('*');
+
+        if (!kidsError && dbKids && dbKids.length > 0) {
+          setKids((prevKids) =>
+            dbKids.map((k: any) => {
+              const prevKid = prevKids.find(pk => pk.id === k.id) || mockFamilyData.kids.find(lk => lk.id === k.id) || mockFamilyData.kids[0];
+              return {
+                ...prevKid,
+                id: k.id,
+                name: k.name,
+                age: k.age || prevKid.age,
+                saved: k.saved || 0,
+                balance: k.balance || 0,
+                donationPoints: k.donation_points || 0,
+              };
+            })
+          );
+        }
+
+        // 2. Fetch family projects from Supabase
         const { data: dbProjects, error: projError } = await supabase
           .from('family_projects')
           .select('*');
@@ -75,7 +97,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           setProjects(mappedProjects);
         }
 
-        // Fetch kid tasks from Supabase
+        // 3. Fetch kid tasks from Supabase
         const { data: dbTasks, error: taskError } = await supabase
           .from('kid_tasks')
           .select('*');
@@ -119,11 +141,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setProfileState(null);
   };
 
-  const addDonation = (kidId: string, amount: number) => {
+  const addDonation = async (kidId: string, amount: number) => {
+    const targetKid = kids.find((k) => k.id === kidId);
+    if (!targetKid) return;
+
+    const updatedBalance = Math.max(0, targetKid.balance - amount);
+    const newPoints = targetKid.donationPoints + amount;
+
+    // Local Optimistic update
     setKids((prevKids) =>
       prevKids.map((kid) => {
         if (kid.id === kidId) {
-          const updatedBalance = Math.max(0, kid.balance - amount);
           const newTx: Transaction = {
             id: `tx_${Date.now()}`,
             title: `تبرع للمسؤولية المجتمعية 💚`,
@@ -134,13 +162,23 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           return {
             ...kid,
             balance: updatedBalance,
-            donationPoints: kid.donationPoints + amount,
+            donationPoints: newPoints,
             transactions: [newTx, ...kid.transactions],
           };
         }
         return kid;
       })
     );
+
+    // Supabase Update
+    try {
+      await supabase
+        .from('kids_profiles')
+        .update({ balance: updatedBalance, donation_points: newPoints })
+        .eq('id', kidId);
+    } catch (err) {
+      console.error('Failed to sync donation to Supabase:', err);
+    }
   };
 
   const approveTask = async (
@@ -211,6 +249,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const investInProject = async (kidName: string, projectId: string, amount: number) => {
+    const targetKid = kids.find((k) => k.name === kidName);
+    if (!targetKid) return;
+
+    const kidId = targetKid.id;
+    const updatedBalance = Math.max(0, targetKid.balance - amount);
+
     // a. Find target project and add amount locally
     const targetProj = projects.find(p => p.id === projectId);
     const newInvestedAmount = targetProj ? targetProj.currentInvested + amount : amount;
@@ -231,7 +275,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setKids((prevKids) =>
       prevKids.map((kid) => {
         if (kid.name === kidName) {
-          const updatedBalance = Math.max(0, kid.balance - amount);
           const newTx: Transaction = {
             id: `tx_invest_${Date.now()}`,
             title: `مساهمة استثمارية عائلية 📈`,
@@ -251,16 +294,22 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     // b. Supabase Call
     try {
-      await supabase
-        .from('family_projects')
-        .update({ current_invested: newInvestedAmount })
-        .eq('id', projectId);
+      await Promise.all([
+        supabase
+          .from('family_projects')
+          .update({ current_invested: newInvestedAmount })
+          .eq('id', projectId),
+        supabase
+          .from('kids_profiles')
+          .update({ balance: updatedBalance })
+          .eq('id', kidId)
+      ]);
     } catch (err) {
       console.error('Failed to update project investment in Supabase:', err);
     }
   };
 
-  const addSavingsGoal = (kidName: string, title: string, targetAmount: number) => {
+  const addSavingsGoal = (kidName: string, title: string, targetAmount: number, deadlineDate?: string) => {
     setKids((prevKids) =>
       prevKids.map((kid) => {
         if (kid.name === kidName) {
@@ -270,6 +319,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             targetAmount,
             currentAmount: 0,
             isLocked: true,
+            deadlineDate,
           };
           return {
             ...kid,
@@ -281,12 +331,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     );
   };
 
-  const addToGoal = (kidName: string, goalId: string, amount: number) => {
+  const addToGoal = async (kidName: string, goalId: string, amount: number) => {
+    const targetKid = kids.find((k) => k.name === kidName);
+    if (!targetKid || targetKid.balance < amount) return;
+
+    const kidId = targetKid.id;
+    const updatedBalance = Math.max(0, targetKid.balance - amount);
+
+    // Local Update
     setKids((prevKids) =>
       prevKids.map((kid) => {
         if (kid.name === kidName) {
-          if (kid.balance < amount) return kid;
-
           const newTx: Transaction = {
             id: `tx_goal_${Date.now()}`,
             title: `إيداع في حصالة الادخار 🔒`,
@@ -309,7 +364,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
           return {
             ...kid,
-            balance: Math.max(0, kid.balance - amount),
+            balance: updatedBalance,
             savingsGoals: updatedGoals,
             transactions: [newTx, ...(kid.transactions || [])],
           };
@@ -317,17 +372,32 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         return kid;
       })
     );
+
+    // Supabase Update
+    try {
+      await supabase
+        .from('kids_profiles')
+        .update({ balance: updatedBalance })
+        .eq('id', kidId);
+    } catch (err) {
+      console.error('Failed to update kid balance in Supabase:', err);
+    }
   };
 
-  const withdrawGoal = (kidName: string, goalId: string) => {
+  const withdrawGoal = async (kidName: string, goalId: string) => {
+    const targetKid = kids.find((k) => k.name === kidName);
+    if (!targetKid) return;
+
+    const goal = (targetKid.savingsGoals || []).find((g) => g.id === goalId);
+    if (!goal || goal.isLocked) return;
+
+    const kidId = targetKid.id;
+    const amountToWithdraw = goal.currentAmount;
+    const updatedBalance = targetKid.balance + amountToWithdraw;
+
     setKids((prevKids) =>
       prevKids.map((kid) => {
         if (kid.name === kidName) {
-          const goal = (kid.savingsGoals || []).find((g) => g.id === goalId);
-          if (!goal || goal.isLocked) return kid;
-
-          const amountToWithdraw = goal.currentAmount;
-
           const newTx: Transaction = {
             id: `tx_withdraw_goal_${Date.now()}`,
             title: `سحب مدخرات حصالة: ${goal.title} 🔓🎉`,
@@ -340,7 +410,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
           return {
             ...kid,
-            balance: kid.balance + amountToWithdraw,
+            balance: updatedBalance,
             savingsGoals: updatedGoals,
             transactions: [newTx, ...(kid.transactions || [])],
           };
@@ -348,6 +418,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         return kid;
       })
     );
+
+    // Supabase Update
+    try {
+      await supabase
+        .from('kids_profiles')
+        .update({ balance: updatedBalance })
+        .eq('id', kidId);
+    } catch (err) {
+      console.error('Failed to update kid balance in Supabase:', err);
+    }
   };
 
   const submitTaskProof = async (taskId: string) => {
@@ -380,6 +460,69 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       console.error('Failed to update task status in Supabase:', err);
     }
   };
+
+  // Advanced Savings Auto-Unlock Checking Logic
+  const checkSavingsStatus = () => {
+    setKids((prevKids) => {
+      let changed = false;
+      const updatedKids = prevKids.map((kid) => {
+        let kidChanged = false;
+        let addedBalance = 0;
+        const newTransactions: Transaction[] = [];
+
+        const updatedGoals = (kid.savingsGoals || []).filter((goal) => {
+          const isTargetAchieved = goal.currentAmount >= goal.targetAmount;
+          const isDeadlinePassed = goal.deadlineDate && new Date() > new Date(goal.deadlineDate);
+
+          if (goal.isLocked && (isTargetAchieved || isDeadlinePassed)) {
+            kidChanged = true;
+            changed = true;
+            addedBalance += goal.currentAmount;
+
+            const autoTx: Transaction = {
+              id: `tx_auto_unlock_${Date.now()}_${Math.random()}`,
+              title: `استحقاق حصالة: ${goal.title} 💰`,
+              amount: goal.currentAmount,
+              type: 'deposit',
+              date: new Date().toISOString().split('T')[0],
+            };
+            newTransactions.push(autoTx);
+            return false; // Deletes the goal
+          }
+          return true; // Keeps the goal
+        });
+
+        if (kidChanged) {
+          const newBalance = kid.balance + addedBalance;
+          
+          // Sync this change to Supabase asynchronously
+          supabase
+            .from('kids_profiles')
+            .update({ balance: newBalance })
+            .eq('id', kid.id)
+            .then(({ error }) => {
+              if (error) console.error('Failed to sync auto-unlocked balance to Supabase:', error);
+            });
+
+          return {
+            ...kid,
+            balance: newBalance,
+            savingsGoals: updatedGoals,
+            transactions: [...newTransactions, ...(kid.transactions || [])],
+          };
+        }
+        return kid;
+      });
+
+      return changed ? updatedKids : prevKids;
+    });
+  };
+
+  useEffect(() => {
+    checkSavingsStatus();
+    const interval = setInterval(checkSavingsStatus, 10000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <AppContext.Provider
