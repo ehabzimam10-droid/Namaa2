@@ -22,6 +22,7 @@ interface AppContextType {
   addToGoal: (kidName: string, goalId: string, amount: number) => Promise<void>;
   withdrawGoal: (kidName: string, goalId: string) => Promise<void>;
   submitTaskProof: (taskId: string) => Promise<void>;
+  transferAllowance: (kidId: string, amount: number) => Promise<void>;
   logout: () => void;
 }
 
@@ -76,6 +77,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
                 saved: k.saved || 0,
                 balance: k.balance || 0,
                 donationPoints: k.donation_points || 0,
+                allowance: k.allowance || prevKid.allowance || 0,
               };
             })
           );
@@ -375,12 +377,19 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     // Supabase Update
     try {
+      const computedSaved = (targetKid.savingsGoals || []).reduce((sum, goal) => {
+        if (goal.id === goalId) {
+          return sum + goal.currentAmount + amount;
+        }
+        return sum + goal.currentAmount;
+      }, 0);
+
       await supabase
         .from('kids_profiles')
-        .update({ balance: updatedBalance })
+        .update({ balance: updatedBalance, saved: computedSaved })
         .eq('id', kidId);
     } catch (err) {
-      console.error('Failed to update kid balance in Supabase:', err);
+      console.error('Failed to update kid balance and savings in Supabase:', err);
     }
   };
 
@@ -421,12 +430,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     // Supabase Update
     try {
+      const computedSaved = (targetKid.savingsGoals || []).filter(g => g.id !== goalId).reduce((sum, goal) => sum + goal.currentAmount, 0);
       await supabase
         .from('kids_profiles')
-        .update({ balance: updatedBalance })
+        .update({ balance: updatedBalance, saved: computedSaved })
         .eq('id', kidId);
     } catch (err) {
-      console.error('Failed to update kid balance in Supabase:', err);
+      console.error('Failed to update kid balance and savings in Supabase:', err);
     }
   };
 
@@ -496,9 +506,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           const newBalance = kid.balance + addedBalance;
           
           // Sync this change to Supabase asynchronously
+          const computedSaved = updatedGoals.reduce((sum, goal) => sum + goal.currentAmount, 0);
           supabase
             .from('kids_profiles')
-            .update({ balance: newBalance })
+            .update({ balance: newBalance, saved: computedSaved })
             .eq('id', kid.id)
             .then(({ error }) => {
               if (error) console.error('Failed to sync auto-unlocked balance to Supabase:', error);
@@ -518,17 +529,63 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     });
   };
 
+  const transferAllowance = async (kidId: string, amount: number) => {
+    let newBalance = 0;
+    let newAllowance = 0;
+
+    setKids((prevKids) =>
+      prevKids.map((kid) => {
+        if (kid.id === kidId) {
+          newBalance = kid.balance + amount;
+          newAllowance = kid.allowance + amount;
+          const newTx: Transaction = {
+            id: `tx_allowance_${Date.now()}`,
+            title: `تحويل مصروف من ولي الأمر 💸`,
+            amount: amount,
+            type: 'deposit',
+            date: new Date().toISOString().split('T')[0],
+          };
+          return {
+            ...kid,
+            balance: newBalance,
+            allowance: newAllowance,
+            transactions: [newTx, ...(kid.transactions || [])],
+          };
+        }
+        return kid;
+      })
+    );
+
+    // Supabase Update
+    try {
+      await supabase
+        .from('kids_profiles')
+        .update({ balance: newBalance, allowance: newAllowance })
+        .eq('id', kidId);
+    } catch (err) {
+      console.error('Failed to sync allowance transfer to Supabase:', err);
+    }
+  };
+
   useEffect(() => {
     checkSavingsStatus();
     const interval = setInterval(checkSavingsStatus, 10000);
     return () => clearInterval(interval);
   }, []);
 
+  const kidsWithDynamicSaved = kids.map((kid) => {
+    const totalSavedFromGoals = (kid.savingsGoals || []).reduce((sum, goal) => sum + goal.currentAmount, 0);
+    return {
+      ...kid,
+      saved: totalSavedFromGoals,
+    };
+  });
+
   return (
     <AppContext.Provider
       value={{
         profile,
-        kids,
+        kids: kidsWithDynamicSaved,
         projects,
         setProfile,
         addDonation,
@@ -539,6 +596,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         addToGoal,
         withdrawGoal,
         submitTaskProof,
+        transferAllowance,
         logout,
       }}
     >

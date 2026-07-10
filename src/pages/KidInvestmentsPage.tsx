@@ -118,13 +118,13 @@ export default function KidInvestmentsPage() {
                       </div>
                     ) : (
                       <div className="flex items-center gap-2">
-                        <button
+                         <button
                           type="button"
                           disabled={customAmount <= 0 || customAmount > kid.balance || isLoading || kid.balance === 0}
                           className={`text-white text-xs font-bold px-4 py-2 rounded-xl transition-all ${
-                            kid.balance === 0
+                            (kid.balance === 0 || (customAmount > 0 && customAmount > kid.balance))
                               ? 'bg-slate-600 opacity-40 cursor-not-allowed active:scale-100'
-                              : customAmount <= 0 || customAmount > kid.balance || isLoading
+                              : customAmount <= 0 || isLoading
                                 ? 'bg-gradient-to-r from-[#8c7355] to-[#009639] opacity-40 cursor-not-allowed active:scale-100'
                                 : 'bg-gradient-to-r from-[#8c7355] to-[#009639] hover:from-[#9c8466] hover:to-[#00a840] transform active:scale-95 shadow-md shrink-0'
                           }`}
@@ -134,7 +134,7 @@ export default function KidInvestmentsPage() {
                             <span className="flex items-center gap-1">
                               <span className="animate-spin">⏳</span> جاري الاستثمار...
                             </span>
-                          ) : kid.balance === 0 ? (
+                          ) : (kid.balance === 0 || (customAmount > 0 && customAmount > kid.balance)) ? (
                             <span>الرصيد غير كافٍ 🚫</span>
                           ) : (
                             <span>ساهم 💰</span>

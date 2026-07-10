@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useApp } from '../context/AppContext';
 
 export default function FatherDashboard() {
-  const { kids, projects, addProject } = useApp();
+  const { kids, projects, addProject, transferAllowance } = useApp();
 
   // Calculate total family balance (sum of all kids' saved amounts)
   const totalBalance = kids.reduce((sum, kid) => sum + kid.saved, 0);
@@ -12,6 +12,25 @@ export default function FatherDashboard() {
   const [newProjTitle, setNewProjTitle] = useState('');
   const [newProjRoi, setNewProjRoi] = useState<number>(10);
   const [newProjRequired, setNewProjRequired] = useState<number>(1000);
+
+  // States for allowance transfer
+  const [allowanceAmounts, setAllowanceAmounts] = useState<Record<string, number>>({});
+  const [allowanceLoading, setAllowanceLoading] = useState<Record<string, boolean>>({});
+
+  const handleTransferAllowance = async (kidId: string) => {
+    const amount = allowanceAmounts[kidId] || 0;
+    if (amount <= 0) return;
+
+    setAllowanceLoading((prev) => ({ ...prev, [kidId]: true }));
+    
+    // Simulate 800ms premium loading delay
+    setTimeout(async () => {
+      await transferAllowance(kidId, amount);
+      setAllowanceLoading((prev) => ({ ...prev, [kidId]: false }));
+      setAllowanceAmounts((prev) => ({ ...prev, [kidId]: 0 }));
+      alert('تم إرسال المصروف للابن بنجاح سحابياً ومحلياً! 💸✨');
+    }, 800);
+  };
 
   const handleAddProjectSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -112,22 +131,60 @@ export default function FatherDashboard() {
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {kids.map((kid) => {
-                const savePercent = Math.round((kid.saved / kid.allowance) * 100);
+                const savePercent = kid.allowance > 0 ? Math.round((kid.saved / kid.allowance) * 100) : 0;
+                const isTransferLoading = allowanceLoading[kid.id] || false;
+
                 return (
-                  <div key={kid.id} className="bg-white/5 border border-white/5 p-4 rounded-2xl space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-slate-400">عمر {kid.age} سنة</span>
-                      <span className="font-extrabold text-sm text-white">{kid.name}</span>
+                  <div key={kid.id} className="bg-white/5 border border-white/5 p-4 rounded-2xl space-y-3 flex flex-col justify-between">
+                    <div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold text-slate-400">عمر {kid.age} سنة</span>
+                        <span className="font-extrabold text-sm text-white">{kid.name}</span>
+                      </div>
+                      
+                      <div className="flex justify-between text-[11px] text-slate-300 font-sans mt-2">
+                        <span>الرصيد المتاح: {kid.balance} ريال</span>
+                        <span>نسبة الادخار: {savePercent}%</span>
+                      </div>
+                      
+                      <div className="flex justify-between text-[10px] text-slate-400 font-sans mt-1">
+                        <span>الحصالات المقفلة: {kid.saved} ريال</span>
+                        <span>المصروف التراكمي: {kid.allowance} ريال</span>
+                      </div>
+
+                      <div className="h-1.5 w-full rounded-full bg-slate-800/60 overflow-hidden mt-2">
+                        <div
+                          className={`h-full rounded-full ${savePercent < 50 ? 'bg-rose-500' : 'bg-emerald-500'}`}
+                          style={{ width: `${Math.min(savePercent, 100)}%` }}
+                        ></div>
+                      </div>
                     </div>
-                    <div className="flex justify-between text-xs text-slate-300 font-sans">
-                      <span>الادخار: {savePercent}%</span>
-                      <span>{kid.saved} / {kid.allowance} ريال</span>
-                    </div>
-                    <div className="h-1.5 w-full rounded-full bg-slate-800/60 overflow-hidden">
-                      <div
-                        className={`h-full rounded-full ${savePercent < 50 ? 'bg-rose-500' : 'bg-emerald-500'}`}
-                        style={{ width: `${Math.min(savePercent, 100)}%` }}
-                      ></div>
+
+                    {/* Allowance Transfer Form */}
+                    <div className="flex items-center gap-2 pt-2 border-t border-white/5">
+                      <button
+                        type="button"
+                        disabled={isTransferLoading || (allowanceAmounts[kid.id] || 0) <= 0}
+                        onClick={() => handleTransferAllowance(kid.id)}
+                        className={`text-white text-[10px] font-extrabold px-3 py-2 rounded-xl transition-all ${
+                          isTransferLoading || (allowanceAmounts[kid.id] || 0) <= 0
+                            ? 'bg-orange-500/40 cursor-not-allowed opacity-50'
+                            : 'bg-gradient-to-r from-orange-500 to-[#8c7355] hover:from-orange-600 hover:to-[#9c8466] transform active:scale-95 shadow-md'
+                        }`}
+                      >
+                        {isTransferLoading ? 'جاري الصرف... ⏳' : 'صرف 💸'}
+                      </button>
+                      <input
+                        type="number"
+                        min="1"
+                        value={allowanceAmounts[kid.id] !== undefined ? (allowanceAmounts[kid.id] === 0 ? '' : allowanceAmounts[kid.id]) : ''}
+                        onChange={(e) => {
+                          const val = e.target.value === '' ? 0 : Number(e.target.value);
+                          setAllowanceAmounts((prev) => ({ ...prev, [kid.id]: val }));
+                        }}
+                        placeholder="المصروف بالريال..."
+                        className="flex-1 bg-[#111C2E]/80 border border-white/10 rounded-xl px-2.5 py-1.5 text-left text-white text-[10px] outline-none placeholder:text-slate-600 font-sans"
+                      />
                     </div>
                   </div>
                 );

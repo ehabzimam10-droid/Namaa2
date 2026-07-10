@@ -194,15 +194,15 @@ export default function KidSavingsPage() {
                           type="button"
                           disabled={customAddAmount <= 0 || customAddAmount > kid.balance || kid.balance === 0}
                           className={`text-white text-xs font-bold px-4 py-2 rounded-xl transition-all ${
-                            kid.balance === 0
+                            (kid.balance === 0 || (customAddAmount > 0 && customAddAmount > kid.balance))
                               ? 'bg-slate-600 opacity-40 cursor-not-allowed active:scale-100'
-                              : customAddAmount <= 0 || customAddAmount > kid.balance
+                              : customAddAmount <= 0
                                 ? 'bg-orange-500 opacity-40 cursor-not-allowed active:scale-100'
                                 : 'bg-orange-500 hover:bg-orange-600 active:scale-95'
                           }`}
                           onClick={() => handleAddMoney(goal.id)}
                         >
-                          {kid.balance === 0 ? 'الرصيد فارغ 🚫' : 'إيداع ➕'}
+                          {(kid.balance === 0 || (customAddAmount > 0 && customAddAmount > kid.balance)) ? 'الرصيد غير كافٍ 🚫' : 'إيداع ➕'}
                         </button>
                         <input
                           type="number"
