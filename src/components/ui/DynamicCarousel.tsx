@@ -12,7 +12,7 @@ export default function DynamicCarousel<T>({
   autoRotateInterval = 5000,
 }: DynamicCarouselProps<T>) {
   const [activeIndex, setActiveIndex] = useState(0);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const totalItems = items.length;
 
