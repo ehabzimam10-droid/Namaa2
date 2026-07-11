@@ -576,6 +576,20 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             changed = true;
             addedBalance += goal.currentAmount;
 
+            const dbGoalId = isNaN(Number(goal.id)) ? goal.id : Number(goal.id);
+            // Async delete from Supabase
+            supabase
+              .from('savings_goals')
+              .delete()
+              .eq('id', dbGoalId)
+              .then(({ error }) => {
+                if (error) console.error('Failed to auto-delete expired goal from Supabase:', error);
+              });
+
+            // Async log transaction to Supabase
+            logTransaction(kid.name, `استحقاق حصالة: ${goal.title} 💰`, goal.currentAmount, 'deposit')
+              .catch((err) => console.error('Failed to log auto-unlock transaction:', err));
+
             const autoTx: Transaction = {
               id: `tx_auto_unlock_${Date.now()}_${Math.random()}`,
               title: `استحقاق حصالة: ${goal.title} 💰`,
