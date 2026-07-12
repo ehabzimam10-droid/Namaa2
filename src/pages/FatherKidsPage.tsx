@@ -5,7 +5,7 @@ import TransferModal from '../components/ui/TransferModal';
 
 export default function FatherKidsPage() {
   const navigate = useNavigate();
-  const { kids } = useApp();
+  const { kids, finalizeTaskApproval } = useApp();
 
   // Modal control states
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -108,6 +108,87 @@ export default function FatherKidsPage() {
                 >
                   <span>تحويل مالي ذكي 💸</span>
                 </button>
+              </div>
+
+              {/* a) المهام قيد المراجعة 📋 */}
+              <div className="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
+                <div className="flex justify-between items-center border-b border-white/5 pb-2">
+                  <span className="text-xs font-bold text-slate-300">المهام قيد المراجعة 📋</span>
+                </div>
+                {((kid.tasks || []).filter(t => t.status === 'under_review')).length > 0 ? (
+                  <div className="space-y-3">
+                    {(kid.tasks || [])
+                      .filter(t => t.status === 'under_review')
+                      .map((task) => (
+                        <div key={task.id} className="bg-white/5 border border-white/5 p-3 rounded-xl space-y-2 text-right">
+                          <div className="flex justify-between items-center text-xs">
+                            <span className="font-bold text-white">{task.title}</span>
+                            <span className="text-[10px] bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded font-sans font-bold">
+                              {task.rewardType === 'custom'
+                                ? task.customReward || 'جائزة مخصصة 🎁'
+                                : `${task.rewardAmount} ${task.rewardType === 'cash' ? 'ريال 💸' : 'نقطة 🌟'}`}
+                            </span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={async () => {
+                              try {
+                                await finalizeTaskApproval(task.id);
+                              } catch (err) {
+                                console.error('Error finalizing approval:', err);
+                              }
+                            }}
+                            className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold py-2 rounded-xl text-[10px] transition-all transform active:scale-95 flex items-center justify-center gap-1 shadow-md"
+                          >
+                            <span>موافقة ومنح المكافأة ✅</span>
+                          </button>
+                        </div>
+                      ))}
+                  </div>
+                ) : (
+                  <div className="text-center text-[10px] text-slate-500 py-2">
+                    لا توجد مهام معلقة قيد المراجعة حالياً.
+                  </div>
+                )}
+              </div>
+
+              {/* b) سجل العمليات الأخير 📜 */}
+              <div className="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
+                <div className="flex justify-between items-center border-b border-white/5 pb-2">
+                  <span className="text-xs font-bold text-slate-300">سجل العمليات الأخير 📜</span>
+                </div>
+                {((kid.transactions || [])).length > 0 ? (
+                  <div className="space-y-2">
+                    {[...(kid.transactions || [])]
+                      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+                      .slice(0, 5)
+                      .map((tx) => {
+                        const isDeposit = tx.type === 'deposit';
+                        return (
+                          <div
+                            key={tx.id}
+                            className="bg-white/5 border border-white/5 p-2 rounded-xl flex justify-between items-center text-xs hover:bg-white/10 transition-all duration-300"
+                          >
+                            {/* Left: Amount */}
+                            <div className={`font-bold font-sans text-[11px] ${isDeposit ? 'text-emerald-400' : 'text-rose-400'}`}>
+                              {isDeposit ? '+' : '-'} {tx.amount} ريال
+                            </div>
+                            {/* Right: Title & Date */}
+                            <div className="text-right space-y-0.5">
+                              <h5 className="font-bold text-[11px] text-white leading-tight">{tx.title}</h5>
+                              <span className="text-[9px] text-slate-500 font-sans block">
+                                {new Date(tx.date).toLocaleDateString('ar-SA', { dateStyle: 'medium' })}
+                              </span>
+                            </div>
+                          </div>
+                        );
+                      })}
+                  </div>
+                ) : (
+                  <div className="text-center text-[10px] text-slate-500 py-2">
+                    لا توجد عمليات مالية مسجلة بعد.
+                  </div>
+                )}
               </div>
             </div>
           );

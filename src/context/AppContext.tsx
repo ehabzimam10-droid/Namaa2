@@ -23,6 +23,7 @@ interface AppContextType {
   withdrawGoal: (kidName: string, goalId: string) => Promise<void>;
   submitTaskProof: (taskId: string) => Promise<void>;
   transferMoney: (kidId: string, amount: number, reason: string) => Promise<void>;
+  finalizeTaskApproval: (taskId: string) => Promise<void>;
   logout: () => void;
 }
 
@@ -639,6 +640,73 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     });
   };
 
+  const finalizeTaskApproval = async (taskId: string) => {
+    let foundKid: Kid | undefined;
+    let foundTask: Task | undefined;
+
+    for (const kid of kids) {
+      const task = (kid.tasks || []).find((t) => t.id === taskId);
+      if (task) {
+        foundKid = kid;
+        foundTask = task;
+        break;
+      }
+    }
+
+    if (!foundKid || !foundTask) return;
+
+    const isCash = foundTask.rewardType === 'cash';
+    const amount = foundTask.rewardAmount;
+    const newBalance = isCash ? foundKid.balance + amount : foundKid.balance;
+
+    // Local state update
+    setKids((prevKids) =>
+      prevKids.map((kid) => {
+        if (kid.id === foundKid!.id) {
+          const updatedTasks = (kid.tasks || []).map((t) => {
+            if (t.id === taskId) {
+              return { ...t, status: 'approved' as const };
+            }
+            return t;
+          });
+          return {
+            ...kid,
+            balance: newBalance,
+            tasks: updatedTasks,
+          };
+        }
+        return kid;
+      })
+    );
+
+    // Supabase updates
+    try {
+      const dbId = isNaN(Number(taskId)) ? taskId : Number(taskId);
+      const updates: any[] = [
+        supabase
+          .from('kid_tasks')
+          .update({ status: 'approved' })
+          .eq('id', dbId)
+      ];
+
+      if (isCash) {
+        updates.push(
+          supabase
+            .from('kids_profiles')
+            .update({ balance: newBalance })
+            .eq('id', foundKid.id)
+        );
+        updates.push(
+          logTransaction(foundKid.name, `مكافأة إتمام مهمة: ${foundTask.title} 💸`, amount, 'deposit')
+        );
+      }
+
+      await Promise.all(updates);
+    } catch (err) {
+      console.error('Failed to finalize task approval in Supabase:', err);
+    }
+  };
+
   const transferMoney = async (kidId: string, amount: number, reason: string) => {
     const targetKid = kids.find(k => k.id === kidId);
     if (!targetKid) return;
@@ -701,6 +769,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         withdrawGoal,
         submitTaskProof,
         transferMoney,
+        finalizeTaskApproval,
         logout,
       }}
     >
