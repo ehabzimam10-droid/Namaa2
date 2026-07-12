@@ -73,8 +73,8 @@ export default function DynamicCarousel<T>({
           <div
             key={idx}
             className={`w-full transition-all duration-500 transform absolute inset-0 flex items-center justify-center ${idx === activeIndex
-                ? 'opacity-100 translate-x-0 pointer-events-auto relative'
-                : 'opacity-0 translate-x-4 pointer-events-none'
+              ? 'opacity-100 translate-x-0 pointer-events-auto relative'
+              : 'opacity-0 translate-x-4 pointer-events-none'
               }`}
           >
             {renderItem(item, idx)}
@@ -88,7 +88,7 @@ export default function DynamicCarousel<T>({
           {/* Right Chevron (Prev in RTL context, going backwards) */}
           <button
             type="button"
-            onClick={handlePrev}
+            onClick={handleNext}
             className="absolute right-0 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/5 text-slate-300 hover:text-white transition-all opacity-0 group-hover/carousel:opacity-100 active:scale-90"
             aria-label="Previous slide"
           >
@@ -107,7 +107,7 @@ export default function DynamicCarousel<T>({
           {/* Left Chevron (Next in RTL context, going forwards) */}
           <button
             type="button"
-            onClick={handleNext}
+            onClick={handlePrev}
             className="absolute left-0 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/5 text-slate-300 hover:text-white transition-all opacity-0 group-hover/carousel:opacity-100 active:scale-90"
             aria-label="Next slide"
           >
@@ -131,8 +131,8 @@ export default function DynamicCarousel<T>({
                 type="button"
                 onClick={(e) => handleDotClick(e, idx)}
                 className={`h-1.5 rounded-full transition-all duration-300 ${idx === activeIndex
-                    ? 'w-4 bg-orange-500' // تم تعديلها إلى 500 بدلاً من 450
-                    : 'w-1.5 bg-white/20 hover:bg-white/40'
+                  ? 'w-4 bg-orange-500' // تم تعديلها إلى 500 بدلاً من 450
+                  : 'w-1.5 bg-white/60 hover:bg-white/80'
                   }`}
                 aria-label={`Go to slide ${idx + 1}`}
               />
