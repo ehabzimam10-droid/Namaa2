@@ -132,7 +132,7 @@ export default function DynamicCarousel<T>({
                 onClick={(e) => handleDotClick(e, idx)}
                 className={`h-1.5 rounded-full transition-all duration-300 ${idx === activeIndex
                   ? 'w-4 bg-orange-500' // تم تعديلها إلى 500 بدلاً من 450
-                  : 'w-1.5 bg-white/60 hover:bg-white/80'
+                  : 'w-1.5 bg-white/20 hover:bg-white/40'
                   }`}
                 aria-label={`Go to slide ${idx + 1}`}
               />
