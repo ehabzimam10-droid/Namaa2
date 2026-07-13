@@ -47,13 +47,13 @@ export async function suggestTaskForKid(
     }
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({
-      model: 'gemini-1.5-flash',
+      model: 'gemini-3.5-flash', // التعديل هنا
       generationConfig: { responseMimeType: 'application/json' },
     });
-    
+
     const result = await model.generateContent(prompt);
     const text = result.response.text();
-    
+
     // Clean potential json block markers if returned despite mime-type config
     const cleanedText = text
       .trim()
@@ -98,8 +98,8 @@ export async function sendGeneralChatMessage(
       throw new Error('API key is missing');
     }
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-    
+    const model = genAI.getGenerativeModel({ model: 'gemini-3.5-flash' });
+
     const result = await model.generateContent(prompt);
     return result.response.text().trim();
   } catch (err) {
