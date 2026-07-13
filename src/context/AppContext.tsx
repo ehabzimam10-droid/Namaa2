@@ -26,6 +26,8 @@ interface AppContextType {
   finalizeTaskApproval: (taskId: string) => Promise<void>;
   logout: () => void;
   assignManualTask: (kidName: string, title: string, amount: number, type: 'cash' | 'points' | 'custom', customReward?: string) => Promise<void>;
+  geminiApiKey: string;
+  setGeminiApiKey: (key: string) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -45,6 +47,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const savedProjects = localStorage.getItem('namaa_projects_v14');
     return savedProjects ? JSON.parse(savedProjects) : mockFamilyData.projects;
   });
+
+  const [geminiApiKey, setGeminiApiKeyState] = useState<string>(() => {
+    return localStorage.getItem('namaa_gemini_api_key') || '';
+  });
+
+  const setGeminiApiKey = (key: string) => {
+    setGeminiApiKeyState(key);
+    localStorage.setItem('namaa_gemini_api_key', key);
+  };
 
   useEffect(() => {
     localStorage.setItem('namaa_profile', JSON.stringify(profile));
@@ -814,6 +825,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         finalizeTaskApproval,
         logout,
         assignManualTask,
+        geminiApiKey,
+        setGeminiApiKey,
       }}
     >
       {children}

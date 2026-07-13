@@ -9,6 +9,7 @@ import KidInvestmentsPage from './pages/KidInvestmentsPage';
 import KidDonationsPage from './pages/KidDonationsPage';
 import FatherProjectsPage from './pages/FatherProjectsPage';
 import FatherKidsPage from './pages/FatherKidsPage';
+import FatherAICoachPage from './pages/FatherAICoachPage';
 import DashboardLayout from './components/layout/DashboardLayout';
 
 function AuthLayout() {
@@ -58,6 +59,7 @@ function App() {
           <Route path="/father" element={<FatherDashboard />} />
           <Route path="/father/projects" element={<FatherProjectsPage />} />
           <Route path="/father/kids" element={<FatherKidsPage />} />
+          <Route path="/father/ai" element={<FatherAICoachPage />} />
           <Route path="/kid" element={<KidDashboard />} />
           <Route path="/kid/savings" element={<KidSavingsPage />} />
           <Route path="/kid/tasks" element={<KidTasksPage />} />

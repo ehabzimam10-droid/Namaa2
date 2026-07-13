@@ -5,7 +5,7 @@ import { useApp } from '../context/AppContext';
 
 export default function DeveloperDashboard() {
   const navigate = useNavigate();
-  const { setProfile } = useApp();
+  const { setProfile, geminiApiKey, setGeminiApiKey } = useApp();
   const [loginLoading, setLoginLoading] = useState<string | null>(null);
   const [flags, setFlags] = useState({
     enableAIAssistant: true,
@@ -121,6 +121,24 @@ export default function DeveloperDashboard() {
               <span className="text-[10px] text-slate-400 block font-sans">البريد الإلكتروني: khalid@namaa.com</span>
             </div>
           </button>
+        </div>
+      </div>
+
+      {/* AI Key Settings */}
+      <div className="space-y-4 mb-8 bg-white/5 border border-white/10 rounded-2xl p-4">
+        <h3 className="text-sm font-bold text-slate-200">إعدادات الذكاء الاصطناعي 🤖</h3>
+        <p className="text-[11px] text-slate-400 font-sans leading-relaxed">
+          أدخل مفتاح واجهة برمجة تطبيقات Gemini API الخاص بك لتشغيل مستشار نماء الذكي. يتم حفظ هذا المفتاح محليًا فقط في متصفحك لأسباب أمنية.
+        </p>
+        <div className="space-y-2">
+          <label className="block text-xs text-slate-400">Gemini API Key</label>
+          <input
+            type="password"
+            value={geminiApiKey}
+            onChange={(e) => setGeminiApiKey(e.target.value)}
+            placeholder="AIzaSy..."
+            className="w-full bg-[#111C2E]/80 border border-white/10 focus:border-orange-500 rounded-xl px-3 py-2.5 text-left text-white text-xs outline-none transition-all placeholder:text-slate-700 font-sans"
+          />
         </div>
       </div>
 
