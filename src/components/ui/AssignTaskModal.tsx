@@ -14,6 +14,7 @@ export default function AssignTaskModal({ isOpen, onClose, kidName }: AssignTask
   const [rewardType, setRewardType] = useState<'cash' | 'points' | 'custom'>('cash');
   const [amount, setAmount] = useState<number | ''>('');
   const [customReward, setCustomReward] = useState('');
+  const [endDate, setEndDate] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   if (!isOpen) return null;
@@ -41,7 +42,8 @@ export default function AssignTaskModal({ isOpen, onClose, kidName }: AssignTask
           title.trim(),
           finalAmount,
           rewardType,
-          rewardType === 'custom' ? customReward.trim() : undefined
+          rewardType === 'custom' ? customReward.trim() : undefined,
+          endDate || undefined
         );
         setIsLoading(false);
         // Reset states
@@ -49,6 +51,7 @@ export default function AssignTaskModal({ isOpen, onClose, kidName }: AssignTask
         setRewardType('cash');
         setAmount('');
         setCustomReward('');
+        setEndDate('');
         onClose();
         alert(`تم إسناد المهمة "${title}" للابن ${kidName} بنجاح! 🎯✨`);
       } catch (err) {
@@ -162,6 +165,17 @@ export default function AssignTaskModal({ isOpen, onClose, kidName }: AssignTask
               />
             </div>
           )}
+
+          {/* End Date */}
+          <div className="space-y-1">
+            <label className="block text-xs text-slate-400">تاريخ النهاية (اختياري)</label>
+            <input
+              type="datetime-local"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              className="w-full bg-[#111C2E]/80 border border-white/10 focus:border-[#8c7355] rounded-xl px-3 py-2.5 text-right text-white text-xs outline-none transition-all placeholder:text-slate-700 font-sans"
+            />
+          </div>
 
           {/* Action Buttons */}
           <div className="flex gap-3 justify-end pt-3 border-t border-white/5">

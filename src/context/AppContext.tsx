@@ -35,7 +35,8 @@ interface AppContextType {
   transferMoney: (kidId: string, amount: number, reason: string) => Promise<void>;
   finalizeTaskApproval: (taskId: string) => Promise<void>;
   logout: () => void;
-  assignManualTask: (kidName: string, title: string, amount: number, type: 'cash' | 'points' | 'custom', customReward?: string) => Promise<void>;
+  assignManualTask: (kidName: string, title: string, amount: number, type: 'cash' | 'points' | 'custom', customReward?: string, endDate?: string) => Promise<void>;
+  calculateROI: (investedAmount: number, roiPercentage: number) => number;
   geminiApiKey: string;
   setGeminiApiKey: (key: string) => void;
   notifications: Notification[];
@@ -202,6 +203,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       rewardType: t.reward_type,
       customReward: t.reward_type === 'custom' ? t.title : undefined,
       status: (t.status as 'pending' | 'under_review' | 'completed' | 'approved') || 'pending',
+      endDate: t.end_date || undefined,
     }));
   };
 
@@ -810,7 +812,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     title: string,
     amount: number,
     type: 'cash' | 'points' | 'custom',
-    customReward?: string
+    customReward?: string,
+    endDate?: string
   ) => {
     // Add notification to kid
     const targetKid = kids.find((k) => k.name === kidName);
@@ -824,6 +827,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       rewardType: type,
       customReward: type === 'custom' ? customReward : undefined,
       status: 'pending',
+      endDate,
     };
 
     setKids((prevKids) =>
@@ -844,11 +848,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         reward_amount: amount,
         reward_type: type,
         status: 'pending',
-        kid_name: kidName
+        kid_name: kidName,
+        end_date: endDate || null
       });
     } catch (err) {
       console.error('Failed to sync manual task to Supabase:', err);
     }
+  };
+
+  const calculateROI = (investedAmount: number, roiPercentage: number): number => {
+    return investedAmount + (investedAmount * (roiPercentage / 100));
   };
 
   useEffect(() => {
@@ -884,6 +893,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         finalizeTaskApproval,
         logout,
         assignManualTask,
+        calculateROI,
         geminiApiKey,
         setGeminiApiKey,
         notifications,

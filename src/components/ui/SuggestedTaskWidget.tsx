@@ -24,6 +24,7 @@ export default function SuggestedTaskWidget({
   const [amount, setAmount] = useState<number>(initialAmount || 0);
   const [type, setType] = useState<'cash' | 'points' | 'custom'>(initialType || 'cash');
   const [customReward, setCustomReward] = useState('');
+  const [endDate, setEndDate] = useState('');
 
   const handleApprove = async () => {
     try {
@@ -32,7 +33,8 @@ export default function SuggestedTaskWidget({
         title,
         type === 'custom' ? 0 : amount,
         type,
-        type === 'custom' ? customReward : undefined
+        type === 'custom' ? customReward : undefined,
+        endDate || undefined
       );
       setStatus('approved');
     } catch (err) {
@@ -104,12 +106,30 @@ export default function SuggestedTaskWidget({
                 </select>
               </div>
             </div>
+
+            <div>
+              <label className="text-[9px] text-slate-400 block mb-1">تاريخ النهاية (اختياري)</label>
+              <input
+                type="datetime-local"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                className="w-full bg-[#111C2E]/60 border border-white/10 focus:border-[#8c7355] rounded-xl px-2.5 py-1.5 text-right text-white text-xs outline-none transition-all font-sans"
+              />
+            </div>
           </>
         ) : (
           <>
-            <div>
-              <span className="text-[9px] text-slate-400 block">اسم المهمة</span>
-              <span className="font-extrabold text-white">{title}</span>
+            <div className="flex justify-between items-start gap-4">
+              <div>
+                <span className="text-[9px] text-slate-400 block">اسم المهمة</span>
+                <span className="font-extrabold text-white">{title}</span>
+              </div>
+              {endDate && (
+                <div>
+                  <span className="text-[9px] text-slate-400 block">تاريخ النهاية</span>
+                  <span className="font-bold text-slate-300 font-sans text-[10px]">{endDate.replace('T', ' ')}</span>
+                </div>
+              )}
             </div>
 
             <div className="grid grid-cols-2 gap-2">

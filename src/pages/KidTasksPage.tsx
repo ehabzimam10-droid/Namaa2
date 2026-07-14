@@ -9,6 +9,9 @@ export default function KidTasksPage() {
   // Find current active kid
   const kid = kids.find((k) => k.name === profile?.name) || kids.find((k) => k.name === 'سالم') || kids[0];
 
+  // State for active filter tab: 'pending' (قيد التنفيذ), 'under_review' (قيد المراجعة), 'approved' (المنجزة), 'expired' (غير منجزة)
+  const [activeTab, setActiveTab] = useState<'pending' | 'under_review' | 'approved' | 'expired'>('pending');
+
   // State to simulate image upload loading spinner per task
   const [uploadLoading, setUploadLoading] = useState<Record<string, boolean>>({});
 
@@ -22,6 +25,41 @@ export default function KidTasksPage() {
       alert('تم رفع إثبات إنجاز المهمة بنجاح وهو الآن قيد مراجعة ولي الأمر! 📸✨');
     }, 1200);
   };
+
+  const getCountdownText = (endDateStr?: string) => {
+    if (!endDateStr) return null;
+    const nowObj = new Date();
+    const endObj = new Date(endDateStr);
+    const diffTime = endObj.getTime() - nowObj.getTime();
+    if (diffTime <= 0) {
+      return 'انتهى الوقت';
+    }
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    const diffHours = Math.floor((diffTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    if (diffDays > 0) {
+      return `الوقت المتبقي: ${diffDays} أيام و ${diffHours} ساعات`;
+    }
+    const diffMinutes = Math.floor((diffTime % (1000 * 60 * 60)) / (1000 * 60));
+    if (diffHours > 0) {
+      return `الوقت المتبقي: ${diffHours} ساعات و ${diffMinutes} دقائق`;
+    }
+    return `الوقت المتبقي: ${diffMinutes} دقائق`;
+  };
+
+  const nowVal = new Date();
+  const getTaskCategory = (task: any) => {
+    if (task.status === 'approved') return 'approved';
+    if (task.status === 'under_review') return 'under_review';
+    if (task.status === 'pending') {
+      if (task.endDate && new Date(task.endDate) < nowVal) {
+        return 'expired';
+      }
+      return 'pending';
+    }
+    return 'pending';
+  };
+
+  const filteredTasks = (kid.tasks || []).filter((task) => getTaskCategory(task) === activeTab);
 
   return (
     <div className="w-full space-y-8 text-right font-sans">
@@ -52,10 +90,60 @@ export default function KidTasksPage() {
       <div className="space-y-4">
         <h4 className="text-sm font-bold text-orange-400">المهام المسندة إليك 📅</h4>
 
-        {kid.tasks && kid.tasks.length > 0 ? (
+        {/* Tab Filters */}
+        <div className="grid grid-cols-4 gap-1 bg-white/5 p-1 rounded-2xl border border-white/5">
+          <button
+            type="button"
+            onClick={() => setActiveTab('pending')}
+            className={`py-2 px-1 rounded-xl text-[10px] md:text-xs font-bold transition-all text-center ${
+              activeTab === 'pending'
+                ? 'bg-gradient-to-r from-orange-500 to-[#8c7355] text-white shadow-md'
+                : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            قيد التنفيذ
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('under_review')}
+            className={`py-2 px-1 rounded-xl text-[10px] md:text-xs font-bold transition-all text-center ${
+              activeTab === 'under_review'
+                ? 'bg-gradient-to-r from-orange-500 to-[#8c7355] text-white shadow-md'
+                : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            قيد المراجعة
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('approved')}
+            className={`py-2 px-1 rounded-xl text-[10px] md:text-xs font-bold transition-all text-center ${
+              activeTab === 'approved'
+                ? 'bg-gradient-to-r from-orange-500 to-[#8c7355] text-white shadow-md'
+                : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            المنجزة
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('expired')}
+            className={`py-2 px-1 rounded-xl text-[10px] md:text-xs font-bold transition-all text-center ${
+              activeTab === 'expired'
+                ? 'bg-gradient-to-r from-orange-500 to-[#8c7355] text-white shadow-md'
+                : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            غير منجزة
+          </button>
+        </div>
+
+        {filteredTasks && filteredTasks.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {kid.tasks.map((task) => {
+            {filteredTasks.map((task) => {
               const isLoading = uploadLoading[task.id] || false;
+              const isExpired = getTaskCategory(task) === 'expired';
+              const countdown = getCountdownText(task.endDate);
               
               return (
                 <div
@@ -66,9 +154,14 @@ export default function KidTasksPage() {
 
                   <div className="flex justify-between items-start border-b border-white/5 pb-3">
                     {/* Status Badge */}
-                    {task.status === 'pending' && (
+                    {task.status === 'pending' && !isExpired && (
                       <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-md bg-slate-500/20 text-slate-300">
                         معلقة ⏳
+                      </span>
+                    )}
+                    {task.status === 'pending' && isExpired && (
+                      <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-md bg-rose-500/20 text-rose-400">
+                        منتهية ❌
                       </span>
                     )}
                     {task.status === 'under_review' && (
@@ -85,6 +178,15 @@ export default function KidTasksPage() {
                     <h5 className="font-extrabold text-sm text-white">{task.title}</h5>
                   </div>
 
+                  {/* Countdown display */}
+                  {task.endDate && (
+                    <div className="text-[10px] font-bold text-right flex justify-end gap-1 items-center">
+                      <span className={isExpired ? 'text-rose-400 font-sans' : 'text-orange-300 font-sans'}>
+                        ⏱️ {countdown}
+                      </span>
+                    </div>
+                  )}
+
                   {/* Reward Detail */}
                   <div className="flex justify-between items-center bg-white/5 p-3 rounded-2xl border border-white/5 text-xs">
                     <span className="font-extrabold text-white text-sm">
@@ -97,7 +199,7 @@ export default function KidTasksPage() {
 
                   {/* Actions based on Status */}
                   <div className="pt-2">
-                    {task.status === 'pending' && (
+                    {task.status === 'pending' && !isExpired && (
                       <button
                         type="button"
                         disabled={isLoading}
@@ -112,6 +214,12 @@ export default function KidTasksPage() {
                           <span>إرفاق إثبات 📸</span>
                         )}
                       </button>
+                    )}
+
+                    {task.status === 'pending' && isExpired && (
+                      <div className="w-full bg-rose-500/10 border border-rose-500/25 text-rose-400 font-bold py-2.5 rounded-xl text-xs text-center font-sans">
+                        انتهى وقت إنجاز المهمة ❌
+                      </div>
                     )}
 
                     {task.status === 'under_review' && (
@@ -136,7 +244,7 @@ export default function KidTasksPage() {
           </div>
         ) : (
           <div className="bg-white/5 border border-white/10 rounded-3xl p-6 text-center text-xs text-slate-400">
-            لا توجد مهام مسندة إليك حالياً. استمتع بوقتك أو اطلب من والدك تكليفك بمهمة جديدة! 🌟
+            لا توجد مهام في هذا القسم حالياً. 🌟
           </div>
         )}
       </div>

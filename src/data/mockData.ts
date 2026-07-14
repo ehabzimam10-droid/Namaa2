@@ -22,6 +22,7 @@ export interface Task {
   rewardType: 'cash' | 'points' | 'custom';
   customReward?: string;
   status: 'pending' | 'under_review' | 'completed' | 'approved';
+  endDate?: string;
 }
 
 export interface Kid {

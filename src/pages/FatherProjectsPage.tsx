@@ -4,7 +4,7 @@ import { useApp } from '../context/AppContext';
 
 export default function FatherProjectsPage() {
   const navigate = useNavigate();
-  const { projects, addProject } = useApp();
+  const { projects, addProject, calculateROI } = useApp();
 
   // Form states
   const [title, setTitle] = useState('');
@@ -171,6 +171,28 @@ export default function FatherProjectsPage() {
                       <span className="text-[9px] text-slate-500 block">لا يوجد مساهمون بعد.</span>
                     )}
                   </div>
+
+                  {/* ROI Returns Section if Fully Funded */}
+                  {proj.currentInvested >= proj.totalRequired && (
+                    <div className="mt-2 pt-2 border-t border-white/5 bg-emerald-500/5 border border-emerald-500/10 rounded-2xl p-3 space-y-1 text-right">
+                      <span className="text-[10px] font-extrabold text-emerald-400 block">العوائد المستحقة 💰</span>
+                      {proj.contributors && Object.keys(proj.contributors).length > 0 ? (
+                        <div className="space-y-1">
+                          {Object.entries(proj.contributors).map(([name, amount]) => {
+                            const expectedReturn = calculateROI(amount, proj.roiPercentage);
+                            return (
+                              <div key={name} className="flex justify-between items-center text-[10px] text-slate-300 font-sans">
+                                <span>العائد: <strong className="text-emerald-400">{expectedReturn} ريال</strong></span>
+                                <span>{name}: دفع <strong className="text-white">{amount}</strong></span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      ) : (
+                        <span className="text-[9px] text-slate-500 block">لا يوجد مساهمون.</span>
+                      )}
+                    </div>
+                  )}
                 </div>
               );
             })}
