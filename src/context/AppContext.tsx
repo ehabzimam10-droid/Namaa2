@@ -223,7 +223,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
               allowance: k.allowance || prevKid.allowance || 0,
               tasks: mappedTasks,
               savingsGoals: mappedGoals,
-              transactions: mappedTx
+              transactions: mappedTx,
+              is_league_winner: !!k.is_league_winner
             };
           })
         );
@@ -1048,34 +1049,37 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return taskTime >= startTime && taskTime <= endTime;
     });
 
-    // 1. Savings Points (Max 50)
+    // 1. Savings Points (Max 50) - Every 1% of allowance saved = 2 pts
     const leagueGoal = (kid.savingsGoals || []).find((g) => g.title === 'حصالة دوري العائلة 🏆');
     const savingsAmount = leagueGoal ? leagueGoal.currentAmount : 0;
-    const savingsScore = activeLeague.bases.includes('الادخار')
-      ? Math.min(50, Math.round((savingsAmount / baseAllowance) * 50))
+    const savingsScore = activeLeague.bases.includes('الادخار') && baseAllowance > 0
+      ? Math.min(50, Math.round(((savingsAmount / baseAllowance) * 100) * 2))
       : 0;
 
-    // 2. Investment Points (Max 50)
+    // 2. Investment Points (Max 50) - Every 1% of allowance invested = 5 pts
     const investmentAmount = currentLeagueTx
       .filter(tx => tx.type === 'withdrawal' && (tx.title.includes('استثمار') || tx.title.includes('مشروع')))
       .reduce((sum, tx) => sum + tx.amount, 0);
-    const investmentScore = activeLeague.bases.includes('الاستثمار')
-      ? Math.min(50, Math.round((investmentAmount / baseAllowance) * 50))
+    const investmentScore = activeLeague.bases.includes('الاستثمار') && baseAllowance > 0
+      ? Math.min(50, Math.round(((investmentAmount / baseAllowance) * 100) * 5))
       : 0;
 
-    // 3. Donation Points (Max 50)
+    // 3. Donation Points (Max 50) - Every 1% of allowance donated = 5 pts
     const donationAmount = currentLeagueTx
       .filter(tx => tx.type === 'withdrawal' && tx.title.includes('تبرع'))
       .reduce((sum, tx) => sum + tx.amount, 0);
-    const donationScore = activeLeague.bases.includes('التبرع')
-      ? Math.min(50, Math.round((donationAmount / baseAllowance) * 50))
+    const donationScore = activeLeague.bases.includes('التبرع') && baseAllowance > 0
+      ? Math.min(50, Math.round(((donationAmount / baseAllowance) * 100) * 5))
       : 0;
 
-    // 4. Tasks Points (Max 100)
+    // 4. Tasks Points (Max 100) - Easy: 5 pts, Medium: 10 pts, Hard: 15 pts
     const totalTasks = currentLeagueTasks.length;
     const approvedTasks = currentLeagueTasks.filter(t => t.status === 'approved').length;
-    const tasksScore = activeLeague.bases.includes('إنجاز المهام') && totalTasks > 0
-      ? Math.min(100, Math.round((approvedTasks / totalTasks) * 100))
+    const tasksScore = activeLeague.bases.includes('إنجاز المهام')
+      ? Math.min(100, currentLeagueTasks.filter(t => t.status === 'approved').reduce((sum, t) => {
+          const pts = t.difficulty === 'easy' ? 5 : t.difficulty === 'medium' ? 10 : t.difficulty === 'hard' ? 15 : 5;
+          return sum + pts;
+        }, 0))
       : 0;
 
     // 5. Spending Points (Max 100)
@@ -1262,6 +1266,88 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
       // Automatically clean up 'حصالة دوري العائلة 🏆' and refund money
       const updatedKids = [...kids];
+
+      // 3. Determine league winner if evaluated and update database/state
+      if (isEvaluated && finalSpendingScores) {
+        const tempActiveLeague = {
+          ...activeLeague,
+          spendingScores: finalSpendingScores
+        };
+        
+        const kidPoints = updatedKids.map(k => {
+          const baseAllowance = Number(tempActiveLeague.allowances?.[k.id] || tempActiveLeague.allowances?.[k.name] || k.allowance || 100);
+          const startTime = new Date(tempActiveLeague.startDate!).getTime();
+          const endTime = new Date(tempActiveLeague.endDate!).getTime();
+
+          const currentLeagueTx = (k.transactions || []).filter((tx) => {
+            const txTime = new Date(tx.date).getTime();
+            return txTime >= startTime && txTime <= endTime;
+          });
+
+          const currentLeagueTasks = (k.tasks || []).filter((task) => {
+            const taskTime = new Date(task.createdAt || task.endDate || '').getTime();
+            if (isNaN(taskTime)) return false;
+            return taskTime >= startTime && taskTime <= endTime;
+          });
+
+          // 1. Savings Points
+          const leagueGoal = (k.savingsGoals || []).find((g) => g.title === 'حصالة دوري العائلة 🏆');
+          const savingsAmount = leagueGoal ? leagueGoal.currentAmount : 0;
+          const savingsScore = tempActiveLeague.bases.includes('الادخار') && baseAllowance > 0
+            ? Math.min(50, Math.round(((savingsAmount / baseAllowance) * 100) * 2))
+            : 0;
+
+          // 2. Investment Points
+          const investmentAmount = currentLeagueTx
+            .filter(tx => tx.type === 'withdrawal' && (tx.title.includes('استثمار') || tx.title.includes('مشروع')))
+            .reduce((sum, tx) => sum + tx.amount, 0);
+          const investmentScore = tempActiveLeague.bases.includes('الاستثمار') && baseAllowance > 0
+            ? Math.min(50, Math.round(((investmentAmount / baseAllowance) * 100) * 5))
+            : 0;
+
+          // 3. Donation Points
+          const donationAmount = currentLeagueTx
+            .filter(tx => tx.type === 'withdrawal' && tx.title.includes('تبرع'))
+            .reduce((sum, tx) => sum + tx.amount, 0);
+          const donationScore = tempActiveLeague.bases.includes('التبرع') && baseAllowance > 0
+            ? Math.min(50, Math.round(((donationAmount / baseAllowance) * 100) * 5))
+            : 0;
+
+          // 4. Tasks Points
+          const tasksScore = tempActiveLeague.bases.includes('إنجاز المهام')
+            ? Math.min(100, currentLeagueTasks.filter(t => t.status === 'approved').reduce((sum, t) => {
+                const pts = t.difficulty === 'easy' ? 5 : t.difficulty === 'medium' ? 10 : t.difficulty === 'hard' ? 15 : 5;
+                return sum + pts;
+              }, 0))
+            : 0;
+
+          // 5. Spending Points
+          const spendingScore = tempActiveLeague.bases.includes('إدارة المصروف')
+            ? (finalSpendingScores[k.id] || finalSpendingScores[k.name] || 0)
+            : 0;
+
+          const totalPoints = savingsScore + investmentScore + donationScore + tasksScore + spendingScore;
+          return { kidId: k.id, totalPoints };
+        });
+
+        // Sort kids by total points descending
+        kidPoints.sort((a, b) => b.totalPoints - a.totalPoints);
+        
+        if (kidPoints.length > 0) {
+          const winnerId = kidPoints[0].kidId;
+          for (const k of updatedKids) {
+            const isWinner = k.id === winnerId;
+            k.is_league_winner = isWinner;
+            
+            // Sync to Supabase
+            await supabase
+              .from('kids_profiles')
+              .update({ is_league_winner: isWinner })
+              .eq('id', k.id);
+          }
+        }
+      }
+
       for (const kid of updatedKids) {
         const leagueGoal = (kid.savingsGoals || []).find(g => g.title === 'حصالة دوري العائلة 🏆');
         if (leagueGoal) {
@@ -1285,13 +1371,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             const txId = `tx_refund_${Date.now()}_${Math.random()}`;
             const newTx: Transaction = {
               id: txId,
-              title: `استرجاع مدخرات حصالة دوري العائلة 🔓`,
+              title: `استرداد مدخرات التحدي 💰`,
               amount: refundAmount,
               type: 'deposit',
               date: new Date().toISOString()
             };
             kid.transactions = [newTx, ...(kid.transactions || [])];
-            await logTransaction(kid.name, `استرجاع مدخرات حصالة دوري العائلة 🔓`, refundAmount, 'deposit');
+            await logTransaction(kid.name, `استرداد مدخرات التحدي 💰`, refundAmount, 'deposit');
           }
         }
       }

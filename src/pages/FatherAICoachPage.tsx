@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../context/AppContext';
 import { suggestTaskForKid, sendGeneralChatMessage } from '../utils/aiService';
 import SuggestedTaskWidget from '../components/ui/SuggestedTaskWidget';
 import AIActionMenu from '../components/ui/AIActionMenu';
+import { supabase } from '../utils/supabaseClient';
 
 interface Message {
   id: string;
@@ -19,49 +20,74 @@ export default function FatherAICoachPage() {
   const [inputValue, setInputValue] = useState('');
   const [isActionMenuOpen, setIsActionMenuOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Load chat history from localStorage on mount
   useEffect(() => {
-    const savedHistory = localStorage.getItem('namaa_chat_history');
-    if (savedHistory) {
-      try {
-        setMessages(JSON.parse(savedHistory));
-      } catch (err) {
-        console.error('Failed to parse chat history:', err);
-      }
-    } else {
-      // Default initial messages if no history
-      const initial: Message[] = [
-        {
-          id: 'msg_1',
-          sender: 'ai',
-          text: 'مرحباً بك يا أبو خالد في مركز الاستشارة الذكي 🤖. أنا مستشارك المالي المساعد، كيف يمكنني مساعدتك اليوم في إدارة ثقافة أبنائك المالية؟',
-          timestamp: new Date(Date.now() - 60000 * 5).toISOString(),
-        },
-        {
-          id: 'msg_2',
-          sender: 'father',
-          text: 'أهلاً بك، أريد بعض النصائح لتحسين مستوى ادخار ابني سالم، فهو ينفق مصروفه سريعاً.',
-          timestamp: new Date(Date.now() - 60000 * 4).toISOString(),
-        },
-        {
-          id: 'msg_3',
-          sender: 'ai',
-          text: 'بالتأكيد! بناءً على تحليل سلوك سالم المالي مؤخراً:\n\n1. 🎯 **حدد له هدفاً جذاباً:** مثل شراء دراجة جديدة وساعده في إعداد حصالة مقفلة لهذا الهدف.\n2. 🤝 **شجعه بمكافآت عينية:** يمكنك تخصيص مكافأة تشجيعية (مثل ساعة لعب إضافية) عند التزامه بالادخار الأسبوعي.\n3. 🧹 **عزز قيمة المسؤولية:** أسند إليه بعض المهام المنزلية البسيطة بمكافأة نقاط لتنمية تقديره لقيمة العمل والمال.\n\nهل ترغب في أن أقترح له مهمة محددة للبدء فوراً؟ 🎯',
-          timestamp: new Date(Date.now() - 60000 * 3).toISOString(),
-        }
-      ];
-      setMessages(initial);
-      localStorage.setItem('namaa_chat_history', JSON.stringify(initial));
-    }
-  }, []);
-
-  // Save chat history to localStorage on changes
-  useEffect(() => {
-    if (messages.length > 0) {
-      localStorage.setItem('namaa_chat_history', JSON.stringify(messages));
-    }
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  // Load chat history from Supabase on mount
+  useEffect(() => {
+    const fetchChatHistory = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('chat_messages')
+          .select('*')
+          .order('created_at', { ascending: true });
+        
+        if (!error && data) {
+          const mapped: Message[] = data.map((item: any) => ({
+            id: item.id,
+            sender: item.sender,
+            text: item.text || undefined,
+            isWidget: item.is_widget,
+            widgetData: item.widget_data,
+            timestamp: item.created_at
+          }));
+
+          if (mapped.length > 0) {
+            setMessages(mapped);
+          } else {
+            // Default initial messages if no history
+            const initial: Message[] = [
+              {
+                id: 'msg_1',
+                sender: 'ai',
+                text: 'مرحباً بك يا أبو خالد في مركز الاستشارة الذكي 🤖. أنا مستشارك المالي المساعد، كيف يمكنني مساعدتك اليوم في إدارة ثقافة أبنائك المالية؟',
+                timestamp: new Date(Date.now() - 60000 * 5).toISOString(),
+              },
+              {
+                id: 'msg_2',
+                sender: 'father',
+                text: 'أهلاً بك، أريد بعض النصائح لتحسين مستوى ادخار ابني سالم، فهو ينفق مصروفه سريعاً.',
+                timestamp: new Date(Date.now() - 60000 * 4).toISOString(),
+              },
+              {
+                id: 'msg_3',
+                sender: 'ai',
+                text: 'بالتأكيد! بناءً على تحليل سلوك سالم المالي مؤخراً:\n\n1. 🎯 **حدد له هدفاً جذاباً:** مثل شراء دراجة جديدة وساعده في إعداد حصالة مقفلة لهذا الهدف.\n2. 🤝 **شجعه بمكافآت عينية:** يمكنك تخصيص مكافأة تشجيعية (مثل ساعة لعب إضافية) عند التزامه بالادخار الأسبوعي.\n3. 🧹 **عزز قيمة المسؤولية:** أسند إليه بعض المهام المنزلية البسيطة بمكافأة نقاط لتنمية تقديره لقيمة العمل والمال.\n\nهل ترغب في أن أقترح له مهمة محددة للبدء فوراً؟ 🎯',
+                timestamp: new Date(Date.now() - 60000 * 3).toISOString(),
+              }
+            ];
+            setMessages(initial);
+            
+            // Insert initial messages to Supabase for persistence
+            for (const msg of initial) {
+              await supabase.from('chat_messages').insert({
+                sender: msg.sender,
+                text: msg.text || null,
+                is_widget: !!msg.isWidget,
+                widget_data: msg.widgetData || {}
+              });
+            }
+          }
+        }
+      } catch (err) {
+        console.error('Failed to fetch chat history from Supabase:', err);
+      }
+    };
+    fetchChatHistory();
+  }, []);
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -79,6 +105,17 @@ export default function FatherAICoachPage() {
     setMessages((prev) => [...prev, userMsg]);
     setInputValue('');
     setIsLoading(true);
+
+    try {
+      await supabase.from('chat_messages').insert({
+        sender: 'father',
+        text: userText,
+        is_widget: false,
+        widget_data: {}
+      });
+    } catch (err) {
+      console.error('Failed to save message to Supabase:', err);
+    }
 
     // Show a loading indicator bubble
     const loadingId = `msg_loading_${Date.now()}`;
@@ -105,6 +142,17 @@ export default function FatherAICoachPage() {
       };
 
       setMessages((prev) => prev.filter((m) => m.id !== loadingId).concat(aiResponse));
+
+      try {
+        await supabase.from('chat_messages').insert({
+          sender: 'ai',
+          text: response,
+          is_widget: false,
+          widget_data: {}
+        });
+      } catch (err) {
+        console.error('Failed to save AI response to Supabase:', err);
+      }
     } catch (err) {
       console.error(err);
       setMessages((prev) => prev.filter((m) => m.id !== loadingId));
@@ -119,13 +167,25 @@ export default function FatherAICoachPage() {
       const notes = details.notes || '';
       
       // a) Display user message
+      const userText = `اقترح مهمة لـ ${kidName}${notes ? ` مع التركيز على: ${notes}` : ''} 🎯`;
       const userMsg: Message = {
         id: `msg_action_req_${Date.now()}`,
         sender: 'father',
-        text: `اقترح مهمة لـ ${kidName}${notes ? ` مع التركيز على: ${notes}` : ''} 🎯`,
+        text: userText,
         timestamp: new Date().toISOString(),
       };
       setMessages((prev) => [...prev, userMsg]);
+
+      try {
+        await supabase.from('chat_messages').insert({
+          sender: 'father',
+          text: userText,
+          is_widget: false,
+          widget_data: {}
+        });
+      } catch (err) {
+        console.error('Failed to save action message to Supabase:', err);
+      }
 
       // b) Show a loading bubble
       const loadingId = `msg_loading_${Date.now()}`;
@@ -161,6 +221,23 @@ export default function FatherAICoachPage() {
 
         // Remove loading bubble and add the actual generative response
         setMessages((prev) => prev.filter((m) => m.id !== loadingId).concat(replyMsg));
+
+        try {
+          await supabase.from('chat_messages').insert({
+            sender: 'ai',
+            text: null,
+            is_widget: true,
+            widget_data: {
+              kidName,
+              title: recommendation.title,
+              suggestedAmount: recommendation.suggestedAmount,
+              type: recommendation.type,
+              reasoning: recommendation.reasoning
+            }
+          });
+        } catch (err) {
+          console.error('Failed to save AI widget response to Supabase:', err);
+        }
       } catch (err) {
         console.error(err);
         setMessages((prev) => prev.filter((m) => m.id !== loadingId));
@@ -169,13 +246,25 @@ export default function FatherAICoachPage() {
       }
     } else if (action === 'family_analysis') {
       // Show user message
+      const userText = `أعطني تقريراً وتحليلاً شاملاً للعائلة 📊`;
       const userMsg: Message = {
         id: `msg_analysis_req_${Date.now()}`,
         sender: 'father',
-        text: `أعطني تقريراً وتحليلاً شاملاً للعائلة 📊`,
+        text: userText,
         timestamp: new Date().toISOString(),
       };
       setMessages((prev) => [...prev, userMsg]);
+
+      try {
+        await supabase.from('chat_messages').insert({
+          sender: 'father',
+          text: userText,
+          is_widget: false,
+          widget_data: {}
+        });
+      } catch (err) {
+        console.error('Failed to save analysis prompt to Supabase:', err);
+      }
 
       // Show loading
       const loadingId = `msg_loading_${Date.now()}`;
@@ -189,7 +278,7 @@ export default function FatherAICoachPage() {
       setIsLoading(true);
 
       // Simulate analysis response
-      setTimeout(() => {
+      setTimeout(async () => {
         const textReport = `📊 **تقرير التحليل الشامل للأسرة**:\n\n*   **سالم 👦**: نسبة ادخار ممتازة بلغت 80% من خلال الحصالات النشطة، مع التزام رائع بإتمام المهام.\n*   **خالد 👦**: رصيد حالي صفر مع غياب للخطط الادخارية. يُنصح بتحويل مصروف تشجيعي له لمساعدته في بدء أولى خطواته المالية.\n\n💡 **توصية عامة:** قم بإنشاء مشروع استثماري عائلي مشترك لتحفيز الأطفال على العمل الجماعي ومشاركة العوائد! 📈`;
         
         const replyMsg: Message = {
@@ -201,6 +290,17 @@ export default function FatherAICoachPage() {
 
         setMessages((prev) => prev.filter((m) => m.id !== loadingId).concat(replyMsg));
         setIsLoading(false);
+
+        try {
+          await supabase.from('chat_messages').insert({
+            sender: 'ai',
+            text: textReport,
+            is_widget: false,
+            widget_data: {}
+          });
+        } catch (err) {
+          console.error('Failed to save AI report to Supabase:', err);
+        }
       }, 1500);
     }
   };
@@ -270,6 +370,7 @@ export default function FatherAICoachPage() {
             </div>
           );
         })}
+        <div ref={messagesEndRef} />
       </div>
 
       {/* Input Area */}

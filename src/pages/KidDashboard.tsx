@@ -85,7 +85,15 @@ export default function KidDashboard() {
               العمر: {kid.age} سنوات
             </span>
           </div>
-          <h2 className="text-xl font-black text-white">لوحة تحكم {kid.name} 👦</h2>
+          <div className="flex flex-col items-end">
+            <h2 className="text-xl font-black text-white">لوحة تحكم {kid.name} 👦</h2>
+            {kid.is_league_winner && (
+              <span className="mt-1 bg-yellow-500/25 border border-yellow-500/40 text-yellow-300 rounded-full px-2.5 py-0.5 text-[10px] font-black flex items-center gap-1 animate-pulse">
+                <span>🏆</span>
+                <span>بطل دوري العائلة الحالي</span>
+              </span>
+            )}
+          </div>
         </div>
       </div>
 

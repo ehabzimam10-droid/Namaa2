@@ -44,17 +44,19 @@ export default function AssignTaskModal({ isOpen, onClose, kidName }: AssignTask
     e.preventDefault();
     if (!title.trim()) return;
 
-    if (difficulty === 'easy' && remainingEasy === 0) {
-      alert('عذراً، لقد استنفدت عدد المهام السهلة المسموح بها (الحد الأقصى: 5)');
-      return;
-    }
-    if (difficulty === 'medium' && remainingMedium === 0) {
-      alert('عذراً، لقد استنفدت عدد المهام المتوسطة المسموح بها (الحد الأقصى: 3)');
-      return;
-    }
-    if (difficulty === 'hard' && remainingHard === 0) {
-      alert('عذراً، لقد استنفدت عدد المهام الصعبة المسموح بها (الحد الأقصى: 3)');
-      return;
+    if (activeLeague && activeLeague.isActive) {
+      if (difficulty === 'easy' && remainingEasy === 0) {
+        alert('عذراً، لقد استنفدت عدد المهام السهلة المسموح بها (الحد الأقصى: 5)');
+        return;
+      }
+      if (difficulty === 'medium' && remainingMedium === 0) {
+        alert('عذراً، لقد استنفدت عدد المهام المتوسطة المسموح بها (الحد الأقصى: 3)');
+        return;
+      }
+      if (difficulty === 'hard' && remainingHard === 0) {
+        alert('عذراً، لقد استنفدت عدد المهام الصعبة المسموح بها (الحد الأقصى: 3)');
+        return;
+      }
     }
 
     if (rewardType !== 'custom' && (!amount || amount <= 0)) {
@@ -115,27 +117,29 @@ export default function AssignTaskModal({ isOpen, onClose, kidName }: AssignTask
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Target Tasks Progress Helper */}
-          <div className="bg-white/5 border border-white/5 p-3 rounded-2xl text-right text-xs space-y-1.5 backdrop-blur-md">
-            <span className="font-bold text-orange-400 block">📊 أهداف المهام لهذا الدوري:</span>
-            <div className="grid grid-cols-3 gap-2 text-center text-[10px] text-slate-350 font-sans">
-              <div className="bg-white/5 p-1.5 rounded-xl border border-white/5">
-                <span className="block text-slate-400">سهلة (5)</span>
-                <span className="font-extrabold text-white">{easyCount}/5</span>
-                <span className="block text-[8px] text-slate-500">(المتبقي: {remainingEasy})</span>
-              </div>
-              <div className="bg-white/5 p-1.5 rounded-xl border border-white/5">
-                <span className="block text-slate-400">متوسطة (3)</span>
-                <span className="font-extrabold text-white">{mediumCount}/3</span>
-                <span className="block text-[8px] text-slate-500">(المتبقي: {remainingMedium})</span>
-              </div>
-              <div className="bg-white/5 p-1.5 rounded-xl border border-white/5">
-                <span className="block text-slate-400">صعبة (3)</span>
-                <span className="font-extrabold text-white">{hardCount}/3</span>
-                <span className="block text-[8px] text-slate-500">(المتبقي: {remainingHard})</span>
+          {activeLeague && activeLeague.isActive && (
+            /* Target Tasks Progress Helper */
+            <div className="bg-white/5 border border-white/5 p-3 rounded-2xl text-right text-xs space-y-1.5 backdrop-blur-md">
+              <span className="font-bold text-orange-400 block">📊 أهداف المهام لهذا الدوري:</span>
+              <div className="grid grid-cols-3 gap-2 text-center text-[10px] text-slate-350 font-sans">
+                <div className="bg-white/5 p-1.5 rounded-xl border border-white/5">
+                  <span className="block text-slate-400">سهلة (5)</span>
+                  <span className="font-extrabold text-white">{easyCount}/5</span>
+                  <span className="block text-[8px] text-slate-500">(المتبقي: {remainingEasy})</span>
+                </div>
+                <div className="bg-white/5 p-1.5 rounded-xl border border-white/5">
+                  <span className="block text-slate-400">متوسطة (3)</span>
+                  <span className="font-extrabold text-white">{mediumCount}/3</span>
+                  <span className="block text-[8px] text-slate-500">(المتبقي: {remainingMedium})</span>
+                </div>
+                <div className="bg-white/5 p-1.5 rounded-xl border border-white/5">
+                  <span className="block text-slate-400">صعبة (3)</span>
+                  <span className="font-extrabold text-white">{hardCount}/3</span>
+                  <span className="block text-[8px] text-slate-500">(المتبقي: {remainingHard})</span>
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
           {/* Task Title */}
           <div className="space-y-1">
@@ -164,9 +168,9 @@ export default function AssignTaskModal({ isOpen, onClose, kidName }: AssignTask
               }}
               className="w-full bg-[#111C2E]/80 border border-white/10 focus:border-[#8c7355] rounded-xl px-3 py-2.5 text-right text-white text-xs outline-none transition-all font-sans"
             >
-              <option value="easy" disabled={remainingEasy === 0}>سهل (5 نقاط) - المتبقي: {remainingEasy}/5</option>
-              <option value="medium" disabled={remainingMedium === 0}>متوسط (10 نقاط) - المتبقي: {remainingMedium}/3</option>
-              <option value="hard" disabled={remainingHard === 0}>صعب (15 نقطة) - المتبقي: {remainingHard}/3</option>
+              <option value="easy" disabled={activeLeague && activeLeague.isActive && remainingEasy === 0}>سهل (5 نقاط) - المتبقي: {remainingEasy}/5</option>
+              <option value="medium" disabled={activeLeague && activeLeague.isActive && remainingMedium === 0}>متوسط (10 نقاط) - المتبقي: {remainingMedium}/3</option>
+              <option value="hard" disabled={activeLeague && activeLeague.isActive && remainingHard === 0}>صعب (15 نقطة) - المتبقي: {remainingHard}/3</option>
             </select>
           </div>
 

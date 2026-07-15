@@ -49,6 +49,7 @@ export interface Kid {
   transactions: Transaction[];
   tasks: Task[];
   savingsGoals: SavingsGoal[];
+  is_league_winner?: boolean;
 }
 
 export interface Father {
