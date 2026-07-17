@@ -101,17 +101,17 @@ export default function KidCastlePage() {
   return (
     <div className="w-full space-y-8 text-right font-sans pb-12">
       {/* Header Panel */}
-      <div className="relative overflow-hidden bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl rounded-3xl p-6 flex flex-col md:flex-row-reverse md:items-center justify-between gap-4">
+      <div className="relative overflow-hidden bg-[#0C2341] border border-[#0C2341]/10 shadow-2xl rounded-3xl p-6 flex flex-col md:flex-row-reverse md:items-center justify-between gap-4">
         <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-orange-500/10 blur-2xl"></div>
-        <div className="flex items-center justify-between w-full">
+        <div className="flex items-center justify-between w-full z-10">
           <button
             onClick={() => navigate('/kid')}
-            className="rounded-xl bg-white/10 hover:bg-white/20 px-3 py-2 text-xs font-bold text-white transition-all border border-white/5"
+            className="rounded-xl bg-white/15 hover:bg-white/25 px-3.5 py-2 text-xs font-bold text-white transition-all border border-white/10 active:scale-95 cursor-pointer font-sans"
           >
             👦 العودة للوحة التحكم
           </button>
           <div>
-            <h2 className="text-xs font-semibold text-orange-400">التمثيل البصري ثلاثي الأبعاد لنموك المالي وسلوكك</h2>
+            <h2 className="text-xs font-semibold text-orange-300">التمثيل البصري ثلاثي الأبعاد لنموك المالي وسلوكك</h2>
             <h3 className="text-2xl font-black text-white mt-1">القرية الافتراضية ثلاثية الأبعاد 🏰</h3>
           </div>
         </div>
@@ -138,34 +138,34 @@ export default function KidCastlePage() {
       </div>
 
       {/* AI Village Advisor Panel */}
-      <div className="bg-white/5 border border-white/10 rounded-3xl p-6 shadow-2xl relative overflow-hidden backdrop-blur-xl space-y-4">
-        <div className="flex justify-between items-center border-b border-white/5 pb-3">
+      <div className="bg-white border border-[#0C2341]/10 rounded-3xl p-6 shadow-sm relative overflow-hidden space-y-4">
+        <div className="flex justify-between items-center border-b border-slate-100 pb-3">
           <button
             onClick={fetchAiAdvice}
             disabled={isAiLoading}
-            className="px-3.5 py-1.5 bg-[#8B84D7]/20 hover:bg-[#8B84D7]/30 text-[#8B84D7] text-xs font-bold rounded-xl transition-all active:scale-95 flex items-center gap-1.5 disabled:opacity-50 cursor-pointer font-sans"
+            className="px-3.5 py-1.5 bg-[#8B84D7]/10 hover:bg-[#8B84D7]/20 text-[#8B84D7] text-xs font-bold rounded-xl transition-all active:scale-95 flex items-center gap-1.5 disabled:opacity-50 cursor-pointer font-sans"
           >
             <span>{isAiLoading ? 'جاري التحليل... ⏳' : 'تحديث التحليل المالي 🔮'}</span>
           </button>
           <div className="text-right">
-            <h4 className="text-sm font-black text-purple-300">مستشار القرية المالي الذكي 🤖</h4>
-            <p className="text-[10px] text-slate-400 mt-0.5">تحليل سلوكك المالي المباشر وتقديم توجيهات لتطوير قريتك وقدراتك المالية</p>
+            <h4 className="text-sm font-black text-[#0C2341]">مستشار القرية المالي الذكي 🤖</h4>
+            <p className="text-[10px] text-slate-500 mt-0.5 font-bold">تحليل سلوكك المالي المباشر وتقديم توجيهات لتطوير قريتك وقدراتك المالية</p>
           </div>
         </div>
 
         {isAiLoading ? (
           <div className="flex flex-col items-center justify-center py-6 space-y-3">
             <div className="h-7 w-7 border-2 border-[#8B84D7] border-t-transparent rounded-full animate-spin"></div>
-            <p className="text-xs text-slate-400 font-sans">يقوم المستشار المالي بتحليل قريتك ثلاثية الأبعاد...</p>
+            <p className="text-xs text-slate-500 font-sans">يقوم المستشار المالي بتحليل قريتك ثلاثية الأبعاد...</p>
           </div>
         ) : (
-          <div className="bg-[#111C2E]/60 border border-[#8B84D7]/20 p-4 rounded-2xl flex flex-row-reverse items-start gap-4 animate-fade-in">
+          <div className="bg-[#8B84D7]/5 border border-[#8B84D7]/20 p-4 rounded-2xl flex flex-row-reverse items-start gap-4 animate-fade-in text-[#0C2341]">
             <div className="text-2xl p-2.5 rounded-full bg-[#8B84D7]/10 text-[#8B84D7] shrink-0">
               💡
             </div>
             <div className="text-right flex-1 space-y-1.5">
               <span className="text-[10px] font-black text-[#8B84D7] tracking-wider uppercase block">تحليل المستشار المالي</span>
-              <p className="text-xs text-slate-200 leading-relaxed font-sans font-medium">
+              <p className="text-xs text-slate-700 leading-relaxed font-sans font-bold">
                 {aiAdvice || 'يرجى النقر فوق زر "تحديث التحليل المالي 🔮" للحصول على مراجعة مباشرة لقريتك من مستشار الذكاء الاصطناعي.'}
               </p>
             </div>
@@ -173,16 +173,16 @@ export default function KidCastlePage() {
         )}
 
         {!geminiApiKey && (
-          <div className="bg-amber-500/10 border border-amber-500/20 text-amber-300 p-3 rounded-xl text-[10px] font-bold text-center">
+          <div className="bg-amber-500/10 border border-amber-500/20 text-amber-600 p-3 rounded-xl text-[10px] font-bold text-center">
             ⚠️ مفتاح Gemini API غير متاح حالياً (يعمل بنظام المحاكاة). يمكنك إضافته من زر الإعدادات بالجانب لتفعيل الاتصال المباشر.
           </div>
         )}
       </div>
 
       {/* Info Banner */}
-      <div className="bg-[#111C2E]/60 border border-white/10 p-5 rounded-3xl text-xs leading-relaxed">
+      <div className="bg-[#0C2341]/5 border border-[#0C2341]/10 p-5 rounded-3xl text-xs leading-relaxed text-[#0C2341]">
         <strong>💡 دليل معالم قريتك الافتراضية المربوطة بسلوكك:</strong>
-        <ul className="list-disc pr-5 mt-2 space-y-1.5 text-slate-400">
+        <ul className="list-disc pr-5 mt-2 space-y-1.5 text-slate-600 font-sans font-bold">
           <li><strong>البنك العائلي 💰 (مستوى {levels.bank}):</strong> ينمو ويتزين بالذهب بناءً على التزامك بادخار الأموال بانتظام.</li>
           <li><strong>واحة التبرعات 💚 (مستوى {levels.farm}):</strong> تصبح خضراء ويفيض بئرها بالماء العذب عند مشاركتك المجتمعية بالخير والتبرع.</li>
           <li><strong>سوق الاستثمار 📈 (مستوى {levels.market}):</strong> يمتلئ بالخيام والنشاط التجاري مع زيادة حجم استثماراتك في المشاريع العائلية.</li>
@@ -192,11 +192,13 @@ export default function KidCastlePage() {
       </div>
 
       {/* Developer Controls Glass Panel */}
-      <div className="bg-white/5 border border-white/10 rounded-3xl p-6 shadow-2xl relative overflow-hidden backdrop-blur-xl space-y-6">
-        <div className="border-b border-white/5 pb-3 flex flex-col sm:flex-row-reverse sm:items-center justify-between gap-4">
+      <div className="bg-white border border-[#C66E4E]/30 rounded-3xl p-6 shadow-sm relative overflow-hidden space-y-6">
+        <div className="absolute top-0 right-0 w-full h-1 bg-gradient-to-r from-[#C66E4E] to-[#8B84D7]"></div>
+        
+        <div className="border-b border-slate-100 pb-3 flex flex-col sm:flex-row-reverse sm:items-center justify-between gap-4">
           <div className="text-right">
-            <h4 className="text-sm font-black text-orange-400">لوحة تحكيم وتطوير المطورين (Developer Controls) 🛠️</h4>
-            <p className="text-[10px] text-slate-400 mt-1 font-sans">
+            <h4 className="text-sm font-black text-[#0C2341]">لوحة تحكيم وتطوير المطورين (Developer Controls) 🛠️</h4>
+            <p className="text-[10px] text-slate-500 mt-1 font-sans font-bold">
               اسحب المؤشرات للتحكم بمستوى كل مبنى (من 1 إلى 5). مستوى القرية العام يُحسب تلقائياً وفق قواعد التوازن.
             </p>
           </div>
@@ -209,23 +211,23 @@ export default function KidCastlePage() {
         </div>
 
         {/* Computed village level strip */}
-        <div className="rounded-2xl border border-yellow-200/15 bg-gradient-to-l from-yellow-500/10 to-transparent p-4">
-          <div className="flex items-center justify-between">
+        <div className="rounded-2xl border border-yellow-500/25 bg-gradient-to-l from-yellow-500/5 to-transparent p-4">
+          <div className="flex items-center justify-between flex-row-reverse">
+            <span className="text-xs font-black text-[#0C2341]">
+              مستوى القرية العام: <span className="text-yellow-600 font-bold">{villageLevel}</span> · {TIER_LABEL[vTier]} (تلقائي ✨)
+            </span>
             <div className="flex items-center gap-1.5">
               {[1, 2, 3, 4, 5].map((s) => (
                 <div
                   key={s}
                   className={`h-2.5 w-8 rounded-full transition-all duration-500 ${
-                    s <= villageLevel ? 'bg-gradient-to-l from-yellow-300 to-amber-500 shadow-[0_0_8px_rgba(253,224,71,0.6)]' : 'bg-slate-700'
+                    s <= villageLevel ? 'bg-gradient-to-l from-yellow-400 to-amber-500 shadow-[0_0_8px_rgba(253,224,71,0.4)]' : 'bg-slate-200'
                   }`}
                 ></div>
               ))}
             </div>
-            <span className="text-xs font-black text-white">
-              مستوى القرية العام: <span className="text-yellow-300">{villageLevel}</span> · {TIER_LABEL[vTier]} (تلقائي ✨)
-            </span>
           </div>
-          {milestone && <p className="mt-2 text-[10px] font-bold text-slate-400">🎯 {milestone}</p>}
+          {milestone && <p className="mt-2 text-[10px] font-bold text-slate-500 font-sans text-right">🎯 {milestone}</p>}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -235,12 +237,12 @@ export default function KidCastlePage() {
             const tier = tierForLevel(level);
             const isViolating = violations.includes(key);
             return (
-              <div key={key} className="space-y-2 bg-white/5 p-4 rounded-2xl border border-white/5">
+              <div key={key} className="space-y-2.5 bg-slate-50 p-4 rounded-2xl border border-slate-100 flex flex-col justify-between">
                 <div className="flex justify-between items-center">
-                  <span className="text-xs font-sans text-slate-400 font-bold">
-                    المستوى: {level} · <span className="text-purple-300">{TIER_LABEL[tier]}</span>
+                  <span className="text-xs font-sans text-[#8B84D7] font-bold">
+                    المستوى: {level} · <span className="font-bold">{TIER_LABEL[tier]}</span>
                   </span>
-                  <span className="text-xs font-black text-white">
+                  <span className="text-xs font-black text-[#0C2341]">
                     {info.nameAr} ({info.basisAr}) {info.emoji}
                   </span>
                 </div>
@@ -251,10 +253,10 @@ export default function KidCastlePage() {
                   step={1}
                   value={level}
                   onChange={(e) => setLevel(key, Number(e.target.value))}
-                  className={`w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer ${SLIDER_ACCENT[key]}`}
+                  className={`w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer outline-none mt-2 ${SLIDER_ACCENT[key]}`}
                 />
                 {isViolating && (
-                  <p className="text-[10px] font-bold text-orange-300">
+                  <p className="text-[10px] font-bold text-orange-600 mt-1">
                     ⚠️ متقدم بأكثر من طور عن بقية المباني — سيمنعه نظام التوازن عند الربط بالذكاء الاصطناعي
                   </p>
                 )}
