@@ -50,17 +50,19 @@ export default function LandingPage() {
   const subTextClass = darkMode ? 'text-slate-400' : 'text-slate-650';
 
   // Navigation container layout transition classes
-  const headerClasses = isScrolled
-    ? `fixed top-4 left-4 right-4 max-w-4xl mx-auto rounded-full border shadow-xl shadow-black/10 px-6 py-2.5 transition-all duration-500 ease-out z-50 backdrop-blur-md ${
-        darkMode 
-          ? 'bg-[#0D1527]/85 border-white/10 text-slate-100' 
-          : 'bg-white/85 border-[#0C2341]/15 text-[#0C2341]'
-      }`
-    : `sticky top-0 w-full px-8 py-5 border-b backdrop-blur-md transition-all duration-500 ease-out z-50 ${
-        darkMode 
-          ? 'bg-[#080F1E]/80 border-white/5 text-slate-100' 
-          : 'bg-[#F7F5EE]/80 border-[#0C2341]/5 text-[#0C2341]'
-      }`;
+  const headerClasses = `fixed left-0 right-0 mx-auto z-50 backdrop-blur-md transition-premium ${
+    isScrolled
+      ? `top-4 w-[92%] max-w-4xl rounded-full border shadow-xl shadow-black/10 px-6 py-2.5 ${
+          darkMode 
+            ? 'bg-[#0D1527]/85 border-white/10 text-slate-100' 
+            : 'bg-white/85 border-[#0C2341]/15 text-[#0C2341]'
+        }`
+      : `top-0 w-full rounded-none border-b px-8 py-5 ${
+          darkMode 
+            ? 'bg-[#080F1E]/80 border-white/5 text-slate-100' 
+            : 'bg-[#F7F5EE]/80 border-[#0C2341]/5 text-[#0C2341]'
+        }`
+  }`;
 
   return (
     <div dir="rtl" className={`min-h-screen transition-colors duration-500 font-sans overflow-x-hidden ${bgClass}`}>
@@ -105,6 +107,9 @@ export default function LandingPage() {
         .reveal-delay-1 { transition-delay: 100ms; }
         .reveal-delay-2 { transition-delay: 200ms; }
         .reveal-delay-3 { transition-delay: 300ms; }
+        .transition-premium {
+          transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
         
         html {
           scroll-behavior: smooth;
@@ -444,6 +449,30 @@ export default function LandingPage() {
             <p className={`text-xs leading-relaxed ${subTextClass}`}>تتحول هذه الأرقام والمدخرات إلى مبانٍ وقلاع وقرى ثلاثية الأبعاد تنمو أمام أعينهم وتوجههم ذكياً.</p>
           </div>
 
+        </div>
+      </section>
+
+      {/* Call to Action Banner */}
+      <section className="max-w-6xl mx-auto px-6 py-12 z-10 relative reveal">
+        <div className="bg-gradient-to-r from-[#0C2341] to-[#8B84D7] border border-white/10 rounded-[32px] p-10 md:p-14 text-white text-center shadow-2xl relative overflow-hidden">
+          {/* Decorative glowing circles inside */}
+          <div className="absolute -left-20 -bottom-20 h-56 w-56 rounded-full bg-[#C66E4E]/20 blur-3xl pointer-events-none"></div>
+          <div className="absolute -right-20 -top-20 h-56 w-56 rounded-full bg-white/10 blur-3xl pointer-events-none"></div>
+          
+          <div className="max-w-2xl mx-auto space-y-6 relative z-10">
+            <h3 className="text-2xl md:text-3xl font-black">جاهز لبناء مستقبل أطفالك المالي؟ 🍃</h3>
+            <p className="text-sm text-slate-200 leading-relaxed font-medium">
+              انضم إلى آلاف العائلات السعودية ودع أطفالك يبنون أولى خطواتهم الاستثمارية والادخارية اليوم بطريقة تفاعلية وممتعة.
+            </p>
+            <div className="pt-4">
+              <button
+                onClick={() => navigate('/login')}
+                className="px-8 py-4 bg-[#C66E4E] hover:bg-[#a65638] text-white text-sm font-black rounded-2xl shadow-lg transition-all hover:scale-105 active:scale-95 cursor-pointer font-sans"
+              >
+                سجل عائلتك مجاناً الآن 🚀
+              </button>
+            </div>
+          </div>
         </div>
       </section>
 

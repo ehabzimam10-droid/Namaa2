@@ -29,25 +29,32 @@
   }
 }
 
-/* Custom Scrollbars */
+/* Premium Custom Scrollbars */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 10px;
+  height: 10px;
 }
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: #FAF9F5;
+}
+.dark ::-webkit-scrollbar-track {
+  background: #080F1E;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(12, 35, 65, 0.15);
+  background: linear-gradient(180deg, #C66E4E, #8B84D7);
   border-radius: 9999px;
+  border: 2.5px solid #FAF9F5;
+}
+.dark ::-webkit-scrollbar-thumb {
+  border-color: #080F1E;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(12, 35, 65, 0.3);
+  background: linear-gradient(180deg, #a65638, #746cb8);
 }
 
 /* Firefox scrollbars */
 * {
   scrollbar-width: thin;
-  scrollbar-color: rgba(12, 35, 65, 0.15) transparent;
+  scrollbar-color: #C66E4E #FAF9F5;
 }
 
