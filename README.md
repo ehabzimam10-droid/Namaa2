@@ -1,32 +1,57 @@
-# React + TypeScript + Vite
+# مشروع نماء العائلي - بوابة التوفير والقرية الافتراضية الذكية 🍃🏰
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+تطبيق مالي تفاعلي مبتكر مصمم خصيصاً للأطفال والعائلات، يهدف إلى تعزيز الثقافة والمسؤولية المالية لدى الأجيال الناشئة من خلال دمج المحاكاة ثلاثية الأبعاد (3D)، الألعاب التنافسية (Gamification)، والتوجيه التربوي الذكي باستخدام الذكاء الاصطناعي (Gemini AI)، بالتعاون مع مصرف الإنماء.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 🌟 المميزات الرئيسية للمشروع
 
-## React Compiler
+### 1. مملكة نماء العائلية المشتركة (3D) 👑🏰
+* مشهد تفاعلي ثلاثي الأبعاد بالكامل للأب يستعرض ازدهار العائلة المشترك.
+* يرتفع مستوى القلعة والمباني المرافقة (خزينة المملكة، الحدائق الملكية، ميناء التجارة، برج الحكمة) بناءً على متوسط سلوك الأبناء الفعلي في الادخار والاستثمار والمهام والعمل الخيري.
+* لوحة تحكم ومحاكاة مدمجة (Developer Controls) تتيح للحكام والزوار تعديل المستويات يدوياً وبشكل فوري لمشاهدة استجابة وتطور البيئة ثلاثية الأبعاد.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### 2. قرى الأبناء الاستكشافية (3D) 👦🏡
+* لكل ابن قرية افتراضية خاصة به، تتطور وتتغير معالمها ومبانيها (البنك، المزرعة، المتجر، وطاحونة الهواء) ديناميكياً مع التزامه المالي الحقيقي.
+* يستطيع الأب فحص قرية كل ابن ثلاثية الأبعاد بشكل مستقل مباشرة من لوحة التحكم الخاصة به.
 
-## Expanding the Oxlint configuration
+### 3. المستشار المالي والتربوي الذكي (Gemini AI) 🤖🔮
+* **للأبناء**: يقدم المستشار نصائح تفاعلية مخصصة وحكماً مالية لتشجيعهم على اتخاذ قرارات ذكية.
+* **للأب**: يحلل المستشار مستوى نمو المملكة العائلية المشتركة ويزود الأب بتوصيات تربوية عملية لتوجيه سلوك الأبناء.
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+### 4. دوري نماء العائلي التنافسي 🏆⚔️
+* نظام تنافسي أسبوعي بين الأبناء مبني على معدلات التوفير والالتزام بالمهام، مع لوحة شرف لحصد المكافآت والمصروفات الذكية.
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+---
+
+## 🛠️ طريقة التثبيت والتشغيل المحلي
+
+لتشغيل المشروع محلياً، تأكد من تثبيت [Node.js](https://nodejs.org/)، ثم اتبع الخطوات التالية:
+
+### 1. تنزيل مستودع الأكواد وتثبيت الاعتماديات
+```bash
+git clone https://github.com/ehabzimam10-droid/Namaa2.git
+cd Namaa2
+npm install
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+### 2. تشغيل خادم التطوير المحلي
+```bash
+npm run dev
+```
+سيتم تشغيل التطبيق محلياً على الرابط: `http://localhost:5173/`
+
+---
+
+## 🔑 بيانات الدخول التجريبي (Demo Credentials)
+
+لتسهيل تجربة التحكيم، تتيح بوابة الدخول **إمكانية الدخول التجريبي السريع بنقرة واحدة** للأدوار التالية دون الحاجة لكتابة كلمات مرور:
+* **الأب (أبو خالد)**: لمشاهدة لوحة تحكم الأب، وإدارة الأبناء، والقرية العائلية المشتركة ثلاثية الأبعاد.
+* **الابن (خالد أو سالم)**: لمشاهدة لوحة تحكم الطفل، والحصالة الذكية، والقرية ثلاثية الأبعاد الخاصة به.
+* **المطور (God Mode)**: للتحكم الكامل المباشر وتعديل كافة القيم البرمجية.
+
+إذا كنت ترغب بالدخول باستخدام البريد الإلكتروني:
+* بريد الأب: `father@namaa.com`
+* بريد خالد: `khalid@namaa.com`
+* بريد سالم: `salem@namaa.com`
+* كلمة المرور لأي حساب: `password` (أو أي كلمة مرور)
