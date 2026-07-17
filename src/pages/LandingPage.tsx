@@ -30,11 +30,19 @@ export default function LandingPage() {
           }
         });
       },
-      { threshold: 0.1, rootMargin: '0px 0px -50px 0px' }
+      { threshold: 0.08, rootMargin: '0px 0px -40px 0px' }
     );
     reveals.forEach((el) => observer.observe(el));
     return () => observer.disconnect();
   }, []);
+
+  // Smooth scroll helper
+  const scrollToSection = (id: string) => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
 
   // Theme-based class helpers
   const bgClass = darkMode ? 'bg-[#080F1E] text-slate-100' : 'bg-[#F7F5EE] text-[#0C2341]';
@@ -97,6 +105,10 @@ export default function LandingPage() {
         .reveal-delay-1 { transition-delay: 100ms; }
         .reveal-delay-2 { transition-delay: 200ms; }
         .reveal-delay-3 { transition-delay: 300ms; }
+        
+        html {
+          scroll-behavior: smooth;
+        }
       `}</style>
 
       {/* Decorative blurred background blobs */}
@@ -125,9 +137,9 @@ export default function LandingPage() {
 
           {/* Navigation Links */}
           <nav className="hidden md:flex items-center gap-8 text-sm font-bold">
-            <a href="#features" className="hover:text-[#C66E4E] transition-colors">المميزات</a>
-            <a href="#how-it-works" className="hover:text-[#C66E4E] transition-colors">كيف نعمل</a>
-            <a href="#stats" className="hover:text-[#C66E4E] transition-colors">أرقامنا</a>
+            <button onClick={() => scrollToSection('features')} className="hover:text-[#C66E4E] transition-colors cursor-pointer">المميزات</button>
+            <button onClick={() => scrollToSection('showcase')} className="hover:text-[#C66E4E] transition-colors cursor-pointer">الأقسام واللوحات</button>
+            <button onClick={() => scrollToSection('how-it-works')} className="hover:text-[#C66E4E] transition-colors cursor-pointer">كيف نعمل</button>
           </nav>
 
           {/* Actions */}
@@ -178,7 +190,7 @@ export default function LandingPage() {
           </span>
           <h1 className="text-4xl md:text-5xl font-black leading-tight">
             ابنِ وعي أطفالك المالي عبر <br />
-            <span className="bg-gradient-to-r from-[#C66E4E] to-[#8B84D7] bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-[#C66E4E] to-[#8B84D7] bg-clip-text text-transparent animate-pulse-ring">
               مملكة افتراضية ثلاثية الأبعاد
             </span>
           </h1>
@@ -193,16 +205,16 @@ export default function LandingPage() {
             >
               ابدأ تجربة المنصة الآن 🚀
             </button>
-            <a
-              href="#features"
-              className={`px-6 py-3.5 border rounded-2xl text-sm font-black transition-all active:scale-95 flex items-center justify-center hover:scale-105 ${
+            <button
+              onClick={() => scrollToSection('features')}
+              className={`px-6 py-3.5 border rounded-2xl text-sm font-black transition-all active:scale-95 flex items-center justify-center hover:scale-105 cursor-pointer ${
                 darkMode 
                   ? 'border-white/10 hover:bg-white/5 text-white' 
                   : 'border-slate-200 hover:bg-slate-50 text-[#0C2341]'
               }`}
             >
               استكشف المزايا ⬇️
-            </a>
+            </button>
           </div>
         </div>
 
@@ -327,6 +339,84 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Detailed Feature Showcase (New replacement section for stats) */}
+      <section id="showcase" className="max-w-6xl mx-auto px-6 py-20 z-10 relative space-y-16">
+        
+        <div className="text-center space-y-3 reveal">
+          <span className="text-xs font-black text-[#8B84D7] tracking-widest block">دليل المزايا والوظائف</span>
+          <h2 className="text-3xl font-black">تجربة متكاملة للأبناء والآباء</h2>
+          <p className={`max-w-xl mx-auto text-sm ${subTextClass}`}>
+            تتوزع وظائف نماء لتضمن حوكمة عائلية مالية سهلة للأب، ورحلة تعليمية تفاعلية ممتعة للأطفال.
+          </p>
+        </div>
+
+        {/* Feature Cards Grid (Explain Father, Kid, and AI features) */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          
+          {/* Card A: Father Panel */}
+          <div className={`p-8 rounded-[32px] border shadow-xl flex flex-col justify-between space-y-6 transition-all duration-300 hover:scale-[1.02] ${cardBgClass} reveal`}>
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <span className="text-3xl">👨‍💼</span>
+                <span className="text-[10px] font-bold text-[#C66E4E] px-2.5 py-1 bg-[#C66E4E]/10 rounded-full">لوحة التحكم للأب</span>
+              </div>
+              <h3 className="text-lg font-black text-[#C66E4E]">إشراف مالي وحوكمة متكاملة</h3>
+              <p className={`text-xs leading-relaxed ${subTextClass}`}>
+                يملك الأب الصلاحية الكاملة لإدارة مصروفات الأبناء وتحفيزهم من خلال:
+              </p>
+              <ul className="text-xs space-y-3 pr-4 list-disc text-right font-medium">
+                <li><strong className="text-[#C66E4E]">إدارة المهام اليومية:</strong> إضافة مهام (كالدراسة أو المساعدة) وربطها بمكافأة مالية فورية عند الإنجاز.</li>
+                <li><strong className="text-[#C66E4E]">المشاريع الاستثمارية:</strong> إنشاء مشاريع استثمار عائلية بفائدة وعوائد ربحية محددة يشارك بها الأبناء.</li>
+                <li><strong className="text-[#C66E4E]">إقرار طلبات الصدقة:</strong> مراقبة وإقرار تبرعات الأبناء لتعزيز الروح الإنسانية.</li>
+                <li><strong className="text-[#C66E4E]">دوري نماء العائلي:</strong> تتويج الأبناء بالأوسمة ودفع مكافآت التميز تلقائياً.</li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Card B: Kid Panel */}
+          <div className={`p-8 rounded-[32px] border shadow-xl flex flex-col justify-between space-y-6 transition-all duration-300 hover:scale-[1.02] ${cardBgClass} reveal reveal-delay-1`}>
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <span className="text-3xl">👦</span>
+                <span className="text-[10px] font-bold text-[#8B84D7] px-2.5 py-1 bg-[#8B84D7]/10 rounded-full">لوحة تفاعل الابن</span>
+              </div>
+              <h3 className="text-lg font-black text-[#8B84D7]">تعلم الادخار بأسلوب اللعب ثلاثي الأبعاد</h3>
+              <p className={`text-xs leading-relaxed ${subTextClass}`}>
+                يعيش الطفل تجربة بصرية تفاعلية تنمي سلوكه المالي من خلال:
+              </p>
+              <ul className="text-xs space-y-3 pr-4 list-disc text-right font-medium">
+                <li><strong className="text-[#8B84D7]">الحصالات الذكية:</strong> وضع أهداف محددة (كشراء لعبة) وقفل سحب الأموال حتى اكتمال الهدف.</li>
+                <li><strong className="text-[#8B84D7]">الاستثمار وتنمية المال:</strong> استثمار جزء من مصروفه في مشاريع عائلية ومراقبة أرباحه.</li>
+                <li><strong className="text-[#8B84D7]">تطوير القرية 3D:</strong> تطور مباني القرية (البنك، المزرعة، السوق، الطاحونة) بناءً على سلوكه.</li>
+                <li><strong className="text-[#8B84D7]">إنجاز المهام:</strong> إرسال صور إثبات إنجاز المهام لوالده لكسب المكافآت.</li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Card C: AI Coach (Gemini) */}
+          <div className={`p-8 rounded-[32px] border shadow-xl flex flex-col justify-between space-y-6 transition-all duration-300 hover:scale-[1.02] ${cardBgClass} reveal reveal-delay-2`}>
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <span className="text-3xl">🤖</span>
+                <span className="text-[10px] font-bold text-emerald-600 px-2.5 py-1 bg-emerald-550/10 rounded-full">المستشار الذكي (Gemini)</span>
+              </div>
+              <h3 className="text-lg font-black text-emerald-600">توجيه ذكي للأبناء والآباء</h3>
+              <p className={`text-xs leading-relaxed ${subTextClass}`}>
+                تحليل السلوك وتقديم الإرشادات بالاعتماد على الذكاء الاصطناعي:
+              </p>
+              <ul className="text-xs space-y-3 pr-4 list-disc text-right font-medium">
+                <li><strong className="text-emerald-600">نصائح للأبناء:</strong> يقدم Gemini نصائح وتلميحات عربية لتوجيه الطفل لتحقيق أهدافه المالية.</li>
+                <li><strong className="text-emerald-600">تقييم مستويات التوازن:</strong> تنبيه الطفل عند وجود خلل بين الادخار والإنفاق والخير.</li>
+                <li><strong className="text-emerald-600">مدرب الأبوة المالي:</strong> نصائح للأب حول كيفية تشجيع وتنمية وعي أطفاله استناداً لإنجازاتهم.</li>
+                <li><strong className="text-emerald-600">تحليل القرى ثلاثية الأبعاد:</strong> فهم فوري لمستوى القرية العام وتأثير التغييرات عليه.</li>
+              </ul>
+            </div>
+          </div>
+
+        </div>
+
+      </section>
+
       {/* How it works Section */}
       <section id="how-it-works" className="max-w-6xl mx-auto px-6 py-20 z-10 relative space-y-12">
         <div className="text-center space-y-3 reveal">
@@ -354,30 +444,6 @@ export default function LandingPage() {
             <p className={`text-xs leading-relaxed ${subTextClass}`}>تتحول هذه الأرقام والمدخرات إلى مبانٍ وقلاع وقرى ثلاثية الأبعاد تنمو أمام أعينهم وتوجههم ذكياً.</p>
           </div>
 
-        </div>
-      </section>
-
-      {/* Stats Section */}
-      <section id="stats" className="max-w-6xl mx-auto px-6 py-20 z-10 relative text-center space-y-8 reveal">
-        <div className="bg-[#0C2341] border border-[#0C2341]/10 rounded-[32px] p-8 md:p-12 text-white shadow-2xl space-y-8 relative overflow-hidden">
-          <div className="absolute -right-20 -top-20 h-48 w-48 rounded-full bg-[#C66E4E]/15 blur-3xl pointer-events-none"></div>
-          
-          <h3 className="text-2xl md:text-3xl font-black">أرقام تتحدث عن نماء 🍃</h3>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="space-y-2">
-              <div className="text-4xl md:text-5xl font-black text-orange-400">15,000+</div>
-              <div className="text-xs text-slate-300 font-bold">عائلة سعودية نشطة</div>
-            </div>
-            <div className="space-y-2">
-              <div className="text-4xl md:text-5xl font-black text-yellow-300">84%</div>
-              <div className="text-xs text-slate-300 font-bold">زيادة في معدل الادخار للأطفال</div>
-            </div>
-            <div className="space-y-2">
-              <div className="text-4xl md:text-5xl font-black text-emerald-400">200,000+</div>
-              <div className="text-xs text-slate-300 font-bold">ريال تم توفيرها في الحصالات</div>
-            </div>
-          </div>
         </div>
       </section>
 
