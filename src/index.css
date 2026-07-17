@@ -10,6 +10,10 @@
     --primary: #C66E4E;
     --secondary: #8B84D7;
   }
+  
+  * {
+    font-family: 'Cairo', sans-serif !important;
+  }
 }
 
 @layer utilities {

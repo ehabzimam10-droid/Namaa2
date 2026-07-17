@@ -47,7 +47,7 @@ export default function LandingPage() {
   // Theme-based class helpers
   const bgClass = darkMode ? 'bg-[#080F1E] text-slate-100' : 'bg-[#F7F5EE] text-[#0C2341]';
   const cardBgClass = darkMode ? 'bg-[#0D1527] border-white/10' : 'bg-white border-[#0C2341]/10';
-  const subTextClass = darkMode ? 'text-slate-400' : 'text-slate-650';
+  const subTextClass = darkMode ? 'text-slate-400' : 'text-slate-600';
 
   // Navigation container layout transition classes
   const headerClasses = `fixed left-0 right-0 mx-auto z-50 backdrop-blur-md transition-premium ${
@@ -369,7 +369,7 @@ export default function LandingPage() {
               <p className={`text-xs leading-relaxed ${subTextClass}`}>
                 يملك الأب الصلاحية الكاملة لإدارة مصروفات الأبناء وتحفيزهم من خلال:
               </p>
-              <ul className="text-xs space-y-3 pr-4 list-disc text-right font-medium">
+              <ul className="text-xs space-y-3 pr-4 list-disc text-right font-medium text-slate-700 dark:text-slate-300">
                 <li><strong className="text-[#C66E4E]">إدارة المهام اليومية:</strong> إضافة مهام (كالدراسة أو المساعدة) وربطها بمكافأة مالية فورية عند الإنجاز.</li>
                 <li><strong className="text-[#C66E4E]">المشاريع الاستثمارية:</strong> إنشاء مشاريع استثمار عائلية بفائدة وعوائد ربحية محددة يشارك بها الأبناء.</li>
                 <li><strong className="text-[#C66E4E]">إقرار طلبات الصدقة:</strong> مراقبة وإقرار تبرعات الأبناء لتعزيز الروح الإنسانية.</li>
@@ -389,7 +389,7 @@ export default function LandingPage() {
               <p className={`text-xs leading-relaxed ${subTextClass}`}>
                 يعيش الطفل تجربة بصرية تفاعلية تنمي سلوكه المالي من خلال:
               </p>
-              <ul className="text-xs space-y-3 pr-4 list-disc text-right font-medium">
+              <ul className="text-xs space-y-3 pr-4 list-disc text-right font-medium text-slate-700 dark:text-slate-300">
                 <li><strong className="text-[#8B84D7]">الحصالات الذكية:</strong> وضع أهداف محددة (كشراء لعبة) وقفل سحب الأموال حتى اكتمال الهدف.</li>
                 <li><strong className="text-[#8B84D7]">الاستثمار وتنمية المال:</strong> استثمار جزء من مصروفه في مشاريع عائلية ومراقبة أرباحه.</li>
                 <li><strong className="text-[#8B84D7]">تطوير القرية 3D:</strong> تطور مباني القرية (البنك، المزرعة، السوق، الطاحونة) بناءً على سلوكه.</li>
@@ -403,17 +403,17 @@ export default function LandingPage() {
             <div className="space-y-4">
               <div className="flex justify-between items-center">
                 <span className="text-3xl">🤖</span>
-                <span className="text-[10px] font-bold text-emerald-600 px-2.5 py-1 bg-emerald-550/10 rounded-full">المستشار الذكي (Gemini)</span>
+                <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 px-2.5 py-1 bg-emerald-600/10 dark:bg-emerald-400/10 rounded-full">المستشار الذكي (Gemini)</span>
               </div>
-              <h3 className="text-lg font-black text-emerald-600">توجيه ذكي للأبناء والآباء</h3>
+              <h3 className="text-lg font-black text-emerald-650 dark:text-emerald-400">توجيه ذكي للأبناء والآباء</h3>
               <p className={`text-xs leading-relaxed ${subTextClass}`}>
                 تحليل السلوك وتقديم الإرشادات بالاعتماد على الذكاء الاصطناعي:
               </p>
-              <ul className="text-xs space-y-3 pr-4 list-disc text-right font-medium">
-                <li><strong className="text-emerald-600">نصائح للأبناء:</strong> يقدم Gemini نصائح وتلميحات عربية لتوجيه الطفل لتحقيق أهدافه المالية.</li>
-                <li><strong className="text-emerald-600">تقييم مستويات التوازن:</strong> تنبيه الطفل عند وجود خلل بين الادخار والإنفاق والخير.</li>
-                <li><strong className="text-emerald-600">مدرب الأبوة المالي:</strong> نصائح للأب حول كيفية تشجيع وتنمية وعي أطفاله استناداً لإنجازاتهم.</li>
-                <li><strong className="text-emerald-600">تحليل القرى ثلاثية الأبعاد:</strong> فهم فوري لمستوى القرية العام وتأثير التغييرات عليه.</li>
+              <ul className="text-xs space-y-3 pr-4 list-disc text-right font-medium text-slate-700 dark:text-slate-300">
+                <li><strong className="text-emerald-600 dark:text-emerald-400">نصائح للأبناء:</strong> يقدم Gemini نصائح وتلميحات عربية لتوجيه الطفل لتحقيق أهدافه المالية.</li>
+                <li><strong className="text-emerald-600 dark:text-emerald-400">تقييم مستويات التوازن:</strong> تنبيه الطفل عند وجود خلل بين الادخار والإنفاق والخير.</li>
+                <li><strong className="text-emerald-600 dark:text-emerald-400">مدرب الأبوة المالي:</strong> نصائح للأب حول كيفية تشجيع وتنمية وعي أطفاله استناداً لإنجازهم.</li>
+                <li><strong className="text-emerald-600 dark:text-emerald-400">تحليل القرى ثلاثية الأبعاد:</strong> فهم فوري لمستوى القرية العام وتأثير التغييرات عليه.</li>
               </ul>
             </div>
           </div>
