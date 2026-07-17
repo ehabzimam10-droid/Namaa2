@@ -1,6 +1,5 @@
 import { Html } from '@react-three/drei';
-import type { BuildingKey } from './kingdomLogic';
-import { BUILDING_INFO, getTierName, getTier } from './kingdomLogic';
+import { type BuildingKey, BUILDING_INFO, getTierName, getTier } from './kingdomLogic';
 
 interface TooltipProps {
   buildingKey: BuildingKey | 'palace';

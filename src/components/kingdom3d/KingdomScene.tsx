@@ -10,8 +10,7 @@ import { RoyalGardens } from './RoyalGardens';
 import { TradeHarbor } from './TradeHarbor';
 import { WisdomTower } from './WisdomTower';
 
-import type { BuildingKey } from './kingdomLogic';
-import { getTier, computeKingdomLevel } from './kingdomLogic';
+import { type BuildingKey, getTier, computeKingdomLevel } from './kingdomLogic';
 
 interface Props {
   levels: Record<BuildingKey, number>;
@@ -63,21 +62,25 @@ export function KingdomScene({ levels }: Props) {
         <Terrain />
         <RoyalWall level={kingdomLevel} />
         
-        <GrandPalace level={kingdomLevel} tier={palaceTier} />
+        {/* rotation.y = π/2 → palace +Z faces gate at [30,0,0] (+X axis) */}
+        <group rotation={[0, Math.PI / 2, 0]}>
+          <GrandPalace level={kingdomLevel} tier={palaceTier} />
+        </group>
         
-        <group position={[-9, 0, -9]}>
+        {/* rotation.y faces each building's +Z toward the gate at [30,0,0] */}
+        <group position={[-16, 0, -16]} rotation={[0, Math.atan2(46, 16), 0]}>
           <Treasury level={levels.treasury} tier={getTier(levels.treasury)} />
         </group>
         
-        <group position={[9, 0, -9]}>
+        <group position={[16, 0, -16]} rotation={[0, Math.atan2(14, 16), 0]}>
           <RoyalGardens level={levels.garden} tier={getTier(levels.garden)} />
         </group>
         
-        <group position={[9, 0, 9]}>
+        <group position={[16, 0, 16]} rotation={[0, Math.atan2(14, -16), 0]}>
           <TradeHarbor level={levels.harbor} tier={getTier(levels.harbor)} />
         </group>
         
-        <group position={[-9, 0, 9]}>
+        <group position={[-16, 0, 16]} rotation={[0, Math.atan2(46, -16), 0]}>
           <WisdomTower level={levels.tower} tier={getTier(levels.tower)} />
         </group>
       </group>
@@ -87,8 +90,8 @@ export function KingdomScene({ levels }: Props) {
         autoRotate
         autoRotateSpeed={0.3}
         enablePan={false}
-        minDistance={15}
-        maxDistance={45}
+        minDistance={20}
+        maxDistance={65}
         maxPolarAngle={Math.PI / 2 - 0.1} // Prevent going below ground
       />
     </Canvas>

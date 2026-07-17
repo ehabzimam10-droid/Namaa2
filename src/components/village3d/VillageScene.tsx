@@ -103,11 +103,22 @@ export default function VillageScene({ levels, villageLevel, autoRotate = false,
             <group position={[0, 0, 0]}>
               <Terrain />
               <Wall tier={vTier} />
-              <Palace tier={vTier} level={vLevel} position={[0, 0, 0]} />
-              <Bank tier={tierForLevel(levels.bank)} level={levels.bank} position={[-6.5, 0.4, -6.5]} />
-              <Farm tier={tierForLevel(levels.farm)} level={levels.farm} position={[6.5, 0.4, -6.5]} />
-              <Market tier={tierForLevel(levels.market)} level={levels.market} position={[6.5, 0.4, 6.5]} />
-              <Windmill tier={tierForLevel(levels.windmill)} level={levels.windmill} position={[-6.5, 0.4, 6.5]} />
+              {/* جميع المباني تواجه باب السور (+X) — دوران π/2 */}
+              <group position={[0, 0, 0]} rotation={[0, Math.PI / 2, 0]}>
+                <Palace tier={vTier} level={vLevel} position={[0, 0, 0]} />
+              </group>
+              <group position={[-8.5, 0, -8.5]} rotation={[0, Math.PI / 2, 0]}>
+                <Bank tier={tierForLevel(levels.bank)} level={levels.bank} position={[0, 0, 0]} />
+              </group>
+              <group position={[8.5, 0, -8.5]} rotation={[0, Math.PI / 2, 0]}>
+                <Farm tier={tierForLevel(levels.farm)} level={levels.farm} position={[0, 0, 0]} />
+              </group>
+              <group position={[8.5, 0, 8.5]} rotation={[0, Math.PI / 2, 0]}>
+                <Market tier={tierForLevel(levels.market)} level={levels.market} position={[0, 0, 0]} />
+              </group>
+              <group position={[-8.5, 0, 8.5]} rotation={[0, Math.PI / 2, 0]}>
+                <Windmill tier={tierForLevel(levels.windmill)} level={levels.windmill} position={[0, 0, 0]} />
+              </group>
             </group>
           </Canvas>
         </CanvasBoundary>

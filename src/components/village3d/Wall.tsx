@@ -1,29 +1,89 @@
 import { useMemo } from 'react';
+import * as THREE from 'three';
 import { type Tier } from './villageLogic';
 import { NAMAA } from './palette';
 import { TierGroup } from './utils';
 
-const R = 14;                  // wall radius
+const R = 18;                  // wall radius
 const GATE_HALF_ANGLE = 0.21;  // radians — zone cleared for the gate (~3 segments at N=56)
 
 // Arch rotation: makes a half-torus span the Z axis and arch up in Y
 const ARCH_ROT: [number, number, number] = [-Math.PI / 2, Math.PI / 2, 0];
 
-/** One circular course of interlocking wall segments, with a gap at angle≈0 for the gate. */
-function useCourse(N: number, angleOffset = 0) {
-  return useMemo(() => {
-    const step = (Math.PI * 2) / N;
-    const chord = 2 * R * Math.sin(Math.PI / N);
-    const segW = chord * 1.03;
-    return Array.from({ length: N }, (_, i) => {
-      const angle = i * step + angleOffset;
-      // normalize to [-π, π] then check gate zone
-      const norm = Math.atan2(Math.sin(angle), Math.cos(angle));
-      const skip = Math.abs(norm) < GATE_HALF_ANGLE;
-      return { x: Math.cos(angle) * R, z: Math.sin(angle) * R, rotY: -angle, segW, skip };
-    }).filter(s => !s.skip);
-  }, [N, angleOffset]);
+// Gate arc geometry constants (cylinder theta space: phi=0 → +Z, phi=π/2 → +X)
+// Gate is at +X in world → phi = π/2. We leave a gap from π/2 ± GATE_HALF_ANGLE.
+const WALL_THETA_START = Math.PI / 2 + GATE_HALF_ANGLE;
+const WALL_ARC_LEN     = Math.PI * 2 - GATE_HALF_ANGLE * 2;
+
+/**
+ * One seamless wall-ring arc — a CylinderGeometry with a gate gap.
+ * No per-segment joints → truly one solid piece per course.
+ */
+function WallArc({ yBot, h, color, rOff = 0 }: {
+  yBot: number; h: number; color: string; rOff?: number;
+}) {
+  return (
+    <mesh castShadow receiveShadow position={[0, yBot + h / 2, 0]}>
+      <cylinderGeometry
+        args={[R + rOff, R + rOff, h, 256, 1, true, WALL_THETA_START, WALL_ARC_LEN]}
+      />
+      <meshStandardMaterial color={color} roughness={0.84} side={THREE.DoubleSide} />
+    </mesh>
+  );
 }
+
+/** Thin torus ring for horizontal mortar bed between courses */
+function MortarBand({ y, color = '#cdd4e0', tube = 0.055 }: {
+  y: number; color?: string; tube?: number;
+}) {
+  return (
+    <mesh position={[0, y, 0]} rotation={[Math.PI / 2, 0, 0]}>
+      <torusGeometry args={[R, tube, 6, 192]} />
+      <meshStandardMaterial color={color} roughness={1} />
+    </mesh>
+  );
+}
+
+/** Battlement merlons placed at angular intervals, skipping the gate zone */
+function WallMerlons({
+  wallTopY, n = 64, mW = 0.9, mH = 0.62, mD = 0.72, color = NAMAA.stoneDark,
+}: {
+  wallTopY: number; n?: number; mW?: number; mH?: number; mD?: number; color?: string;
+}) {
+  return (
+    <>
+      {Array.from({ length: n }, (_, i) => {
+        if (i % 2 !== 0) return null; // alternate gap / merlon
+        const angle = (i / n) * Math.PI * 2;
+        const norm  = Math.atan2(Math.sin(angle), Math.cos(angle));
+        if (Math.abs(norm) < GATE_HALF_ANGLE * 1.4) return null; // skip gate zone
+        return (
+          <mesh key={i} castShadow
+                position={[Math.cos(angle) * R, wallTopY + mH / 2, Math.sin(angle) * R]}
+                rotation={[0, -angle, 0]}>
+            <boxGeometry args={[mW, mH, mD]} />
+            <meshStandardMaterial color={color} roughness={0.88} />
+          </mesh>
+        );
+      })}
+    </>
+  );
+}
+
+// /** useCourse kept only for tower-position helpers in tier 2 & 3 */
+// function useCourse(N: number, angleOffset = 0) {
+//   return useMemo(() => {
+//     const step = (Math.PI * 2) / N;
+//     const chord = 2 * R * Math.sin(Math.PI / N);
+//     const segW = chord * 1.12;
+//     return Array.from({ length: N }, (_, i) => {
+//       const angle = i * step + angleOffset;
+//       const norm = Math.atan2(Math.sin(angle), Math.cos(angle));
+//       const skip = Math.abs(norm) < GATE_HALF_ANGLE;
+//       return { x: Math.cos(angle) * R, z: Math.sin(angle) * R, rotY: -angle, segW, skip };
+//     }).filter(s => !s.skip);
+//   }, [N, angleOffset]);
+// }
 
 /* ═══════════════════════════════════════════════════
    GATES — one per tier, placed at (R, 0, 0), rotY=0
@@ -465,13 +525,12 @@ function WoodenPalisade() {
    TIER 2 — Two-course interlocking stone wall
    ═══════════════════════════════════════════════════ */
 function StoneWall() {
-  const N = 56;
-  const step = (Math.PI * 2) / N;
-  const course1 = useCourse(N, 0);
-  const course2 = useCourse(N, step / 2);
-
-  const courseH = 1.15;
-  const stoneD  = 0.72;
+  const courseH  = 1.1;
+  const mortarH  = 0.09;
+  const nCourses = 3;
+  const wallTopY = nCourses * (courseH + mortarH);
+  // colours alternate light/dark per course
+  const courseColors = ['#8a93a8', '#9ba5bc', '#7e8898'];
 
   const towers = useMemo(() =>
     Array.from({ length: 4 }, (_, i) => {
@@ -482,40 +541,23 @@ function StoneWall() {
 
   return (
     <group>
-      {course1.map((s, i) => (
-        <group key={i} position={[s.x, 0, s.z]} rotation={[0, s.rotY, 0]}>
-          <mesh castShadow receiveShadow position={[0, courseH / 2, 0]}>
-            <boxGeometry args={[s.segW, courseH, stoneD]} />
-            <meshStandardMaterial color={NAMAA.stone} roughness={0.88} />
-          </mesh>
-          <mesh position={[0, courseH + 0.025, 0]}>
-            <boxGeometry args={[s.segW, 0.05, stoneD + 0.02]} />
-            <meshStandardMaterial color="#c0c8d8" roughness={1} />
-          </mesh>
-        </group>
+      {/* ── Seamless stone wall body (one arc cylinder per course, NO joints) ── */}
+      {Array.from({ length: nCourses }, (_, row) => (
+        <WallArc
+          key={row}
+          yBot={row * (courseH + mortarH)}
+          h={courseH}
+          color={courseColors[row % courseColors.length]}
+        />
       ))}
 
-      {course2.map((s, i) => (
-        <group key={i} position={[s.x, 0, s.z]} rotation={[0, s.rotY, 0]}>
-          <mesh castShadow receiveShadow position={[0, courseH * 1.5 + 0.06, 0]}>
-            <boxGeometry args={[s.segW, courseH, stoneD]} />
-            <meshStandardMaterial color="#9ba5bc" roughness={0.85} />
-          </mesh>
-          <mesh position={[0, courseH * 2 + 0.08, 0]}>
-            <boxGeometry args={[s.segW, 0.05, stoneD + 0.02]} />
-            <meshStandardMaterial color="#c0c8d8" roughness={1} />
-          </mesh>
-        </group>
+      {/* ── Horizontal mortar bed rings ── */}
+      {Array.from({ length: nCourses - 1 }, (_, i) => (
+        <MortarBand key={i} y={(i + 1) * (courseH + mortarH) - mortarH / 2} />
       ))}
 
-      {course1.filter((_, i) => i % 2 === 0).map((s, i) => (
-        <group key={i} position={[s.x, 0, s.z]} rotation={[0, s.rotY, 0]}>
-          <mesh castShadow position={[0, courseH * 2 + 0.55, 0]}>
-            <boxGeometry args={[s.segW * 0.88, 0.65, stoneD + 0.05]} />
-            <meshStandardMaterial color={NAMAA.stoneDark} roughness={0.9} />
-          </mesh>
-        </group>
-      ))}
+      {/* ── Merlons ── */}
+      <WallMerlons wallTopY={wallTopY} n={64} mW={0.88} mH={0.60} mD={0.70} />
 
       {towers.map((t, i) => (
         <group key={i} position={[t.x, 0, t.z]}>
@@ -552,64 +594,48 @@ function StoneWall() {
    TIER 3 — Three-course fortress wall (English bond)
    ═══════════════════════════════════════════════════ */
 function GrandFortress() {
-  const N = 56;
-  const step = (Math.PI * 2) / N;
-  const course1 = useCourse(N, 0);
-  const course2 = useCourse(N, step / 2);
-  const course3 = useCourse(N, 0);
-  const merlonCourse = useCourse(N, 0);
-
-  const courseH = 1.2;
-  const stoneD  = 0.9;
-  const stoneColors = ['#6b7587', '#5e6878', '#737d91', '#636e82'];
+  const courseH  = 1.1;
+  const mortarH  = 0.09;
+  const nCourses = 5;
+  const wallTopY = nCourses * (courseH + mortarH);
+  const courseColors = ['#6b7587', '#5e6878', '#737d91', '#636e82', '#6a7384'];
 
   const towers = useMemo(() =>
     Array.from({ length: 8 }, (_, i) => {
-      const angle = (i / 8) * Math.PI * 2 + Math.PI / 8; // offset so tower 0 is not at gate
+      const angle = (i / 8) * Math.PI * 2 + Math.PI / 8;
       return { x: Math.cos(angle) * R, z: Math.sin(angle) * R };
     }),
   []);
 
   return (
     <group>
-      {[course1, course2, course3].map((course, row) => {
-        const yBase   = row * (courseH + 0.06);
-        const yCenter = yBase + courseH / 2;
-        return course.map((s, i) => (
-          <group key={`${row}-${i}`} position={[s.x, 0, s.z]} rotation={[0, s.rotY, 0]}>
-            <mesh castShadow receiveShadow position={[0, yCenter, 0]}>
-              <boxGeometry args={[s.segW, courseH, stoneD]} />
-              <meshStandardMaterial color={stoneColors[(i + row) % stoneColors.length]} roughness={0.82} />
-            </mesh>
-            <mesh position={[0, yBase + courseH + 0.03, 0]}>
-              <boxGeometry args={[s.segW, 0.06, stoneD + 0.04]} />
-              <meshStandardMaterial color="#b8c0d0" roughness={1} />
-            </mesh>
-            <mesh position={[s.segW / 2, yCenter, 0]}>
-              <boxGeometry args={[0.06, courseH, stoneD + 0.04]} />
-              <meshStandardMaterial color="#b8c0d0" roughness={1} />
-            </mesh>
-          </group>
-        ));
-      })}
+      {/* ── Seamless stone wall body (one solid arc per course) ── */}
+      {Array.from({ length: nCourses }, (_, row) => (
+        <WallArc
+          key={row}
+          yBot={row * (courseH + mortarH)}
+          h={courseH}
+          color={courseColors[row % courseColors.length]}
+        />
+      ))}
 
-      <mesh position={[0, courseH * 3 + 0.2, 0]} rotation={[Math.PI / 2, 0, 0]}>
-        <torusGeometry args={[R, 0.13, 8, 128]} />
-        <meshStandardMaterial color={NAMAA.gold} metalness={0.65} roughness={0.25} />
+      {/* ── Horizontal mortar bed rings ── */}
+      {Array.from({ length: nCourses - 1 }, (_, i) => (
+        <MortarBand key={i} y={(i + 1) * (courseH + mortarH) - mortarH / 2} color="#b8c2d4" />
+      ))}
+
+      {/* ── Gold accent band at wall top ── */}
+      <mesh position={[0, wallTopY + 0.07, 0]} rotation={[Math.PI / 2, 0, 0]}>
+        <torusGeometry args={[R, 0.12, 8, 192]} />
+        <meshStandardMaterial color={NAMAA.gold} metalness={0.68} roughness={0.24} />
       </mesh>
 
-      {merlonCourse.filter((_, i) => i % 2 === 0).map((s, i) => (
-        <group key={i} position={[s.x, 0, s.z]} rotation={[0, s.rotY, 0]}>
-          <mesh castShadow position={[0, courseH * 3 + 0.7, 0]}>
-            <boxGeometry args={[s.segW * 0.9, 0.85, stoneD + 0.05]} />
-            <meshStandardMaterial color={NAMAA.stoneDark} roughness={0.85} />
-          </mesh>
-          <mesh castShadow position={[0, courseH * 3 + 1.2, 0]}>
-            <boxGeometry args={[s.segW * 0.6, 0.25, stoneD - 0.1]} />
-            <meshStandardMaterial color="#4e5868" roughness={0.9} />
-          </mesh>
-        </group>
-      ))}
+      {/* ── Merlons ── */}
+      <WallMerlons
+        wallTopY={wallTopY} n={72}
+        mW={1.0} mH={0.82} mD={0.85}
+        color={NAMAA.stoneDark}
+      />
 
       {towers.map((t, i) => (
         <group key={i} position={[t.x, 0, t.z]}>

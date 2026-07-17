@@ -6,15 +6,19 @@ interface Props {
   level: number;
 }
 
-const radius = 19;
+const radius = 30;
 const segments = 12;
 const GATE_IDX = 0; // wall segment index reserved for the gate opening
 
+// Segment width ≈ chord length = 2*30*sin(π/12) ≈ 15.53 → use 15.6 to ensure no gaps
+const SEG_W = 15.6;
+const HALF  = SEG_W / 2; // 7.8 — tower sits at segment edge
+
 // Dimensions per tier
 const WALL = {
-  1: { w: 7.5, h: 2,  d: 1,   gY: 1, towerR: [0.8,  1.0], towerH: 3  },
-  2: { w: 7.5, h: 4,  d: 1.5, gY: 2, towerR: [1.5,  1.8], towerH: 6  },
-  3: { w: 7.5, h: 6,  d: 2,   gY: 3, towerR: [2.0,  2.5], towerH: 10 },
+  1: { w: SEG_W, h: 2,  d: 1,   gY: 1, towerR: [0.8,  1.0], towerH: 3  },
+  2: { w: SEG_W, h: 4,  d: 1.5, gY: 2, towerR: [1.5,  1.8], towerH: 6  },
+  3: { w: SEG_W, h: 6,  d: 2,   gY: 3, towerR: [2.0,  2.5], towerH: 10 },
 } as const;
 
 /** Gate opening width for each tier */
@@ -46,11 +50,11 @@ export function RoyalWall({ level }: Props) {
               )}
 
               {/* Corner pillar */}
-              <mesh castShadow receiveShadow position={[3.75, 0.5, 0]}>
+              <mesh castShadow receiveShadow position={[HALF, 0.5, 0]}>
                 <cylinderGeometry args={[d.towerR[0], d.towerR[1], d.towerH, 6]} />
                 <meshStandardMaterial color={KINGDOM.stone} roughness={0.8} />
               </mesh>
-              <mesh castShadow position={[3.75, d.towerH / 2 + 0.75, 0]}>
+              <mesh castShadow position={[HALF, d.towerH / 2 + 0.75, 0]}>
                 <coneGeometry args={[d.towerR[1] + 0.1, 1.5, 6]} />
                 <meshStandardMaterial color={KINGDOM.stoneDark} />
               </mesh>
@@ -108,9 +112,9 @@ export function RoyalWall({ level }: Props) {
                     <boxGeometry args={[d.w, d.h, d.d]} />
                     <meshStandardMaterial color={KINGDOM.marbleDark} roughness={0.8} />
                   </mesh>
-                  {/* Battlements */}
-                  {[...Array(4)].map((_, j) => (
-                    <mesh key={j} castShadow position={[-2.5 + j * 1.7, d.h / 2 + 0.4, 0]}>
+                  {/* Battlements — 6 to cover full width */}
+                  {[...Array(6)].map((_, j) => (
+                    <mesh key={j} castShadow position={[-4 + j * 1.6, d.h / 2 + 0.4, 0]}>
                       <boxGeometry args={[0.8, 0.8, d.d + 0.2]} />
                       <meshStandardMaterial color={KINGDOM.marbleDark} roughness={0.8} />
                     </mesh>
@@ -119,11 +123,11 @@ export function RoyalWall({ level }: Props) {
               )}
 
               {/* Corner tower */}
-              <mesh castShadow receiveShadow position={[3.75, 1, 0]}>
+              <mesh castShadow receiveShadow position={[HALF, 1, 0]}>
                 <cylinderGeometry args={[d.towerR[0], d.towerR[1], d.towerH, 8]} />
                 <meshStandardMaterial color={KINGDOM.marble} roughness={0.7} />
               </mesh>
-              <mesh castShadow position={[3.75, d.towerH / 2 + 1.5, 0]}>
+              <mesh castShadow position={[HALF, d.towerH / 2 + 1.5, 0]}>
                 <cylinderGeometry args={[d.towerR[0] + 0.15, d.towerR[0] + 0.15, 0.8, 8]} />
                 <meshStandardMaterial color={KINGDOM.stone} />
               </mesh>
@@ -209,7 +213,7 @@ export function RoyalWall({ level }: Props) {
               )}
 
               {/* Massive corner tower */}
-              <group position={[3.75, 2, 0]}>
+              <group position={[HALF, 2, 0]}>
                 <mesh castShadow receiveShadow>
                   <cylinderGeometry args={[d.towerR[0], d.towerR[1], d.towerH, 12]} />
                   <meshStandardMaterial color={KINGDOM.marble} roughness={0.5} />
