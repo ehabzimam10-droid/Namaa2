@@ -1,20 +1,100 @@
-import { useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
-import VillageBoard from '../components/village/VillageBoard';
+import VillageScene from '../components/village3d/VillageScene';
+import { get3DVillageAdvice } from '../utils/aiService';
+import {
+  type BuildingKey,
+  type BuildingLevels,
+  BUILDING_INFO,
+  BUILDING_KEYS,
+  computeVillageLevel,
+  MAX_LEVEL,
+  MIN_LEVEL,
+  nextVillageMilestone,
+  tierForLevel,
+  villageTier,
+  violatingBuildings,
+} from '../components/village3d/villageLogic';
+
+const SLIDER_ACCENT: Record<BuildingKey, string> = {
+  bank: 'accent-orange-500',
+  farm: 'accent-emerald-500',
+  market: 'accent-amber-500',
+  windmill: 'accent-violet-500',
+};
+
+const TIER_LABEL: Record<number, string> = {
+  1: 'الشكل الأول',
+  2: 'الشكل الثاني',
+  3: 'الشكل الأسطوري',
+};
 
 export default function KidCastlePage() {
   const navigate = useNavigate();
-  const { kids, profile } = useApp();
+  const { kids, profile, updateKidLevels, geminiApiKey } = useApp();
 
   // Find current active kid from context
   const kid = kids.find((k) => k.name === profile?.name) || kids.find((k) => k.name === 'سالم') || kids[0];
 
-  // Initialize building levels in local component state for dynamic manual simulation
-  const [bankLevel, setBankLevel] = useState<number>(kid?.bank_level || 3);
-  const [farmLevel, setFarmLevel] = useState<number>(kid?.farm_level || 3);
-  const [marketLevel, setMarketLevel] = useState<number>(kid?.market_level || 3);
-  const [centerLevel, setCenterLevel] = useState<number>(kid?.center_level || 3);
+  // Initialize building levels in local state for dynamic manual simulation (dev controls)
+  const [levels, setLevels] = useState<BuildingLevels>({
+    bank: kid?.bank_level || 3,
+    farm: kid?.farm_level || 3,
+    market: kid?.market_level || 3,
+    windmill: kid?.tasks_level || 3,
+  });
+
+  // Sync state when kid data is loaded from context
+  useEffect(() => {
+    if (kid) {
+      setLevels({
+        bank: kid.bank_level || 3,
+        farm: kid.farm_level || 3,
+        market: kid.market_level || 3,
+        windmill: kid.tasks_level || 3,
+      });
+    }
+  }, [kid]);
+
+  const handleSaveLevels = async () => {
+    if (!kid) return;
+    await updateKidLevels(kid.id, levels.bank, levels.farm, levels.market, levels.windmill);
+  };
+
+  // AI Advisor state
+  const [aiAdvice, setAiAdvice] = useState<string | null>(null);
+  const [isAiLoading, setIsAiLoading] = useState(false);
+
+  const fetchAiAdvice = async () => {
+    if (!kid) return;
+    setIsAiLoading(true);
+    try {
+      const advice = await get3DVillageAdvice(geminiApiKey, kid.name, levels, kid.balance, kid.age);
+      setAiAdvice(advice);
+    } catch (err) {
+      console.error('Failed to get village advice:', err);
+    } finally {
+      setIsAiLoading(false);
+    }
+  };
+
+  // Auto-fetch advice when levels or API key changes (debounced slightly or just triggered)
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      fetchAiAdvice();
+    }, 600); // 600ms debounce to prevent spamming Gemini while user drags sliders
+    return () => clearTimeout(handler);
+  }, [levels, geminiApiKey]);
+
+  // Village level is ALWAYS computed automatically from the 4 basis buildings
+  const villageLevel = useMemo(() => computeVillageLevel(levels), [levels]);
+  const vTier = villageTier(villageLevel);
+  const violations = useMemo(() => violatingBuildings(levels), [levels]);
+  const milestone = useMemo(() => nextVillageMilestone(levels), [levels]);
+
+  const setLevel = (key: BuildingKey, value: number) =>
+    setLevels((prev) => ({ ...prev, [key]: value }));
 
   if (!kid) return null;
 
@@ -32,186 +112,155 @@ export default function KidCastlePage() {
           </button>
           <div>
             <h2 className="text-xs font-semibold text-orange-400">التمثيل البصري ثلاثي الأبعاد لنموك المالي وسلوكك</h2>
-            <h3 className="text-2xl font-black text-white mt-1">القرية الافتراضية ثلاثية الأبعاد 2.5D 🏰</h3>
+            <h3 className="text-2xl font-black text-white mt-1">القرية الافتراضية ثلاثية الأبعاد 🏰</h3>
           </div>
         </div>
       </div>
 
-      {/* Floating Castle Section */}
-      <div className="text-center space-y-3">
-        <span className="text-[10px] text-purple-400 font-extrabold tracking-widest block">مملكتك العائمة في السحاب ☁️</span>
-        <h4 className="text-lg font-black text-white">قلعة نماء الأسطورية 🏰</h4>
-        
-        {/* Waving Golden Purple Castle SVG */}
-        <div className="relative flex justify-center items-center py-4 overflow-visible min-h-[220px]">
-          <div className="absolute w-72 h-72 bg-purple-500/5 rounded-full blur-3xl pointer-events-none"></div>
-          <svg 
-            viewBox="0 0 400 240" 
-            className="w-full max-w-sm h-auto mx-auto overflow-visible filter drop-shadow-[0_15px_30px_rgba(138,79,255,0.2)] animate-pulse"
-            style={{ animationDuration: '4s' }}
-          >
-            <defs>
-              <linearGradient id="castleGold" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" stopColor="#FFE875" />
-                <stop offset="100%" stopColor="#D9A822" />
-              </linearGradient>
-              <linearGradient id="castlePurple" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#9b5de5" />
-                <stop offset="100%" stopColor="#5c3b8c" />
-              </linearGradient>
-            </defs>
+      {/* 3D Village Scene */}
+      <div className="relative h-[560px] overflow-hidden rounded-3xl border border-white/10 bg-[#0D1527] shadow-2xl">
+        <VillageScene levels={levels} villageLevel={villageLevel} className="absolute inset-0" />
 
-            {/* Cloud Bed behind */}
-            <path d="M 50 180 Q 80 160 110 180 Q 140 160 170 180 Q 200 160 230 180 Q 260 160 290 180 Q 320 160 350 180 L 350 220 L 50 220 Z" fill="#FFF" opacity="0.08" />
+        {/* Village level badge */}
+        <div className="pointer-events-none absolute right-4 top-4 rounded-2xl border border-yellow-200/20 bg-[#0D1527]/75 px-4 py-3 backdrop-blur-md">
+          <div className="text-[10px] font-bold tracking-widest text-yellow-200/80">مستوى القرية العام</div>
+          <div className="mt-0.5 flex items-baseline justify-end gap-1.5">
+            <span className="text-[10px] font-bold text-slate-400">/ 5</span>
+            <span className="text-3xl font-black text-yellow-300">{villageLevel}</span>
+          </div>
+          <div className="mt-1 text-[10px] font-bold text-purple-300">القلعة والسور: {TIER_LABEL[vTier]}</div>
+        </div>
 
-            {/* Far Left Flanking Tower */}
-            <rect x="100" y="110" width="25" height="70" fill="#B38F00" stroke="#7A6303" strokeWidth="1.5" />
-            <polygon points="95,110 112.5,80 130,110" fill="url(#castlePurple)" stroke="url(#castleGold)" strokeWidth="1.5" />
-            
-            {/* Far Right Flanking Tower */}
-            <rect x="275" y="110" width="25" height="70" fill="#B38F00" stroke="#7A6303" strokeWidth="1.5" />
-            <polygon points="270,110 287.5,80 305,110" fill="url(#castlePurple)" stroke="url(#castleGold)" strokeWidth="1.5" />
-
-            {/* Connecting Walls */}
-            <rect x="125" y="130" width="25" height="50" fill="#C29D0A" stroke="#7A6303" strokeWidth="1" />
-            <rect x="250" y="130" width="25" height="50" fill="#C29D0A" stroke="#7A6303" strokeWidth="1" />
-
-            {/* Left Tower of Gatehouse */}
-            <rect x="150" y="90" width="25" height="90" fill="#D9A822" stroke="#967005" strokeWidth="1.5" />
-            <polygon points="145,90 162.5,60 180,90" fill="url(#castlePurple)" stroke="url(#castleGold)" strokeWidth="1.5" />
-            
-            {/* Right Tower of Gatehouse */}
-            <rect x="225" y="90" width="25" height="90" fill="#D9A822" stroke="#967005" strokeWidth="1.5" />
-            <polygon points="220,90 237.5,60 255,90" fill="url(#castlePurple)" stroke="url(#castleGold)" strokeWidth="1.5" />
-
-            {/* Central Gatehouse middle */}
-            <rect x="175" y="120" width="50" height="60" fill="#E6B800" stroke="#967005" strokeWidth="1.5" />
-
-            {/* Central Main Keep Tower (Tallest) */}
-            <rect x="180" y="60" width="40" height="60" fill="#FFE875" stroke="#967005" strokeWidth="2" />
-            <polygon points="175,60 200,20 225,60" fill="url(#castlePurple)" stroke="url(#castleGold)" strokeWidth="2" />
-
-            {/* Arched main gate door */}
-            <path d="M 188,180 C 188,162 212,162 212,180 Z" fill="#5C4027" stroke="url(#castleGold)" strokeWidth="1.5" />
-
-            {/* Fluffy Front Clouds covering base */}
-            <ellipse cx="90" cy="195" rx="50" ry="22" fill="#202A44" opacity="0.4" />
-            <ellipse cx="160" cy="205" rx="60" ry="28" fill="#202A44" opacity="0.5" />
-            <ellipse cx="240" cy="205" rx="65" ry="30" fill="#202A44" opacity="0.5" />
-            <ellipse cx="310" cy="195" rx="50" ry="22" fill="#202A44" opacity="0.4" />
-            
-            <ellipse cx="110" cy="205" rx="40" ry="16" fill="#FFF" opacity="0.3" />
-            <ellipse cx="180" cy="215" rx="55" ry="20" fill="#FFF" opacity="0.4" />
-            <ellipse cx="260" cy="215" rx="50" ry="18" fill="#FFF" opacity="0.4" />
-          </svg>
+        {/* Interaction hint */}
+        <div className="pointer-events-none absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full border border-white/10 bg-[#0D1527]/70 px-3 py-1.5 text-[10px] font-bold text-slate-300 backdrop-blur-md">
+          اسحب للدوران 🖱️ · مرّر فوق المباني لعرض تفاصيلها ✨
         </div>
       </div>
 
-      {/* Info Banner */}
-      <div className="bg-[#111C2E]/60 border border-white/10 p-5 rounded-3xl text-xs leading-relaxed text-slate-350">
-        <strong>💡 دليل معالم قريتك الافتراضية المربوطة بسلوكك:</strong>
-        <ul className="list-disc pr-5 mt-2 space-y-1.5 text-slate-400">
-          <li><strong>البنك العائلي 💰 (مستوى {bankLevel}):</strong> ينمو ويتزين بالذهب بناءً على التزامك بادخار الأموال بانتظام.</li>
-          <li><strong>واحة التبرعات 💚 (مستوى {farmLevel}):</strong> تصبح خضراء ويفيض بئرها بالماء العذب عند مشاركتك المجتمعية بالخير والتبرع.</li>
-          <li><strong>سوق الاستثمار 📈 (مستوى {marketLevel}):</strong> يمتلئ بالخيام والنشاط التجاري مع زيادة حجم استثماراتك في المشاريع العائلية.</li>
-          <li><strong>المركز الرئيسي 🏛️ (مستوى {centerLevel}):</strong> قصر قريتك الذي يعكس شموخه وجماله مستواك المالي الشامل والتزامك بأهدافك.</li>
-        </ul>
+      {/* AI Village Advisor Panel */}
+      <div className="bg-white/5 border border-white/10 rounded-3xl p-6 shadow-2xl relative overflow-hidden backdrop-blur-xl space-y-4">
+        <div className="flex justify-between items-center border-b border-white/5 pb-3">
+          <button
+            onClick={fetchAiAdvice}
+            disabled={isAiLoading}
+            className="px-3.5 py-1.5 bg-[#8B84D7]/20 hover:bg-[#8B84D7]/30 text-[#8B84D7] text-xs font-bold rounded-xl transition-all active:scale-95 flex items-center gap-1.5 disabled:opacity-50 cursor-pointer font-sans"
+          >
+            <span>{isAiLoading ? 'جاري التحليل... ⏳' : 'تحديث التحليل المالي 🔮'}</span>
+          </button>
+          <div className="text-right">
+            <h4 className="text-sm font-black text-purple-300">مستشار القرية المالي الذكي 🤖</h4>
+            <p className="text-[10px] text-slate-400 mt-0.5">تحليل سلوكك المالي المباشر وتقديم توجيهات لتطوير قريتك وقدراتك المالية</p>
+          </div>
+        </div>
+
+        {isAiLoading ? (
+          <div className="flex flex-col items-center justify-center py-6 space-y-3">
+            <div className="h-7 w-7 border-2 border-[#8B84D7] border-t-transparent rounded-full animate-spin"></div>
+            <p className="text-xs text-slate-400 font-sans">يقوم المستشار المالي بتحليل قريتك ثلاثية الأبعاد...</p>
+          </div>
+        ) : (
+          <div className="bg-[#111C2E]/60 border border-[#8B84D7]/20 p-4 rounded-2xl flex flex-row-reverse items-start gap-4 animate-fade-in">
+            <div className="text-2xl p-2.5 rounded-full bg-[#8B84D7]/10 text-[#8B84D7] shrink-0">
+              💡
+            </div>
+            <div className="text-right flex-1 space-y-1.5">
+              <span className="text-[10px] font-black text-[#8B84D7] tracking-wider uppercase block">تحليل المستشار المالي</span>
+              <p className="text-xs text-slate-200 leading-relaxed font-sans font-medium">
+                {aiAdvice || 'يرجى النقر فوق زر "تحديث التحليل المالي 🔮" للحصول على مراجعة مباشرة لقريتك من مستشار الذكاء الاصطناعي.'}
+              </p>
+            </div>
+          </div>
+        )}
+
+        {!geminiApiKey && (
+          <div className="bg-amber-500/10 border border-amber-500/20 text-amber-300 p-3 rounded-xl text-[10px] font-bold text-center">
+            ⚠️ مفتاح Gemini API غير متاح حالياً (يعمل بنظام المحاكاة). يمكنك إضافته من زر الإعدادات بالجانب لتفعيل الاتصال المباشر.
+          </div>
+        )}
       </div>
 
-      {/* Center Section: Render the 2.5D Isometric Village Board (Saved Locally in Sliders State) */}
-      <div className="flex items-center justify-center bg-[#0D1527]/40 border border-white/5 rounded-3xl p-6 shadow-inner relative overflow-hidden min-h-[420px]">
-        {/* Glowing background circles */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 rounded-full bg-orange-500/5 blur-3xl pointer-events-none"></div>
-        <div className="absolute top-1/3 left-1/4 w-48 h-48 rounded-full bg-blue-500/5 blur-3xl pointer-events-none"></div>
-
-        <VillageBoard
-          levels={{
-            bank: bankLevel,
-            farm: farmLevel,
-            market: marketLevel,
-            center: centerLevel,
-          }}
-          kidId={kid.id}
-        />
+      {/* Info Banner */}
+      <div className="bg-[#111C2E]/60 border border-white/10 p-5 rounded-3xl text-xs leading-relaxed">
+        <strong>💡 دليل معالم قريتك الافتراضية المربوطة بسلوكك:</strong>
+        <ul className="list-disc pr-5 mt-2 space-y-1.5 text-slate-400">
+          <li><strong>البنك العائلي 💰 (مستوى {levels.bank}):</strong> ينمو ويتزين بالذهب بناءً على التزامك بادخار الأموال بانتظام.</li>
+          <li><strong>واحة التبرعات 💚 (مستوى {levels.farm}):</strong> تصبح خضراء ويفيض بئرها بالماء العذب عند مشاركتك المجتمعية بالخير والتبرع.</li>
+          <li><strong>سوق الاستثمار 📈 (مستوى {levels.market}):</strong> يمتلئ بالخيام والنشاط التجاري مع زيادة حجم استثماراتك في المشاريع العائلية.</li>
+          <li><strong>طاحونة المهام 🌀 (مستوى {levels.windmill}):</strong> تدور أشرعتها أسرع وأعلى كلما أنجزت مهامك الشخصية بانتظام.</li>
+          <li><strong>القصر المركزي والسور 🏛️ (مستوى القرية {villageLevel}):</strong> يعكسان مستواك الشامل — يتطوران تلقائياً عندما تتوازن وتنمو كل الأساسات معاً.</li>
+        </ul>
       </div>
 
       {/* Developer Controls Glass Panel */}
       <div className="bg-white/5 border border-white/10 rounded-3xl p-6 shadow-2xl relative overflow-hidden backdrop-blur-xl space-y-6">
-        <div className="border-b border-white/5 pb-3">
-          <h4 className="text-sm font-black text-orange-400">لوحة تحكيم وتطوير المطورين (Developer Controls) 🛠️</h4>
-          <p className="text-[10px] text-slate-400 mt-1 font-sans">
-            اسحب مؤشرات التمرير أدناه للتحكم في مستوى كل مبنى على حدة (من 1 إلى 5) لمعاينة التغيرات الهندسية ومستويات الجمال المدمجة محلياً بدون تعديل السيرفر.
-          </p>
+        <div className="border-b border-white/5 pb-3 flex flex-col sm:flex-row-reverse sm:items-center justify-between gap-4">
+          <div className="text-right">
+            <h4 className="text-sm font-black text-orange-400">لوحة تحكيم وتطوير المطورين (Developer Controls) 🛠️</h4>
+            <p className="text-[10px] text-slate-400 mt-1 font-sans">
+              اسحب المؤشرات للتحكم بمستوى كل مبنى (من 1 إلى 5). مستوى القرية العام يُحسب تلقائياً وفق قواعد التوازن.
+            </p>
+          </div>
+          <button
+            onClick={handleSaveLevels}
+            className="px-4 py-2.5 bg-gradient-to-l from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white text-xs font-black rounded-xl transition-all shadow-md active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer shrink-0 font-sans border border-orange-400/25"
+          >
+            <span>حفظ المستويات في قاعدة البيانات 💾🏰</span>
+          </button>
+        </div>
+
+        {/* Computed village level strip */}
+        <div className="rounded-2xl border border-yellow-200/15 bg-gradient-to-l from-yellow-500/10 to-transparent p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1.5">
+              {[1, 2, 3, 4, 5].map((s) => (
+                <div
+                  key={s}
+                  className={`h-2.5 w-8 rounded-full transition-all duration-500 ${
+                    s <= villageLevel ? 'bg-gradient-to-l from-yellow-300 to-amber-500 shadow-[0_0_8px_rgba(253,224,71,0.6)]' : 'bg-slate-700'
+                  }`}
+                ></div>
+              ))}
+            </div>
+            <span className="text-xs font-black text-white">
+              مستوى القرية العام: <span className="text-yellow-300">{villageLevel}</span> · {TIER_LABEL[vTier]} (تلقائي ✨)
+            </span>
+          </div>
+          {milestone && <p className="mt-2 text-[10px] font-bold text-slate-400">🎯 {milestone}</p>}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Slider 1: Center Palace */}
-          <div className="space-y-2 bg-white/5 p-4 rounded-2xl border border-white/5">
-            <div className="flex justify-between items-center">
-              <span className="text-xs font-sans text-slate-400 font-bold">المستوى: {centerLevel}</span>
-              <span className="text-xs font-black text-white">المركز الرئيسي (قصر البلدية) 🏛️</span>
-            </div>
-            <input
-              type="range"
-              min="1"
-              max="5"
-              step="1"
-              value={centerLevel}
-              onChange={(e) => setCenterLevel(Number(e.target.value))}
-              className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-orange-500"
-            />
-          </div>
-
-          {/* Slider 2: Bank Vault */}
-          <div className="space-y-2 bg-white/5 p-4 rounded-2xl border border-white/5">
-            <div className="flex justify-between items-center">
-              <span className="text-xs font-sans text-slate-400 font-bold">المستوى: {bankLevel}</span>
-              <span className="text-xs font-black text-white">البنك العائلي (الادخار) 💰</span>
-            </div>
-            <input
-              type="range"
-              min="1"
-              max="5"
-              step="1"
-              value={bankLevel}
-              onChange={(e) => setBankLevel(Number(e.target.value))}
-              className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-orange-500"
-            />
-          </div>
-
-          {/* Slider 3: Farm Oasis */}
-          <div className="space-y-2 bg-white/5 p-4 rounded-2xl border border-white/5">
-            <div className="flex justify-between items-center">
-              <span className="text-xs font-sans text-slate-400 font-bold">المستوى: {farmLevel}</span>
-              <span className="text-xs font-black text-white">واحة التبرعات (الصدقة) 💚</span>
-            </div>
-            <input
-              type="range"
-              min="1"
-              max="5"
-              step="1"
-              value={farmLevel}
-              onChange={(e) => setFarmLevel(Number(e.target.value))}
-              className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-emerald-500"
-            />
-          </div>
-
-          {/* Slider 4: Market Tent */}
-          <div className="space-y-2 bg-white/5 p-4 rounded-2xl border border-white/5">
-            <div className="flex justify-between items-center">
-              <span className="text-xs font-sans text-slate-400 font-bold">المستوى: {marketLevel}</span>
-              <span className="text-xs font-black text-white">سوق الاستثمار العائلي 📈</span>
-            </div>
-            <input
-              type="range"
-              min="1"
-              max="5"
-              step="1"
-              value={marketLevel}
-              onChange={(e) => setMarketLevel(Number(e.target.value))}
-              className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-amber-500"
-            />
-          </div>
+          {BUILDING_KEYS.map((key) => {
+            const info = BUILDING_INFO[key];
+            const level = levels[key];
+            const tier = tierForLevel(level);
+            const isViolating = violations.includes(key);
+            return (
+              <div key={key} className="space-y-2 bg-white/5 p-4 rounded-2xl border border-white/5">
+                <div className="flex justify-between items-center">
+                  <span className="text-xs font-sans text-slate-400 font-bold">
+                    المستوى: {level} · <span className="text-purple-300">{TIER_LABEL[tier]}</span>
+                  </span>
+                  <span className="text-xs font-black text-white">
+                    {info.nameAr} ({info.basisAr}) {info.emoji}
+                  </span>
+                </div>
+                <input
+                  type="range"
+                  min={MIN_LEVEL}
+                  max={MAX_LEVEL}
+                  step={1}
+                  value={level}
+                  onChange={(e) => setLevel(key, Number(e.target.value))}
+                  className={`w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer ${SLIDER_ACCENT[key]}`}
+                />
+                {isViolating && (
+                  <p className="text-[10px] font-bold text-orange-300">
+                    ⚠️ متقدم بأكثر من طور عن بقية المباني — سيمنعه نظام التوازن عند الربط بالذكاء الاصطناعي
+                  </p>
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>

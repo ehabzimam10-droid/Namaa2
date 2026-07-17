@@ -39,6 +39,7 @@ interface AppContextType {
   logout: () => void;
   assignManualTask: (kidName: string, title: string, amount: number, type: 'cash' | 'points' | 'custom', customReward?: string, endDate?: string, difficulty?: 'easy' | 'medium' | 'hard') => Promise<void>;
   calculateROI: (investedAmount: number, roiPercentage: number) => number;
+  updateKidLevels: (kidId: string, bank: number, farm: number, market: number, tasks: number) => Promise<void>;
   geminiApiKey: string;
   setGeminiApiKey: (key: string) => void;
   notifications: Notification[];
@@ -253,6 +254,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
               farm_level: k.farm_level || 3,
               market_level: k.market_level || 3,
               center_level: k.center_level || 3,
+              tasks_level: k.tasks_level || 3,
             };
           })
         );
@@ -498,7 +500,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     
     // Create copy of kids list to update balances locally
     const updatedKidsList = [...kids];
-    const supabaseUpdates: Promise<any>[] = [];
+    const supabaseUpdates: any[] = [];
 
     // For each contributor, refund their money
     for (const [kidName, amount] of Object.entries(contributors)) {
@@ -1555,6 +1557,41 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return investedAmount + (investedAmount * (roiPercentage / 100));
   };
 
+  const updateKidLevels = async (kidId: string, bank: number, farm: number, market: number, tasks: number) => {
+    // Update local state first
+    setKids((prevKids) =>
+      prevKids.map((k) => {
+        if (k.id === kidId) {
+          return {
+            ...k,
+            bank_level: bank,
+            farm_level: farm,
+            market_level: market,
+            tasks_level: tasks,
+          };
+        }
+        return k;
+      })
+    );
+
+    // Sync to Supabase
+    try {
+      await supabase
+        .from('kids_profiles')
+        .update({
+          bank_level: bank,
+          farm_level: farm,
+          market_level: market,
+          tasks_level: tasks,
+        })
+        .eq('id', kidId);
+      showToast('تم حفظ مستويات القرية ثلاثية الأبعاد بنجاح! 🏰💾', 'success');
+    } catch (err) {
+      console.error('Failed to sync kid levels to Supabase:', err);
+      showToast('حدث خطأ أثناء حفظ مستويات القرية.', 'error');
+    }
+  };
+
   const runCleanup = async () => {
     try {
       // 1. Delete tasks from Supabase where status is 'approved' or 'failed' or 'expired'
@@ -1615,6 +1652,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         logout,
         assignManualTask,
         calculateROI,
+        updateKidLevels,
         geminiApiKey,
         setGeminiApiKey,
         notifications,

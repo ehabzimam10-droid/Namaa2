@@ -205,3 +205,51 @@ export async function evaluateKidsSpending(
   }
 }
 
+export async function get3DVillageAdvice(
+  apiKey: string,
+  kidName: string,
+  levels: { bank: number; farm: number; market: number; windmill: number },
+  balance: number,
+  age: number
+): Promise<string> {
+  const prompt = `
+    You are Alinma Bank's expert Financial Advisor "Smart Village Advisor" (مستشار القرية الذكي).
+    You are advising a child named ${kidName} who is ${age} years old and has a current balance of ${balance} SAR.
+    They are playing a 3D Village building game that reflects their actual financial behaviors:
+    - Bank Level (الادخار): ${levels.bank}/5
+    - Farm Level (التبرع/العمل الخيري): ${levels.farm}/5
+    - Market Level (الاستثمار): ${levels.market}/5
+    - Windmill Level (إنجاز المهام): ${levels.windmill}/5
+    
+    Instruction:
+    Provide a highly encouraging, friendly, and brief advice in Arabic (1-3 sentences maximum).
+    Address the child directly. Praise their strengths (buildings with high levels e.g. 4 or 5) and suggest realistic actions to improve their weaker areas (buildings with levels 1, 2, or 3). Mention Alinma Bank's values of smart saving, charity, and investment in an engaging, gamified way!
+    Avoid markdown headers and keep the text clean, well-spaced Arabic.
+  `;
+
+  try {
+    if (!apiKey) {
+      throw new Error('API key is missing');
+    }
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ model: 'gemini-3.5-flash' });
+
+    const result = await model.generateContent(prompt);
+    return result.response.text().trim();
+  } catch (err) {
+    console.warn('Gemini 3D Village advice failed, falling back to mock advice:', err);
+    // Mock advisor fallback
+    const weakBuildings = [];
+    if (levels.bank <= 3) weakBuildings.push('البنك العائلي 💰 (الادخار)');
+    if (levels.farm <= 3) weakBuildings.push('واحة التبرعات 💚 (الخير)');
+    if (levels.market <= 3) weakBuildings.push('سوق الاستثمار 📈 (النمو)');
+    if (levels.windmill <= 3) weakBuildings.push('طاحونة المهام 🌀 (الالتزام)');
+
+    if (weakBuildings.length === 0) {
+      return `مذهل يا بطل ${kidName}! قريتك ثلاثية الأبعاد مكتملة في قمة مستواها الأسطوري 🏰✨. أنت نموذج مثالي في الادخار، الاستثمار، التبرع، والالتزام بالمهام. واصل هذا الأداء الرائع مع مصرف الإنماء!`;
+    } else {
+      return `قريتك ثلاثية الأبعاد تبدو رائعة يا ${kidName}! 🍃 ولكن لتجعل قصرك المركزي في أقصى قوته، حاول تطوير ${weakBuildings[0]} عن طريق زيادة نشاطك فيه. كل خطوة مالية ذكية تخطوها اليوم تبني قريتك ومستقبلك!`;
+    }
+  }
+}
+

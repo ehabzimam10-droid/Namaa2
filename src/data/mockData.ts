@@ -56,6 +56,7 @@ export interface Kid {
   farm_level?: number;
   market_level?: number;
   center_level?: number;
+  tasks_level?: number;
 }
 
 export interface Father {
