@@ -143,10 +143,7 @@ export default function Topbar({ onMenuToggle }: TopbarProps) {
           {/* Theme Toggle Button (Aesthetic simulation placeholder) */}
           <button
             type="button"
-            onClick={() => {
-              showToast?.('تمت محاكاة تغيير المظهر! التطبيق مهيأ لثيم عماد الافتراضي حالياً 🎨', 'success');
-            }}
-            className="p-2.5 rounded-full bg-white border border-stone-200 text-slate-500 hover:text-[#0C2341] shadow-sm transition-all active:scale-95 flex items-center justify-center relative group select-none cursor-pointer"
+            className="p-2.5 rounded-full bg-white border border-stone-200 text-slate-500 hover:text-[#0C2341] transition-all flex items-center justify-center relative group select-none cursor-default"
           >
             {/* Sun/Moon dual icon SVG */}
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor" className="w-5 h-5">
