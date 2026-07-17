@@ -121,8 +121,26 @@ export const mockFamilyData: FamilyData = {
           date: "2026-06-29",
         },
       ],
-      tasks: [],
-      savingsGoals: [],
+      tasks: [
+        {
+          id: "task_k_1",
+          title: "إنهاء كورس البرمجة المبتدئ",
+          rewardAmount: 150,
+          rewardType: "cash",
+          status: "pending",
+          difficulty: "medium",
+          createdAt: new Date().toISOString()
+        }
+      ],
+      savingsGoals: [
+        {
+          id: "goal_k_1",
+          title: "شراء جهاز ألعاب جديد",
+          targetAmount: 1500,
+          currentAmount: 100,
+          isLocked: true
+        }
+      ],
     },
     {
       id: "kid_salem",
