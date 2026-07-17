@@ -22,3 +22,11 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Scratch & Agent Dirs
+scratch-*
+.agents/
+test-results/
+tsconfig.e2e.json
+playwright.config.ts
+tests/

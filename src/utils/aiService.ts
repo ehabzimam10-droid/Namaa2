@@ -253,3 +253,50 @@ export async function get3DVillageAdvice(
   }
 }
 
+export async function getKingdomAdvice(
+  apiKey: string,
+  levels: { treasury: number; garden: number; harbor: number; tower: number },
+  kids: any[]
+): Promise<string> {
+  const prompt = `
+    You are Alinma Bank's expert Financial Advisor "Family Kingdom Advisor" (مستشار المملكة المالي).
+    You are advising a father about his family's joint financial kingdom state:
+    - Treasury Level (خزينة المملكة - الادخار): ${levels.treasury}/5
+    - Royal Gardens Level (الحدائق الملكية - العمل الخيري): ${levels.garden}/5
+    - Trade Harbor Level (ميناء التجارة - الاستثمار): ${levels.harbor}/5
+    - Wisdom Tower Level (برج الحكمة - المهام): ${levels.tower}/5
+    
+    Kids status: ${JSON.stringify(kids.map(k => ({ name: k.name, balance: k.balance, bank: k.bank_level, farm: k.farm_level, market: k.market_level, tasks: k.tasks_level })))}
+    
+    Instruction:
+    Provide a professional, encouraging, and highly actionable analysis in Arabic (2-3 sentences max).
+    Address the father. Tell him which area of the family kingdom is strongest and which one is lagging. Give him 1 clear educational advice on how to encourage his children (e.g. Salem, Khalid) to improve the weaker areas (e.g. by assigning tasks or setting savings challenges).
+    Keep it in clean, well-spaced Arabic. No markdown.
+  `;
+
+  try {
+    if (!apiKey) {
+      throw new Error('API key is missing');
+    }
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ model: 'gemini-3.5-flash' });
+
+    const result = await model.generateContent(prompt);
+    return result.response.text().trim();
+  } catch (err) {
+    console.warn('Gemini Kingdom advice failed, falling back to mock advice:', err);
+    // Fallback advice
+    const lagging = [];
+    if (levels.treasury <= 3) lagging.push('الادخار 💰');
+    if (levels.garden <= 3) lagging.push('العمل الخيري 💚');
+    if (levels.harbor <= 3) lagging.push('الاستثمار 📈');
+    if (levels.tower <= 3) lagging.push('المهام 🌀');
+
+    if (lagging.length > 0) {
+      return `مرحباً يا أبو خالد. تظهر قريتك المشتركة توازناً جيداً، ولكن يمكنك تحفيز الأبناء على تعزيز ${lagging[0]} من خلال إسناد مهام جديدة أو إنشاء تحديات حصالة مشتركة لرفع مستوى المملكة الموحدة!`;
+    } else {
+      return `أهلاً بك يا أبو خالد. تهانينا! قريتكم العائلية الموحدة في قمتها الأسطورية وتكشف عن سلوك مالي مثالي ومستدام لأبنائك. واصل تشجيعهم ورعايتهم المتميزة!`;
+    }
+  }
+}
+

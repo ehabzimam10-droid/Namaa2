@@ -1,7 +1,6 @@
-import { Canvas, useFrame } from '@react-three/fiber';
-import { OrbitControls, Stars, Sparkles } from '@react-three/drei';
-import { useMemo, useRef } from 'react';
-import * as THREE from 'three';
+import { Component, type ReactNode } from 'react';
+import { Canvas } from '@react-three/fiber';
+import { OrbitControls } from '@react-three/drei';
 import type { BuildingLevels } from './villageLogic';
 import { computeVillageLevel, villageTier, tierForLevel } from './villageLogic';
 import { Terrain } from './Terrain';
@@ -11,7 +10,6 @@ import { Market } from './Market';
 import { Windmill } from './Windmill';
 import { Palace } from './Palace';
 import { Wall } from './Wall';
-import { NAMAA } from './palette';
 
 export interface VillageSceneProps {
   levels: BuildingLevels;
@@ -20,40 +18,44 @@ export interface VillageSceneProps {
   className?: string;
 }
 
-function ProceduralClouds() {
-  const clouds = useMemo(() => {
-    return Array.from({ length: 12 }).map((_, i) => ({
-      pos: new THREE.Vector3(
-        (Math.sin(i * 2.1) - 0.5) * 30,
-        (Math.cos(i * 1.5) * 0.5 + 0.5) * 4 - 4,
-        (Math.sin(i * 3.4) - 0.5) * 30
-      ),
-      scale: Math.random() * 2 + 2,
-      speed: Math.random() * 0.2 + 0.1,
-    }));
-  }, []);
+/** Detect WebGL support before attempting to mount Three.js Canvas */
+function isWebGLAvailable(): boolean {
+  try {
+    const canvas = document.createElement('canvas');
+    return !!(
+      window.WebGLRenderingContext &&
+      (canvas.getContext('webgl') || canvas.getContext('experimental-webgl'))
+    );
+  } catch {
+    return false;
+  }
+}
 
-  const ref = useRef<THREE.Group>(null);
-
-  useFrame((_, delta) => {
-    if (ref.current) {
-      ref.current.children.forEach((c, i) => {
-        c.position.x += clouds[i].speed * delta;
-        if (c.position.x > 25) c.position.x = -25;
-      });
-    }
-  });
-
+/** Fallback shown when WebGL is unavailable */
+function WebGLFallback() {
   return (
-    <group ref={ref}>
-      {clouds.map((c, i) => (
-        <mesh key={i} position={c.pos} scale={c.scale}>
-          <sphereGeometry args={[1, 16, 16]} />
-          <meshStandardMaterial color={NAMAA.cloud} transparent opacity={0.2} roughness={1} />
-        </mesh>
-      ))}
-    </group>
+    <div className="flex h-full w-full flex-col items-center justify-center gap-3 bg-[#0D1527]">
+      <div className="text-5xl">🏰</div>
+      <p className="text-sm font-black text-yellow-300">القرية ثلاثية الأبعاد</p>
+      <p className="max-w-xs text-center text-xs text-slate-400 leading-relaxed">
+        هذا المشهد يتطلب WebGL. افتح التطبيق في Chrome أو Firefox أو Edge على جهاز يدعم الرسومات.
+      </p>
+    </div>
   );
+}
+
+/** Error boundary scoped to just the Canvas so failures don't crash the whole page */
+class CanvasBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
+  constructor(props: { children: ReactNode }) {
+    super(props);
+    this.state = { failed: false };
+  }
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+  render() {
+    return this.state.failed ? <WebGLFallback /> : this.props.children;
+  }
 }
 
 export default function VillageScene({ levels, villageLevel, autoRotate = false, className }: VillageSceneProps) {
@@ -62,52 +64,54 @@ export default function VillageScene({ levels, villageLevel, autoRotate = false,
 
   return (
     <div className={className ?? 'h-full w-full'}>
-      <Canvas camera={{ position: [16, 14, 16], fov: 45 }} dpr={[1, 2]} shadows>
-        <fog attach="fog" args={[NAMAA.night, 20, 50]} />
-        
-        <ambientLight intensity={0.4} color={NAMAA.purple} />
-        <directionalLight 
-          position={[10, 20, 10]} 
-          intensity={1.5} 
-          color={NAMAA.goldLight} 
-          castShadow 
-          shadow-mapSize-width={1024}
-          shadow-mapSize-height={1024}
-          shadow-camera-near={0.5}
-          shadow-camera-far={50}
-          shadow-camera-left={-10}
-          shadow-camera-right={10}
-          shadow-camera-top={10}
-          shadow-camera-bottom={-10}
-        />
-        <directionalLight position={[-10, 5, -10]} intensity={0.2} color={NAMAA.purpleBright} />
-        
-        <Stars radius={60} depth={30} count={2500} factor={4} saturation={0.5} fade speed={1} />
-        <Sparkles count={80} scale={20} size={3} speed={0.4} opacity={0.3} color={NAMAA.gold} />
-        <ProceduralClouds />
+      {!isWebGLAvailable() ? (
+        <WebGLFallback />
+      ) : (
+        <CanvasBoundary>
+          <Canvas camera={{ position: [16, 12, 16], fov: 45 }} dpr={[1, 2]} shadows>
+            <fog attach="fog" args={['#c9e8c0', 30, 80]} />
+            <color attach="background" args={['#d4eeca']} />
 
-        <OrbitControls 
-          autoRotate={autoRotate}
-          autoRotateSpeed={0.5}
-          enablePan={false}
-          maxPolarAngle={Math.PI / 2.2}
-          minPolarAngle={Math.PI / 6}
-          minDistance={12}
-          maxDistance={35}
-          enableDamping
-        />
+            <ambientLight intensity={0.7} color="#ffffff" />
+            <directionalLight
+              position={[15, 25, 15]}
+              intensity={2.0}
+              color="#fff5cc"
+              castShadow
+              shadow-mapSize-width={2048}
+              shadow-mapSize-height={2048}
+              shadow-camera-near={0.5}
+              shadow-camera-far={80}
+              shadow-camera-left={-20}
+              shadow-camera-right={20}
+              shadow-camera-top={20}
+              shadow-camera-bottom={-20}
+            />
+            <directionalLight position={[-8, 8, -8]} intensity={0.4} color="#aaddff" />
 
-        <group position={[0, -2, 0]}>
-          <Terrain />
-          <Wall tier={vTier} />
-          <Palace tier={vTier} level={vLevel} position={[0, 0, 0]} />
-          
-          <Bank tier={tierForLevel(levels.bank)} level={levels.bank} position={[-3.8, 0.4, -3.8]} />
-          <Farm tier={tierForLevel(levels.farm)} level={levels.farm} position={[3.8, 0.4, -3.8]} />
-          <Market tier={tierForLevel(levels.market)} level={levels.market} position={[3.8, 0.4, 3.8]} />
-          <Windmill tier={tierForLevel(levels.windmill)} level={levels.windmill} position={[-3.8, 0.4, 3.8]} />
-        </group>
-      </Canvas>
+            <OrbitControls
+              autoRotate={autoRotate}
+              autoRotateSpeed={0.5}
+              enablePan={false}
+              maxPolarAngle={Math.PI / 2.2}
+              minPolarAngle={Math.PI / 6}
+              minDistance={12}
+              maxDistance={35}
+              enableDamping
+            />
+
+            <group position={[0, 0, 0]}>
+              <Terrain />
+              <Wall tier={vTier} />
+              <Palace tier={vTier} level={vLevel} position={[0, 0, 0]} />
+              <Bank tier={tierForLevel(levels.bank)} level={levels.bank} position={[-6.5, 0.4, -6.5]} />
+              <Farm tier={tierForLevel(levels.farm)} level={levels.farm} position={[6.5, 0.4, -6.5]} />
+              <Market tier={tierForLevel(levels.market)} level={levels.market} position={[6.5, 0.4, 6.5]} />
+              <Windmill tier={tierForLevel(levels.windmill)} level={levels.windmill} position={[-6.5, 0.4, 6.5]} />
+            </group>
+          </Canvas>
+        </CanvasBoundary>
+      )}
     </div>
   );
 }
