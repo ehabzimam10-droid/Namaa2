@@ -201,11 +201,11 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
 
       {/* Settings Modal */}
       {isSettingsOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[999] flex items-center justify-center p-4">
           {/* Backdrop */}
           <div 
             onClick={() => setIsSettingsOpen(false)} 
-            className="fixed inset-0 bg-[#0C2341]/40 backdrop-blur-sm transition-opacity"
+            className="fixed inset-0 bg-[#0C2341]/40 backdrop-blur-md transition-opacity"
           />
           
           {/* Modal Card */}

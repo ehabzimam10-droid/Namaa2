@@ -4,7 +4,7 @@ import { useApp } from '../context/AppContext';
 
 export default function FatherProjectsPage() {
   const navigate = useNavigate();
-  const { projects, addProject, calculateROI, showToast } = useApp();
+  const { projects, addProject, deleteProject, calculateROI, showToast } = useApp();
 
   // Form states
   const [title, setTitle] = useState('');
@@ -193,6 +193,21 @@ export default function FatherProjectsPage() {
                       )}
                     </div>
                   )}
+
+                  {/* Delete Project Button */}
+                  <div className="flex justify-end pt-2 border-t border-[#0C2341]/5 mt-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (window.confirm(`هل أنت متأكد من إلغاء وحذف المشروع "${proj.title}"؟ سيتم استرداد كافة المبالغ المساهمة وإرجاعها للأبناء.`)) {
+                          deleteProject(proj.id);
+                        }
+                      }}
+                      className="px-3.5 py-2 text-xs font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 hover:text-rose-700 border border-rose-100 rounded-xl shadow-sm transition-all active:scale-95 flex items-center gap-1 font-sans cursor-pointer"
+                    >
+                      <span>إلغاء واسترداد المشروع 🗑️</span>
+                    </button>
+                  </div>
                 </div>
               );
             })}

@@ -552,7 +552,7 @@ export default function FatherLeaguePage() {
 
       {/* Custom Confirmation Modal */}
       {showEndConfirm && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#0C2341]/40 backdrop-blur-md animate-fade-in">
+        <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-[#0C2341]/40 backdrop-blur-md animate-fade-in">
           <div className="w-full max-w-md bg-white border border-[#0C2341]/10 p-6 rounded-[28px] text-right space-y-4 shadow-2xl relative text-[#0C2341]">
             <h3 className="text-lg font-black text-[#0C2341]">هل أنت متأكد؟</h3>
             <p className="text-xs text-slate-500 leading-relaxed">
@@ -585,7 +585,7 @@ export default function FatherLeaguePage() {
 
       {/* AI Evaluation Generative UI Modal */}
       {showAiEvaluation && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#0C2341]/40 backdrop-blur-md animate-fade-in overflow-y-auto">
+        <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-[#0C2341]/40 backdrop-blur-md animate-fade-in overflow-y-auto">
           <div className="w-full max-w-xl bg-white border border-[#0C2341]/10 p-6 rounded-[28px] text-right space-y-6 shadow-2xl relative my-8 text-[#0C2341]">
             <div className="border-b border-[#0C2341]/5 pb-3 flex justify-between items-center flex-row-reverse">
               <h3 className="text-lg font-black text-[#0C2341] flex items-center gap-2">
@@ -708,7 +708,7 @@ export default function FatherLeaguePage() {
 
       {/* Past League Detail Modal */}
       {selectedPastLeague && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#0C2341]/40 backdrop-blur-md animate-fade-in">
+        <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-[#0C2341]/40 backdrop-blur-md animate-fade-in">
           <div className="w-full max-w-md bg-white border border-[#0C2341]/10 p-6 rounded-[28px] text-right space-y-4 shadow-2xl relative max-h-[90vh] overflow-y-auto text-[#0C2341]">
             <div className="border-b border-[#0C2341]/5 pb-3 flex justify-between items-center flex-row-reverse">
               <h3 className="text-lg font-black text-[#0C2341]">تفاصيل التحدي المؤرشف 📜</h3>

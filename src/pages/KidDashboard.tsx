@@ -95,7 +95,7 @@ export default function KidDashboard() {
           <div className="flex items-center gap-3">
             <button
               onClick={() => setIsPayModalOpen(true)}
-              className="rounded-xl bg-white text-[#0C2341] hover:bg-white/90 px-3.5 py-2 text-xs font-black transition-all border border-white/10 shadow-md active:scale-95 flex items-center gap-1 font-sans"
+              className="relative z-10 cursor-pointer rounded-xl bg-white text-[#0C2341] hover:bg-white/90 px-3.5 py-2 text-xs font-black transition-all border border-white/10 shadow-md active:scale-95 flex items-center gap-1 font-sans"
             >
               <span>دفع 🛒</span>
             </button>
@@ -310,15 +310,15 @@ export default function KidDashboard() {
       </div>
 
       {toast && (
-        <div className="fixed bottom-6 right-6 z-50 max-w-sm bg-white border border-emerald-500/20 shadow-2xl rounded-2xl p-4 flex items-center gap-3 animate-fade-in text-right text-[#0C2341]">
+        <div className="fixed bottom-6 left-6 z-[100] max-w-sm bg-white border border-emerald-500/20 shadow-2xl rounded-2xl p-4 flex items-center gap-3 animate-fade-in text-right text-[#0C2341]">
           <div className="flex-1 space-y-1">
             <h5 className="text-xs font-black text-emerald-600">تذكير المسؤولية المجتمعية 💚</h5>
-            <p className="text-xs text-slate-600 leading-relaxed font-sans">{toast}</p>
+            <p className="text-xs text-slate-650 leading-relaxed font-sans">{toast}</p>
           </div>
           <button
             type="button"
             onClick={() => setToast(null)}
-            className="text-slate-500 hover:text-amad-text text-xs font-bold px-2.5 py-1.5 rounded-xl bg-[#0C2341]/5 border border-[#0C2341]/10 transition-colors"
+            className="text-slate-500 hover:text-amad-text text-xs font-bold px-2.5 py-1.5 rounded-xl bg-[#0C2341]/5 border border-[#0C2341]/10 transition-colors shrink-0 cursor-pointer"
           >
             إغلاق
           </button>
@@ -327,7 +327,7 @@ export default function KidDashboard() {
 
       {/* DAILY PURCHASE MODAL */}
       {isPayModalOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#0C2341]/40 backdrop-blur-md animate-fade-in">
+        <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-[#0C2341]/40 backdrop-blur-md animate-fade-in">
           <div className="relative w-full max-w-md bg-white border border-[#0C2341]/10 shadow-2xl rounded-[28px] p-6 text-right font-sans overflow-hidden text-[#0C2341]">
             <div className="flex justify-between items-center border-b border-[#0C2341]/5 pb-4 mb-4">
               <button

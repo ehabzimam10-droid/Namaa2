@@ -28,6 +28,7 @@ interface AppContextType {
   addDonation: (kidId: string, amount: number) => Promise<void>;
   approveTask: (kidId: string, taskTitle: string, rewardAmount: number, rewardType: 'cash' | 'points' | 'custom', customReward?: string) => Promise<void>;
   addProject: (title: string, totalRequired: number, roiPercentage: number) => Promise<void>;
+  deleteProject: (projectId: string) => Promise<void>;
   investInProject: (kidName: string, projectId: string, amount: number) => Promise<void>;
   addSavingsGoal: (kidName: string, title: string, targetAmount: number, deadlineDate?: string) => Promise<void>;
   addToGoal: (kidName: string, goalId: string, amount: number) => Promise<void>;
@@ -486,6 +487,60 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       });
     } catch (err) {
       console.error('Failed to sync added project to Supabase:', err);
+    }
+  };
+
+  const deleteProject = async (projectId: string) => {
+    const targetProj = projects.find((p) => p.id === projectId);
+    if (!targetProj) return;
+
+    const contributors = targetProj.contributors || {};
+    
+    // Create copy of kids list to update balances locally
+    const updatedKidsList = [...kids];
+    const supabaseUpdates: Promise<any>[] = [];
+
+    // For each contributor, refund their money
+    for (const [kidName, amount] of Object.entries(contributors)) {
+      const kidAmount = Number(amount);
+      if (kidAmount <= 0) continue;
+
+      const targetKid = updatedKidsList.find((k) => k.name === kidName);
+      if (targetKid) {
+        const newBalance = targetKid.balance + kidAmount;
+        targetKid.balance = newBalance;
+        
+        // Log transaction and supabase update
+        supabaseUpdates.push(
+          logTransaction(kidName, `استرداد مساهمة مشروع ملغى: ${targetProj.title} 🔄`, kidAmount, 'deposit')
+        );
+        supabaseUpdates.push(
+          supabase
+            .from('kids_profiles')
+            .update({ balance: newBalance })
+            .eq('id', targetKid.id)
+        );
+      }
+    }
+
+    // Delete locally
+    setProjects((prevProj) => prevProj.filter((p) => p.id !== projectId));
+    setKids(updatedKidsList);
+
+    // Delete project from Supabase
+    supabaseUpdates.push(
+      supabase
+        .from('family_projects')
+        .delete()
+        .eq('id', projectId)
+    );
+
+    try {
+      await Promise.all(supabaseUpdates);
+      showToast(`تم حذف المشروع "${targetProj.title}" وإرجاع المساهمات بنجاح! 🔄💸`, 'success');
+    } catch (err) {
+      console.error('Failed to delete family project or refund contributors in Supabase:', err);
+      showToast('حدث خطأ أثناء حذف المشروع.', 'error');
     }
   };
 
@@ -1549,6 +1604,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         addDonation,
         approveTask,
         addProject,
+        deleteProject,
         investInProject,
         addSavingsGoal,
         addToGoal,

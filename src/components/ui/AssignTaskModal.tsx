@@ -102,7 +102,7 @@ export default function AssignTaskModal({ isOpen, onClose, kidName }: AssignTask
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#0C2341]/40 backdrop-blur-md animate-fade-in">
+    <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-[#0C2341]/40 backdrop-blur-md animate-fade-in">
       <div className="relative w-full max-w-md bg-white border border-stone-200/80 shadow-2xl rounded-[28px] p-6 text-right font-sans overflow-hidden text-[#0C2341]">
         <div className="absolute -left-10 -top-10 h-28 w-28 rounded-full bg-[#8B84D7]/5 blur-2xl pointer-events-none"></div>
 

@@ -140,6 +140,39 @@ export default function Topbar({ onMenuToggle }: TopbarProps) {
             </button>
           )}
 
+          {/* Theme Toggle Button (Aesthetic simulation placeholder) */}
+          <button
+            type="button"
+            onClick={() => {
+              showToast?.('تمت محاكاة تغيير المظهر! التطبيق مهيأ لثيم عماد الافتراضي حالياً 🎨', 'success');
+            }}
+            className="p-2.5 rounded-full bg-white border border-stone-200 text-slate-500 hover:text-[#0C2341] shadow-sm transition-all active:scale-95 flex items-center justify-center relative group select-none cursor-pointer"
+          >
+            {/* Sun/Moon dual icon SVG */}
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor" className="w-5 h-5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M3 12h2.25m-.386-6.364l1.591 1.591M12 7.5a4.5 4.5 0 00-4.5 4.5c0 2.485 2.015 4.5 4.5 4.5 2.485 0 4.5-2.015 4.5-4.5 0-.671-.148-1.307-.413-1.879a6 6 0 01-6.708-6.708A4.478 4.478 0 00 12 7.5z" />
+            </svg>
+            <span className="absolute bottom-[-40px] left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-[#0C2341] text-white text-[9px] px-2 py-1 rounded-lg whitespace-nowrap shadow-md pointer-events-none z-50">
+              تغيير المظهر (تجريبي)
+            </span>
+          </button>
+
+          {/* Permanently Fixed Balance Pill */}
+          {isKid && kid && (
+            <div className="flex items-center gap-1.5 bg-[#8B84D7]/10 border border-[#8B84D7]/20 px-3.5 py-1.5 rounded-full text-xs font-bold text-[#0C2341] shadow-sm font-sans" dir="rtl">
+              <span className="text-[10px] text-slate-500 font-bold">الرصيد المتاح:</span>
+              <span className="text-[#C66E4E] font-black text-sm">{balance}</span>
+              <span className="text-[10px] text-slate-500 font-bold">ريال</span>
+            </div>
+          )}
+          {isFather && (
+            <div className="flex items-center gap-1.5 bg-[#C66E4E]/10 border border-[#C66E4E]/20 px-3.5 py-1.5 rounded-full text-xs font-bold text-[#0C2341] shadow-sm font-sans" dir="rtl">
+              <span className="text-[10px] text-slate-500 font-bold">إجمالي أرصدة الأبناء:</span>
+              <span className="text-[#C66E4E] font-black text-sm">{kids.reduce((sum, k) => sum + k.balance, 0)}</span>
+              <span className="text-[10px] text-slate-500 font-bold">ريال</span>
+            </div>
+          )}
+
           {/* Notification Bell */}
           {(isFather || isKid) && (
             <div className="relative" ref={dropdownRef}>
@@ -171,7 +204,7 @@ export default function Topbar({ onMenuToggle }: TopbarProps) {
 
               {/* Notification Floating Dropdown */}
               {showNotifications && (
-                <div className="absolute left-0 mt-2.5 w-80 bg-white border border-stone-200 shadow-xl rounded-2xl p-4 text-right font-sans z-50">
+                <div className="absolute left-auto right-0 mt-2.5 w-80 bg-white border border-stone-200 shadow-xl rounded-2xl p-4 text-right font-sans z-50">
                   <div className="flex justify-between items-center border-b border-stone-100 pb-2 mb-2">
                     <button
                       type="button"

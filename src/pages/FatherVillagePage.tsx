@@ -113,7 +113,7 @@ export default function FatherVillagePage() {
 
       {/* Glassmorphic Modal for Kid's detailed 2.5D village view */}
       {selectedKid && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#0C2341]/40 backdrop-blur-md animate-fade-in text-[#0C2341]">
+        <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-[#0C2341]/40 backdrop-blur-md animate-fade-in text-[#0C2341]">
           <div className="relative w-full max-w-2xl bg-white border border-[#0C2341]/10 shadow-2xl rounded-[28px] p-6 text-right font-sans overflow-hidden">
             <div className="absolute -left-10 -top-10 h-28 w-28 rounded-full bg-[#8B84D7]/5 blur-2xl pointer-events-none"></div>
 
