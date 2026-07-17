@@ -205,12 +205,18 @@ export default function LoginPage() {
         </div>
       </div>
 
-      <div className="mt-6 text-center border-t border-[#0C2341]/10 pt-4">
+      <div className="mt-6 text-center border-t border-[#0C2341]/10 pt-4 flex justify-between items-center px-1 flex-row-reverse">
+        <button
+          onClick={() => navigate('/')}
+          className="text-xs text-slate-500 hover:text-[#C66E4E] transition-colors font-sans font-bold cursor-pointer"
+        >
+          العودة للرئيسية ⬅️
+        </button>
         <button
           onClick={() => navigate('/dev')}
-          className="text-xs text-slate-500 hover:text-[#C66E4E] transition-colors font-sans"
+          className="text-xs text-slate-500 hover:text-[#C66E4E] transition-colors font-sans cursor-pointer"
         >
-          لوحة تحكم المطورين (God Mode) 🛠️
+          لوحة المطورين 🛠️
         </button>
       </div>
     </div>

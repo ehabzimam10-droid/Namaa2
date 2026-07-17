@@ -15,23 +15,27 @@ import KidLeaguePage from './pages/KidLeaguePage';
 import DashboardLayout from './components/layout/DashboardLayout';
 import KidCastlePage from './pages/KidCastlePage';
 import FatherVillagePage from './pages/FatherVillagePage';
+import LandingPage from './pages/LandingPage';
 import { useApp } from './context/AppContext';
 
 function AuthLayout() {
   return (
-    <div className="bg-[#0B1727] relative overflow-hidden min-h-screen px-4 py-10 font-sans text-slate-100 flex flex-col items-center w-full">
-      {/* Dynamic Alinma Diagonal Stripes */}
-      <div className="absolute -top-40 left-0 w-full h-[60vh] bg-gradient-to-r from-orange-400/40 to-[#8c7355]/20 transform -skew-y-12 scale-150 pointer-events-none z-0 origin-top-left"></div>
-      <div className="absolute -top-20 left-0 w-full h-[40vh] bg-white/5 transform -skew-y-12 scale-150 pointer-events-none z-0 origin-top-left"></div>
+    <div className="bg-[#F7F5EE] relative overflow-hidden min-h-screen px-4 py-10 font-sans text-[#0C2341] flex flex-col items-center w-full">
+      {/* Soft Blurred Blobs */}
+      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full bg-[#C66E4E]/8 blur-[130px] pointer-events-none z-0" />
+      <div className="absolute bottom-[10%] right-[-10%] w-[500px] h-[500px] rounded-full bg-[#8B84D7]/8 blur-[130px] pointer-events-none z-0" />
+      
+      {/* Radial Grid Pattern */}
+      <div className="absolute inset-0 bg-radial-grid pointer-events-none opacity-30 z-0" />
 
       {/* App Content wrapper to stay above background elements */}
       <div className="relative z-10 w-full max-w-7xl flex flex-col items-center">
         {/* App Main Header */}
         <header className="mb-8 text-center space-y-2">
-          <h1 className="text-4xl font-extrabold tracking-tight bg-gradient-to-r from-orange-400 to-[#8c7355] bg-clip-text text-transparent">
+          <h1 className="text-4xl font-extrabold tracking-tight bg-gradient-to-r from-[#C66E4E] to-[#8B84D7] bg-clip-text text-transparent">
             تطبيق نماء العائلي 🍃
           </h1>
-          <p className="text-sm text-slate-300">
+          <p className="text-sm text-slate-600 font-sans font-bold">
             منصة الادخار والقلعة الافتراضية الذكية للأطفال
           </p>
         </header>
@@ -41,7 +45,7 @@ function AuthLayout() {
         </main>
 
         {/* Footer */}
-        <footer className="mt-16 text-center text-xs text-slate-500">
+        <footer className="mt-16 text-center text-xs text-slate-500 font-sans font-bold">
           &copy; {new Date().getFullYear()} نماء - جميع الحقوق محفوظة
         </footer>
       </div>
@@ -65,9 +69,12 @@ function App() {
         </div>
       )}
       <Routes>
+        {/* Landing Page Route */}
+        <Route path="/" element={<LandingPage />} />
+
         {/* Auth / Dev Routes inside AuthLayout */}
         <Route element={<AuthLayout />}>
-          <Route path="/" element={<LoginPage />} />
+          <Route path="/login" element={<LoginPage />} />
           <Route path="/dev" element={<DeveloperDashboard />} />
         </Route>
 
