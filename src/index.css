@@ -1,3 +1,31 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  :root {
+    --bg: #F5F4F0;
+    --bg-deep: #EED6C6;
+    --text: #0C2341;
+    --primary: #C66E4E;
+    --secondary: #8B84D7;
+  }
+}
+
+@layer utilities {
+  .bg-radial-grid {
+    background-image: 
+      radial-gradient(circle at center, transparent 20%, var(--bg) 90%),
+      linear-gradient(to right, rgba(12, 35, 65, 0.05) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(12, 35, 65, 0.05) 1px, transparent 1px);
+    background-size: 100% 100%, 72px 72px, 72px 72px;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+

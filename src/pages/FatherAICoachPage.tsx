@@ -306,20 +306,20 @@ export default function FatherAICoachPage() {
   };
 
   return (
-    <div className="w-full flex flex-col h-[calc(100vh-7rem)] bg-[#0B1527] border border-white/5 rounded-3xl overflow-hidden shadow-2xl relative">
+    <div className="w-full flex flex-col h-[calc(100vh-7rem)] bg-white border border-[#0C2341]/10 rounded-3xl overflow-hidden shadow-2xl relative">
       {/* Background glow effects */}
-      <div className="absolute right-1/4 top-1/4 -z-10 h-72 w-72 rounded-full bg-[#8c7355]/5 blur-3xl"></div>
-      <div className="absolute left-1/4 bottom-1/4 -z-10 h-72 w-72 rounded-full bg-blue-500/5 blur-3xl"></div>
+      <div className="absolute right-1/4 top-1/4 -z-10 h-72 w-72 rounded-full bg-[#C66E4E]/5 blur-3xl"></div>
+      <div className="absolute left-1/4 bottom-1/4 -z-10 h-72 w-72 rounded-full bg-[#8B84D7]/5 blur-3xl"></div>
 
       {/* Header */}
-      <div className="px-6 py-4 bg-[#111C2E]/60 border-b border-white/10 backdrop-blur-md flex items-center justify-between z-10">
+      <div className="px-6 py-4 bg-white border-b border-[#0C2341]/10 flex items-center justify-between z-10">
         <div className="flex items-center gap-2">
           <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></div>
-          <span className="text-[10px] text-emerald-400 font-bold font-sans">نشط 🟢</span>
+          <span className="text-[10px] text-emerald-600 font-bold font-sans">نشط 🟢</span>
         </div>
-        <div className="text-right">
-          <h2 className="text-sm font-extrabold text-white">المستشار المالي الذكي (AI Coach) 🤖</h2>
-          <p className="text-[10px] text-slate-400">توجيهات ونصائح مالية ذكية مبنية على سلوك أبنائك</p>
+        <div className="text-right text-[#0C2341]">
+          <h2 className="text-sm font-extrabold text-[#0C2341]">المستشار المالي الذكي (AI Coach) 🤖</h2>
+          <p className="text-[10px] text-slate-500 font-bold">توجيهات ونصائح مالية ذكية مبنية على سلوك أبنائك</p>
         </div>
       </div>
 
@@ -343,10 +343,10 @@ export default function FatherAICoachPage() {
                   </div>
                 ) : (
                   <div
-                    className={`p-4 rounded-3xl text-xs leading-relaxed shadow-lg whitespace-pre-line ${
+                    className={`p-4 rounded-3xl text-xs leading-relaxed shadow-md whitespace-pre-line ${
                       isAI
-                        ? 'bg-white/5 text-slate-200 border border-white/10 rounded-tr-none'
-                        : 'bg-gradient-to-r from-orange-500 to-[#8c7355] text-white rounded-tl-none'
+                        ? 'bg-[#0C2341]/5 text-[#0C2341] border border-[#0C2341]/10 rounded-tr-none'
+                        : 'bg-[#C66E4E] text-white rounded-tl-none'
                     }`}
                   >
                     {msg.text}
@@ -359,10 +359,10 @@ export default function FatherAICoachPage() {
 
               {/* Avatar */}
               <div
-                className={`h-8 w-8 rounded-xl flex items-center justify-center text-sm border border-white/10 shrink-0 ${
+                className={`h-8 w-8 rounded-xl flex items-center justify-center text-sm border border-[#0C2341]/10 shrink-0 ${
                   isAI
-                    ? 'bg-gradient-to-br from-blue-600 to-indigo-600'
-                    : 'bg-gradient-to-br from-orange-500 to-[#8c7355]'
+                    ? 'bg-gradient-to-br from-[#8B84D7] to-[#0C2341] text-white'
+                    : 'bg-gradient-to-br from-[#C66E4E] to-[#EED6C6] text-white'
                 }`}
               >
                 {isAI ? '🤖' : '👨'}
@@ -374,7 +374,7 @@ export default function FatherAICoachPage() {
       </div>
 
       {/* Input Area */}
-      <div className="p-4 bg-[#111C2E]/60 border-t border-white/10 backdrop-blur-md relative z-20 font-sans">
+      <div className="p-4 bg-white border-t border-[#0C2341]/10 relative z-20 font-sans">
         <form onSubmit={handleSendMessage} className="flex gap-2 items-center relative max-w-4xl mx-auto">
           {/* Action Menu (Popover) */}
           <AIActionMenu
@@ -387,7 +387,7 @@ export default function FatherAICoachPage() {
           <button
             type="button"
             onClick={() => setIsActionMenuOpen(!isActionMenuOpen)}
-            className="h-10 w-10 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-white flex items-center justify-center text-lg transition-all active:scale-95 shrink-0"
+            className="h-10 w-10 bg-[#0C2341]/5 hover:bg-[#0C2341]/10 border border-[#0C2341]/10 rounded-xl text-[#0C2341] flex items-center justify-center text-lg transition-all active:scale-95 shrink-0"
           >
             {isActionMenuOpen ? '✕' : '＋'}
           </button>
@@ -399,14 +399,14 @@ export default function FatherAICoachPage() {
             onChange={(e) => setInputValue(e.target.value)}
             disabled={isLoading}
             placeholder="اسأل المستشار المالي الذكي أو اضغط على (＋) للمقترحات..."
-            className="flex-1 bg-[#111C2E]/90 border border-white/10 focus:border-[#8c7355] rounded-xl px-4 py-2.5 text-right text-white text-xs outline-none transition-all placeholder:text-slate-600 disabled:opacity-50"
+            className="flex-1 bg-white border border-[#0C2341]/10 focus:border-[#C66E4E] rounded-xl px-4 py-2.5 text-right text-[#0C2341] text-xs outline-none transition-all placeholder:text-slate-400 disabled:opacity-50"
           />
 
           {/* Send Button */}
           <button
             type="submit"
             disabled={isLoading || !inputValue.trim()}
-            className="bg-gradient-to-r from-orange-500 to-[#8c7355] hover:from-orange-600 hover:to-[#9c8466] text-white font-extrabold px-5 py-2.5 rounded-xl text-xs transition-all active:scale-95 shadow-md flex items-center gap-1 shrink-0 disabled:opacity-50"
+            className="bg-[#0C2341] hover:bg-[#8B84D7] text-white font-extrabold px-5 py-2.5 rounded-xl text-xs transition-all active:scale-95 shadow-md flex items-center gap-1 shrink-0 disabled:opacity-50"
           >
             <span>إرسال</span>
             <span>➜</span>

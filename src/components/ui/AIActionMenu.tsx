@@ -26,16 +26,16 @@ export default function AIActionMenu({ isOpen, onClose, onSelectAction }: AIActi
   };
 
   return (
-    <div className="absolute bottom-16 left-6 z-40 w-72 bg-[#0D1527]/95 border border-white/10 shadow-2xl rounded-2xl p-4 text-right font-sans backdrop-blur-md animate-fade-in">
-      <div className="flex justify-between items-center border-b border-white/5 pb-2 mb-3">
+    <div className="absolute bottom-16 left-6 z-40 w-72 bg-white border border-stone-200/80 shadow-2xl rounded-2xl p-4 text-right font-sans backdrop-blur-md animate-fade-in text-[#0C2341]">
+      <div className="flex justify-between items-center border-b border-stone-100 pb-2 mb-3">
         <button
           type="button"
           onClick={onClose}
-          className="text-slate-400 hover:text-white text-xs font-bold transition-colors"
+          className="text-slate-400 hover:text-[#0C2341] text-xs font-bold transition-colors"
         >
           ✕
         </button>
-        <h4 className="text-xs font-black text-white flex items-center gap-1">
+        <h4 className="text-xs font-black text-[#0C2341] flex items-center gap-1">
           <span>أدوات المستشار الذكي 🤖</span>
         </h4>
       </div>
@@ -45,9 +45,9 @@ export default function AIActionMenu({ isOpen, onClose, onSelectAction }: AIActi
           <button
             type="button"
             onClick={() => setShowSubForm(true)}
-            className="w-full text-right p-2.5 rounded-xl bg-white/5 hover:bg-[#8c7355]/20 border border-white/5 hover:border-[#8c7355]/30 text-white text-xs font-bold transition-all flex items-center justify-between"
+            className="w-full text-right p-2.5 rounded-xl bg-stone-50 hover:bg-[#8B84D7]/10 border border-stone-200/60 hover:border-[#8B84D7]/30 text-[#0C2341] text-xs font-bold transition-all flex items-center justify-between"
           >
-            <span className="text-[10px] text-slate-400 font-sans">توليد مهمة ذكية</span>
+            <span className="text-[10px] text-slate-500 font-sans">توليد مهمة ذكية</span>
             <span className="flex items-center gap-2">
               <span>اقتراح مهمة</span>
               <span>🎯</span>
@@ -60,9 +60,9 @@ export default function AIActionMenu({ isOpen, onClose, onSelectAction }: AIActi
               onSelectAction('family_analysis');
               onClose();
             }}
-            className="w-full text-right p-2.5 rounded-xl bg-white/5 hover:bg-[#8c7355]/20 border border-white/5 hover:border-[#8c7355]/30 text-white text-xs font-bold transition-all flex items-center justify-between"
+            className="w-full text-right p-2.5 rounded-xl bg-stone-50 hover:bg-[#8B84D7]/10 border border-stone-200/60 hover:border-[#8B84D7]/30 text-[#0C2341] text-xs font-bold transition-all flex items-center justify-between"
           >
-            <span className="text-[10px] text-slate-400 font-sans">تقرير مالي متكامل</span>
+            <span className="text-[10px] text-slate-500 font-sans">تقرير مالي متكامل</span>
             <span className="flex items-center gap-2">
               <span>تحليل شامل للأسرة</span>
               <span>📊</span>
@@ -72,12 +72,12 @@ export default function AIActionMenu({ isOpen, onClose, onSelectAction }: AIActi
       ) : (
         <div className="space-y-3">
           <div className="space-y-1">
-            <label className="block text-[10px] text-slate-400">اختر الابن</label>
+            <label className="block text-[10px] text-slate-500 font-bold">اختر الابن</label>
             <select
               required
               value={selectedKid}
               onChange={(e) => setSelectedKid(e.target.value)}
-              className="w-full bg-[#111C2E]/80 border border-white/10 focus:border-[#8c7355] rounded-xl px-2.5 py-2 text-right text-white text-xs outline-none transition-all"
+              className="w-full bg-stone-50 border border-stone-200 focus:border-[#8B84D7] rounded-xl px-2.5 py-2 text-right text-[#0C2341] text-xs outline-none transition-all"
             >
               <option value="">-- اختر من الأبناء --</option>
               {kids.map((k) => (
@@ -89,13 +89,13 @@ export default function AIActionMenu({ isOpen, onClose, onSelectAction }: AIActi
           </div>
 
           <div className="space-y-1">
-            <label className="block text-[10px] text-slate-400">نوع المهمة/ملاحظات (اختياري)</label>
+            <label className="block text-[10px] text-slate-500 font-bold">نوع المهمة/ملاحظات (اختياري)</label>
             <input
               type="text"
               value={taskNotes}
               onChange={(e) => setTaskNotes(e.target.value)}
               placeholder="مثال: تحفيز على الادخار، مهارة جديدة"
-              className="w-full bg-[#111C2E]/80 border border-white/10 focus:border-[#8c7355] rounded-xl px-2.5 py-2 text-right text-white text-xs outline-none transition-all placeholder:text-slate-700"
+              className="w-full bg-stone-50 border border-stone-200 focus:border-[#8B84D7] rounded-xl px-2.5 py-2 text-right text-[#0C2341] text-xs outline-none transition-all placeholder:text-slate-400"
             />
           </div>
 
@@ -103,14 +103,14 @@ export default function AIActionMenu({ isOpen, onClose, onSelectAction }: AIActi
             <button
               type="button"
               onClick={() => setShowSubForm(false)}
-              className="px-3 py-1.5 border border-white/10 text-slate-300 hover:text-white rounded-lg text-[10px] hover:bg-white/5 transition-all"
+              className="px-3 py-1.5 border border-stone-200 text-slate-600 hover:text-[#0C2341] rounded-lg text-[10px] bg-stone-50 hover:bg-stone-100 transition-all"
             >
               رجوع
             </button>
             <button
               type="button"
               onClick={() => handleSuggestTaskSubmit()}
-              className="px-4 py-1.5 bg-gradient-to-r from-orange-500 to-[#8c7355] text-white font-bold rounded-lg text-[10px] transition-all"
+              className="px-4 py-1.5 bg-[#0C2341] hover:bg-[#8B84D7] text-white font-bold rounded-lg text-[10px] transition-all shadow-sm active:scale-95"
             >
               اقتراح 🤖
             </button>

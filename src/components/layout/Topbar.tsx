@@ -74,13 +74,14 @@ export default function Topbar({ onMenuToggle }: TopbarProps) {
 
   return (
     <>
-      <header className="w-full h-16 px-6 bg-[#111C2E]/60 backdrop-blur-md border-b border-white/10 flex items-center justify-between text-white relative z-30">
-        {/* Left Section: Menu Toggle & Notifications */}
-        <div className="flex items-center gap-3">
-          {/* Mobile Hamburger Menu Icon (on Left) */}
+      <header className="w-full py-4 px-6 md:px-8 bg-transparent flex flex-col md:flex-row-reverse md:items-center justify-between gap-4 text-[#0C2341] relative z-30">
+        
+        {/* Right Section: User Greeting & Mobile Toggle */}
+        <div className="flex items-center justify-between md:justify-start gap-4 flex-row-reverse">
+          {/* Mobile Hamburger Menu Icon (on Left in RTL viewports) */}
           <button
             onClick={onMenuToggle}
-            className="lg:hidden p-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white transition-all active:scale-95"
+            className="lg:hidden p-2.5 rounded-xl bg-white border border-stone-200 text-slate-600 hover:text-amad-text shadow-sm transition-all active:scale-95 flex items-center justify-center"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -94,19 +95,64 @@ export default function Topbar({ onMenuToggle }: TopbarProps) {
             </svg>
           </button>
 
-          {/* Notification Bell Wrapper with click-outside ref */}
+          <div className="text-right space-y-0.5">
+            <h1 className="font-black text-xl md:text-2xl text-[#0C2341] flex items-center justify-end gap-1.5">
+              <span>مرحباً، {profile?.name || 'مستخدم نماء'}!</span>
+              <span className="text-xl md:text-2xl">👋</span>
+            </h1>
+            <p className="text-[10px] md:text-xs text-slate-500 font-sans">
+              استكشف المعلومات والأنشطة المالية لعائلتك الذكية 🍃
+            </p>
+          </div>
+        </div>
+
+        {/* Left Section: Search, Logs, Notifications, Profile (Align Left in RTL) */}
+        <div className="flex items-center gap-3.5 flex-row-reverse justify-end md:justify-start w-full md:w-auto">
+          {/* Mock Search Pill (matches screenshot) */}
+          <div className="hidden sm:flex items-center bg-white border border-stone-200 shadow-sm rounded-full p-1 w-64 justify-between transition-all focus-within:border-[#8B84D7]/50 focus-within:ring-1 focus-within:ring-[#8B84D7]/30" dir="rtl">
+            <button className="w-8 h-8 rounded-full bg-[#0C2341] hover:bg-[#8B84D7] text-white flex items-center justify-center transition-all shadow-sm shrink-0 active:scale-95">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
+                <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.637 10.637Z" />
+              </svg>
+            </button>
+            <input
+              type="text"
+              placeholder="ابحث عن مهام، أهداف..."
+              className="bg-transparent text-xs text-[#0C2341] outline-none w-full text-right placeholder:text-slate-400 font-sans px-3"
+            />
+          </div>
+
+          {/* Transactions Log trigger styled as chat/bubble icon */}
+          {isKid && kid && (
+            <button
+              type="button"
+              onClick={() => setIsTxModalOpen(true)}
+              title="سجل العمليات"
+              className="p-2.5 rounded-full bg-white border border-stone-200 text-slate-600 hover:text-amad-text shadow-sm transition-all active:scale-95 flex items-center justify-center relative group"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor" className="w-5 h-5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 0 1 .865-.501 48.172 48.172 0 0 0 3.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0 0 12 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018Z" />
+              </svg>
+              {/* Tooltip */}
+              <span className="absolute bottom-[-40px] left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-[#0C2341] text-white text-[9px] px-2 py-1 rounded-lg whitespace-nowrap shadow-md pointer-events-none z-50">
+                سجل العمليات ({balance} ريال متاح)
+              </span>
+            </button>
+          )}
+
+          {/* Notification Bell */}
           {(isFather || isKid) && (
             <div className="relative" ref={dropdownRef}>
               <button
                 type="button"
                 onClick={handleToggleNotifications}
-                className="p-2 rounded-xl bg-white/5 border border-white/10 text-slate-300 hover:text-white transition-all select-none relative active:scale-95 flex items-center justify-center"
+                className="p-2.5 rounded-full bg-white border border-stone-200 text-slate-600 hover:text-amad-text shadow-sm transition-all select-none relative active:scale-95 flex items-center justify-center"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
-                  strokeWidth={2}
+                  strokeWidth={1.8}
                   stroke="currentColor"
                   className="w-5 h-5"
                 >
@@ -117,7 +163,7 @@ export default function Topbar({ onMenuToggle }: TopbarProps) {
                   />
                 </svg>
                 {unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-rose-500 text-white text-[10px] font-bold h-4 w-4 rounded-full flex items-center justify-center border border-[#111C2E] animate-pulse font-sans">
+                  <span className="absolute top-0 right-0 bg-[#C66E4E] text-white text-[9px] font-bold h-3.5 w-3.5 rounded-full flex items-center justify-center border border-white animate-pulse font-sans">
                     {unreadCount}
                   </span>
                 )}
@@ -125,16 +171,16 @@ export default function Topbar({ onMenuToggle }: TopbarProps) {
 
               {/* Notification Floating Dropdown */}
               {showNotifications && (
-                <div className="absolute left-0 mt-2 w-80 bg-[#0D1527]/95 border border-white/10 shadow-2xl rounded-2xl p-4 text-right font-sans z-50 backdrop-blur-md">
-                  <div className="flex justify-between items-center border-b border-white/5 pb-2 mb-2">
+                <div className="absolute left-0 mt-2.5 w-80 bg-white border border-stone-200 shadow-xl rounded-2xl p-4 text-right font-sans z-50">
+                  <div className="flex justify-between items-center border-b border-stone-100 pb-2 mb-2">
                     <button
                       type="button"
                       onClick={() => setShowNotifications(false)}
-                      className="text-slate-400 hover:text-white text-xs font-bold transition-colors"
+                      className="text-slate-400 hover:text-amad-text text-xs font-bold transition-colors"
                     >
                       ✕
                     </button>
-                    <h4 className="text-xs font-black text-white flex items-center gap-1">
+                    <h4 className="text-xs font-black text-[#0C2341] flex items-center gap-1">
                       <span>إشعارات نماء</span>
                       <span>🔔</span>
                     </h4>
@@ -147,15 +193,15 @@ export default function Topbar({ onMenuToggle }: TopbarProps) {
                           key={notif.id}
                           className={`p-2.5 rounded-xl text-right border transition-all duration-200 ${
                             notif.isRead
-                              ? 'bg-white/5 border-white/5 text-slate-300'
-                              : 'bg-orange-500/10 border-orange-500/20 text-white'
+                              ? 'bg-slate-50 border-stone-100 text-slate-600'
+                              : 'bg-[#C66E4E]/5 border-[#C66E4E]/20 text-[#0C2341]'
                           }`}
                         >
                           <div className="font-bold text-[11px] leading-tight mb-1 flex justify-between items-center">
                             <span className="text-[8px] text-slate-500 font-sans">{timeAgo(notif.createdAt)}</span>
                             <span>{notif.title}</span>
                           </div>
-                          <div className="text-[9px] text-slate-400 leading-normal">{notif.message}</div>
+                          <div className="text-[9px] text-slate-500 leading-normal">{notif.message}</div>
                         </div>
                       ))
                     ) : (
@@ -168,37 +214,9 @@ export default function Topbar({ onMenuToggle }: TopbarProps) {
               )}
             </div>
           )}
-        </div>
 
-        {/* User Info & Balance (on Top Right) */}
-        <div className="flex items-center gap-3 text-right">
-          {/* Action buttons and badge for Kid */}
-          {isKid && kid && (
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setIsTxModalOpen(true)}
-                className="bg-[#8c7355]/20 hover:bg-[#8c7355]/30 border border-[#8c7355]/30 rounded-2xl px-3 py-1.5 text-xs font-bold text-orange-300 transition-all active:scale-95 shadow-md flex items-center gap-1 font-sans"
-              >
-                <span>سجل العمليات 📜</span>
-              </button>
-
-              <div className="bg-white/5 border border-white/10 rounded-2xl px-3 py-1.5 flex items-center gap-1.5 backdrop-blur-xl shadow-lg font-sans">
-                <span className="text-[10px] text-slate-300 font-bold">الرصيد المتاح:</span>
-                <span className={`text-xs font-black ${balance > 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
-                  {balance} ريال 💳
-                </span>
-              </div>
-            </div>
-          )}
-
-          <div className="space-y-0.5">
-            <span className="font-extrabold text-sm block">{profile?.name || 'مستخدم نماء'}</span>
-            <span className="text-[10px] text-orange-400 font-bold block">
-              {isFather ? 'حساب ولي الأمر 👤' : 'حساب الابن النشط 👦'}
-            </span>
-          </div>
-          <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-[#8c7355] to-orange-500/30 border border-white/10 flex items-center justify-center text-base">
+          {/* User profile bubble (circular avatar container) */}
+          <div className="h-10 w-10 rounded-full bg-gradient-to-br from-[#C66E4E]/10 to-[#8B84D7]/10 border border-stone-200 shadow-sm flex items-center justify-center text-base cursor-pointer hover:scale-105 transition-all select-none">
             {isFather ? '👨‍💼' : '👦'}
           </div>
         </div>

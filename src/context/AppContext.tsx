@@ -7,6 +7,7 @@ export interface UserProfile {
   name: string;
   role: 'father' | 'kid' | 'dev';
   email?: string;
+  family_castle_level?: number;
 }
 
 export interface Notification {

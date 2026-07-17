@@ -15,16 +15,19 @@ export default function DashboardLayout() {
   };
 
   return (
-    <div className="w-full min-h-screen bg-[#0B1727] text-slate-100 flex relative overflow-hidden font-sans">
-      {/* Decorative Brand Background Lines */}
-      <div className="absolute -top-40 left-0 w-full h-[60vh] bg-gradient-to-r from-orange-400/20 to-[#8c7355]/10 transform -skew-y-12 scale-150 pointer-events-none z-0 origin-top-left"></div>
-      <div className="absolute -top-20 left-0 w-full h-[40vh] bg-white/2 transform -skew-y-12 scale-150 pointer-events-none z-0 origin-top-left"></div>
+    <div dir="rtl" className="w-full min-h-screen bg-amad-bg text-amad-text flex relative overflow-hidden font-sans">
+      {/* Radial Grid Pattern (72px 72px) */}
+      <div className="absolute inset-0 bg-radial-grid pointer-events-none opacity-45 z-0" />
+      
+      {/* Soft Blurred Blobs */}
+      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full bg-[#C66E4E]/10 blur-[130px] pointer-events-none z-0" />
+      <div className="absolute bottom-[10%] right-[-10%] w-[500px] h-[500px] rounded-full bg-[#8B84D7]/10 blur-[130px] pointer-events-none z-0" />
 
       {/* Sidebar (fixed/drawer) */}
       <Sidebar isOpen={isSidebarOpen} onClose={closeSidebar} />
 
-      {/* Main dashboard wrapper (offset on desktop to match sidebar width of 64) */}
-      <div className="flex-1 flex flex-col lg:pr-64 min-w-0 z-10 transition-all duration-300">
+      {/* Main dashboard wrapper (offset on desktop to match sidebar width of 20 + margins) */}
+      <div className="flex-1 flex flex-col lg:pr-28 min-w-0 z-10 transition-all duration-300">
         {/* Topbar */}
         <Topbar onMenuToggle={toggleSidebar} />
 
@@ -34,7 +37,7 @@ export default function DashboardLayout() {
         </main>
 
         {/* Dashboard Footer */}
-        <footer className="py-6 text-center text-[10px] text-slate-600 border-t border-white/5 font-sans mt-auto">
+        <footer className="py-6 text-center text-[10px] text-slate-600 border-t border-[#0C2341]/10 font-sans mt-auto">
           &copy; {new Date().getFullYear()} نماء - بوابة الحوكمة والاستثمار العائلي
         </footer>
       </div>

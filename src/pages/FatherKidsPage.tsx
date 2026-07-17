@@ -43,38 +43,38 @@ export default function FatherKidsPage() {
   return (
     <div className="w-full space-y-8 text-right font-sans">
       {/* Header and Back Button */}
-      <div className="relative overflow-hidden bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl rounded-3xl p-6 flex flex-col md:flex-row-reverse md:items-center justify-between gap-4">
-        <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-orange-500/10 blur-2xl"></div>
+      <div className="relative overflow-hidden bg-white border border-[#0C2341]/10 shadow-2xl rounded-3xl p-6 flex flex-col md:flex-row-reverse md:items-center justify-between gap-4">
+        <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-[#C66E4E]/5 blur-2xl"></div>
         <div className="flex items-center justify-between w-full">
           <button
             onClick={() => navigate('/father')}
-            className="rounded-xl bg-white/10 hover:bg-white/20 px-3 py-2 text-xs font-bold text-white transition-all border border-white/5"
+            className="rounded-xl bg-[#0C2341]/5 hover:bg-[#0C2341]/10 px-3 py-2 text-xs font-bold text-slate-600 transition-all border border-[#0C2341]/10"
           >
             👨‍💼 العودة للوحة التحكم
           </button>
           <div>
-            <h2 className="text-xs font-semibold text-orange-400">لوحة التحليل المالي للأبناء</h2>
-            <h3 className="text-2xl font-black text-white mt-1">تفاصيل الأبناء والتحويل الذكي 👦👧</h3>
+            <h2 className="text-xs font-semibold text-[#C66E4E]">لوحة التحليل المالي للأبناء</h2>
+            <h3 className="text-2xl font-black text-[#0C2341] mt-1">تفاصيل الأبناء والتحويل الذكي 👦👧</h3>
           </div>
         </div>
       </div>
 
       {/* Month Filter selector UI */}
-      <div className="flex justify-center items-center gap-6 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-4 w-full">
+      <div className="flex justify-center items-center gap-6 bg-white border border-[#0C2341]/10 shadow-sm rounded-2xl p-4 w-full text-[#0C2341]">
         <button
           type="button"
           onClick={() => setCurrentMonth(prevMonthDate)}
-          className="text-slate-400 hover:text-white transition-all text-xs font-bold flex items-center gap-1 select-none font-sans"
+          className="text-slate-500 hover:text-[#0C2341] transition-all text-xs font-bold flex items-center gap-1 select-none font-sans"
         >
           ◀ {getMonthLabel(prevMonthDate)}
         </button>
-        <span className="text-xs font-black text-orange-400 bg-orange-500/10 px-4 py-2 rounded-xl border border-orange-500/20 select-none font-sans">
+        <span className="text-xs font-black text-[#C66E4E] bg-[#C66E4E]/10 px-4 py-2 rounded-xl border border-[#C66E4E]/25 select-none font-sans text-center">
           {getMonthLabel(currentMonth)}
         </span>
         <button
           type="button"
           onClick={() => setCurrentMonth(nextMonthDate)}
-          className="text-slate-400 hover:text-white transition-all text-xs font-bold flex items-center gap-1 select-none font-sans"
+          className="text-slate-500 hover:text-[#0C2341] transition-all text-xs font-bold flex items-center gap-1 select-none font-sans"
         >
           {getMonthLabel(nextMonthDate)} ▶
         </button>
@@ -139,41 +139,41 @@ export default function FatherKidsPage() {
           return (
             <div
               key={kid.id}
-              className="relative overflow-hidden bg-[#111C2E]/60 backdrop-blur-2xl border border-white/10 shadow-2xl rounded-3xl p-6 text-right flex flex-col justify-between gap-5 transition-all duration-300 hover:scale-[1.01]"
+              className="relative overflow-hidden bg-white border border-[#0C2341]/10 shadow-md rounded-3xl p-6 text-right flex flex-col justify-between gap-5 transition-all duration-300 hover:scale-[1.01] hover:border-[#8B84D7]/50"
             >
-              <div className="absolute right-0 top-0 -z-10 h-full w-24 bg-orange-500/5 blur-xl"></div>
+              <div className="absolute right-0 top-0 -z-10 h-full w-24 bg-[#C66E4E]/5 blur-xl"></div>
               
               {/* Kid Header */}
-              <div className="flex flex-row-reverse items-center justify-between border-b border-white/5 pb-3">
-                <div>
-                  <h4 className="font-extrabold text-base text-white">{kid.name}</h4>
-                  <span className="text-[10px] text-slate-400">عمر {kid.age} سنة</span>
+              <div className="flex flex-row-reverse items-center justify-between border-b border-[#0C2341]/5 pb-3">
+                <div className="text-right">
+                  <h4 className="font-extrabold text-base text-[#0C2341]">{kid.name}</h4>
+                  <span className="text-[10px] text-slate-500 font-sans font-bold">عمر {kid.age} سنة</span>
                 </div>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-orange-500/20 text-orange-400 font-sans">
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#C66E4E]/10 text-[#C66E4E] font-sans">
                   {aiRatingBadge}
                 </span>
               </div>
 
               {/* Balances */}
               <div className="grid grid-cols-2 gap-4 text-center">
-                <div className="bg-white/5 border border-white/5 p-3 rounded-2xl">
-                  <span className="text-[10px] text-slate-400 block mb-1">الرصيد المتاح</span>
-                  <span className="text-lg font-extrabold text-emerald-400 font-sans">{kid.balance} ريال</span>
+                <div className="bg-[#0C2341]/5 border border-[#0C2341]/5 p-3 rounded-2xl text-[#0C2341]">
+                  <span className="text-[10px] text-slate-500 font-bold block mb-1">الرصيد المتاح</span>
+                  <span className="text-lg font-extrabold text-emerald-600 font-sans">{kid.balance} ريال</span>
                 </div>
-                <div className="bg-white/5 border border-white/5 p-3 rounded-2xl">
-                  <span className="text-[10px] text-slate-400 block mb-1">إجمالي المدخرات</span>
-                  <span className="text-lg font-extrabold text-orange-400 font-sans">{kid.saved} ريال</span>
+                <div className="bg-[#0C2341]/5 border border-[#0C2341]/5 p-3 rounded-2xl text-[#0C2341]">
+                  <span className="text-[10px] text-slate-500 font-bold block mb-1">إجمالي المدخرات</span>
+                  <span className="text-lg font-extrabold text-[#C66E4E] font-sans">{kid.saved} ريال</span>
                 </div>
               </div>
 
               {/* Badges section */}
               <div className="space-y-2">
-                <span className="text-xs font-bold text-slate-300 block">الأوسمة والإنجازات 🎖️</span>
+                <span className="text-xs font-bold text-[#0C2341] block">الأوسمة والإنجازات 🎖️</span>
                 <div className="flex flex-wrap gap-2 justify-start md:justify-end">
                   {dynamicBadges.map((badge, index) => (
                     <span
                       key={index}
-                      className="text-[10px] font-bold px-2.5 py-1 rounded-xl bg-white/5 border border-white/5 text-slate-200"
+                      className="text-[10px] font-bold px-2.5 py-1 rounded-xl bg-[#0C2341]/5 border border-[#0C2341]/10 text-[#0C2341]"
                     >
                       {badge}
                     </span>
@@ -182,37 +182,37 @@ export default function FatherKidsPage() {
               </div>
 
               {/* AI Rating Panel */}
-              <div className="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-2 text-right backdrop-blur-md">
-                <span className="text-xs font-bold text-orange-400 flex items-center justify-end gap-1">
+              <div className="bg-[#C66E4E]/5 border border-[#C66E4E]/15 rounded-2xl p-4 space-y-2 text-right">
+                <span className="text-xs font-bold text-[#C66E4E] flex items-center justify-end gap-1">
                   تقييم الذكاء الاصطناعي 🧠
                 </span>
-                <p className="text-[10px] leading-relaxed text-slate-300">
+                <p className="text-[10px] leading-relaxed text-slate-600">
                   {aiRatingText}
                 </p>
               </div>
 
               {/* Smart Actions */}
-              <div className="pt-2 border-t border-white/5 space-y-2">
+              <div className="pt-2 border-t border-[#0C2341]/5 space-y-2">
                 <button
                   type="button"
                   onClick={() => openTransferModal(kid.id, kid.name)}
-                  className="w-full bg-gradient-to-r from-orange-500 to-[#8c7355] hover:from-orange-600 hover:to-[#9c8466] text-white font-extrabold py-2.5 rounded-xl text-xs transition-all duration-300 transform active:scale-95 shadow-md flex items-center justify-center gap-1"
+                  className="w-full bg-[#C66E4E] hover:bg-[#C66E4E]/90 text-white font-extrabold py-2.5 rounded-xl text-xs transition-all duration-300 transform active:scale-95 shadow-md flex items-center justify-center gap-1"
                 >
                   <span>تحويل مالي ذكي 💸</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => openAssignTaskModal(kid.name)}
-                  className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-extrabold py-2.5 rounded-xl text-xs transition-all duration-300 transform active:scale-95 shadow-md flex items-center justify-center gap-1"
+                  className="w-full bg-[#8B84D7] hover:bg-[#8B84D7]/90 text-white font-extrabold py-2.5 rounded-xl text-xs transition-all duration-300 transform active:scale-95 shadow-md flex items-center justify-center gap-1"
                 >
                   <span>تخصيص مهمة 🎯</span>
                 </button>
               </div>
 
               {/* a) جدول المهام والمسؤوليات للشهر 📋 */}
-              <div className="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
-                <div className="flex justify-between items-center border-b border-white/5 pb-2">
-                  <span className="text-xs font-bold text-slate-300">جدول المهام والمسؤوليات للشهر 📋</span>
+              <div className="bg-[#0C2341]/5 border border-[#0C2341]/10 rounded-2xl p-4 space-y-3">
+                <div className="flex justify-between items-center border-b border-[#0C2341]/5 pb-2">
+                  <span className="text-xs font-bold text-[#0C2341]">جدول المهام والمسؤوليات للشهر 📋</span>
                 </div>
                 {filteredTasks.length > 0 ? (
                   <div className="space-y-3 max-h-60 overflow-y-auto pr-1">
@@ -223,35 +223,35 @@ export default function FatherKidsPage() {
                       const isFailed = task.status === 'failed' || task.status === 'expired';
 
                       return (
-                        <div key={task.id} className="bg-white/5 border border-white/5 p-3 rounded-xl space-y-2 text-right">
+                        <div key={task.id} className="bg-white border border-[#0C2341]/10 p-3 rounded-xl space-y-2 text-right">
                           <div className="flex justify-between items-center text-xs">
                             <div className="flex items-center gap-1.5">
                               {isApproved && (
-                                <span className="text-[9px] font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400">
+                                <span className="text-[9px] font-bold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 border border-emerald-500/25">
                                   تمت الموافقة ✅
                                 </span>
                               )}
                               {isUnderReview && (
-                                <span className="text-[9px] font-bold px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 animate-pulse font-sans">
+                                <span className="text-[9px] font-bold px-2 py-0.5 rounded bg-amber-500/10 text-amber-600 border border-amber-500/25 animate-pulse font-sans">
                                   قيد المراجعة ⏳
                                 </span>
                               )}
                               {isPending && (
-                                <span className="text-[9px] font-bold px-2 py-0.5 rounded bg-slate-500/20 text-slate-300">
+                                <span className="text-[9px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200">
                                   معلقة 🧹
                                 </span>
                               )}
                               {isFailed && (
-                                <span className="text-[9px] font-bold px-2 py-0.5 rounded bg-rose-500/20 text-rose-400 font-sans">
+                                <span className="text-[9px] font-bold px-2 py-0.5 rounded bg-rose-500/10 text-rose-600 border border-rose-500/25 font-sans">
                                   غير منجز ❌
                                 </span>
                               )}
                             </div>
-                            <span className="font-extrabold text-white text-[11px]">{task.title}</span>
+                            <span className="font-extrabold text-[#0C2341] text-[11px]">{task.title}</span>
                           </div>
                           
-                          <div className="flex justify-between items-center text-[10px] text-slate-400">
-                            <span className="font-bold text-orange-400 font-sans">
+                          <div className="flex justify-between items-center text-[10px] text-slate-500">
+                            <span className="font-bold text-[#C66E4E] font-sans">
                               {task.rewardType === 'custom'
                                 ? task.customReward || 'جائزة مخصصة 🎁'
                                 : `${task.rewardAmount} ${task.rewardType === 'cash' ? 'ريال 💸' : 'نقطة 🌟'}`}
@@ -269,7 +269,7 @@ export default function FatherKidsPage() {
                                   console.error('Error finalizing approval:', err);
                                 }
                               }}
-                              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold py-1.5 rounded-lg text-[9px] transition-all transform active:scale-95 flex items-center justify-center gap-1 shadow-md"
+                              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold py-1.5 rounded-lg text-[9px] transition-all transform active:scale-95 flex items-center justify-center gap-1 shadow-sm"
                             >
                               <span>موافقة ومنح المكافأة ✅</span>
                             </button>
@@ -286,9 +286,9 @@ export default function FatherKidsPage() {
               </div>
 
               {/* b) سجل العمليات المالي للشهر 📜 */}
-              <div className="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
-                <div className="flex justify-between items-center border-b border-white/5 pb-2">
-                  <span className="text-xs font-bold text-slate-300">سجل العمليات المالي للشهر 📜</span>
+              <div className="bg-[#0C2341]/5 border border-[#0C2341]/10 rounded-2xl p-4 space-y-3">
+                <div className="flex justify-between items-center border-b border-[#0C2341]/5 pb-2">
+                  <span className="text-xs font-bold text-[#0C2341]">سجل العمليات المالي للشهر 📜</span>
                 </div>
                 {filteredTransactions.length > 0 ? (
                   <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
@@ -297,15 +297,15 @@ export default function FatherKidsPage() {
                       return (
                         <div
                           key={tx.id}
-                          className="bg-white/5 border border-white/5 p-2 rounded-xl flex justify-between items-center text-xs hover:bg-white/10 transition-all duration-300"
+                          className="bg-white border border-[#0C2341]/10 p-2 rounded-xl flex justify-between items-center text-xs hover:bg-[#0C2341]/5 transition-all duration-300"
                         >
                           {/* Left: Amount */}
-                          <div className={`font-bold font-sans text-[11px] ${isDeposit ? 'text-emerald-400' : 'text-rose-400'}`}>
+                          <div className={`font-bold font-sans text-[11px] ${isDeposit ? 'text-emerald-600' : 'text-rose-600'}`}>
                             {isDeposit ? '+' : '-'} {tx.amount} ريال
                           </div>
                           {/* Right: Title & Date */}
                           <div className="text-right space-y-0.5">
-                            <h5 className="font-bold text-[11px] text-white leading-tight">{tx.title}</h5>
+                            <h5 className="font-bold text-[11px] text-[#0C2341] leading-tight">{tx.title}</h5>
                             <span className="text-[9px] text-slate-500 font-sans block">
                               {new Date(tx.date).toLocaleString('ar-SA', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' })}
                             </span>

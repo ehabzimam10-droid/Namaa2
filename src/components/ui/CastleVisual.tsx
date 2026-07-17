@@ -1,5 +1,3 @@
-import React from 'react';
-
 export interface CastleVisualProps {
   level: number; // 1 to 5
   parts: {

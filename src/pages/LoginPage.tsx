@@ -92,58 +92,58 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="w-full max-w-md mx-auto my-12 p-8 bg-[#111C2E]/60 backdrop-blur-2xl border border-white/10 shadow-2xl rounded-3xl text-right text-white relative overflow-hidden">
+    <div className="w-full max-w-md mx-auto my-12 p-8 bg-white/80 backdrop-blur-2xl border border-[#0C2341]/10 shadow-2xl rounded-3xl text-right text-[#0C2341] relative overflow-hidden">
       {/* Decorative Brand Shapes */}
-      <div className="absolute -right-12 -top-12 h-36 w-36 rounded-full bg-[#8c7355]/10 blur-xl"></div>
-      <div className="absolute -left-12 -bottom-12 h-36 w-36 rounded-full bg-emerald-500/10 blur-xl"></div>
+      <div className="absolute -right-12 -top-12 h-36 w-36 rounded-full bg-[#C66E4E]/10 blur-xl"></div>
+      <div className="absolute -left-12 -bottom-12 h-36 w-36 rounded-full bg-[#8B84D7]/10 blur-xl"></div>
 
       <div className="text-center mb-8 space-y-3">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-3xl bg-gradient-to-br from-[#8c7355] to-[#111C2E] border border-white/10 text-3xl mb-2">
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-3xl bg-gradient-to-br from-[#C66E4E]/10 to-[#8B84D7]/10 border border-[#0C2341]/10 text-3xl mb-2">
           🍃
         </div>
-        <h2 className="text-2xl font-black bg-gradient-to-r from-orange-400 to-[#8c7355] bg-clip-text text-transparent animate-pulse">
+        <h2 className="text-2xl font-black bg-gradient-to-r from-[#C66E4E] to-[#8B84D7] bg-clip-text text-transparent">
           بوابة دخول نماء العائلية
         </h2>
-        <p className="text-xs text-slate-300 font-sans">
+        <p className="text-xs text-slate-500 font-sans">
           أدخل بيانات حسابك لبدء رحلة التوفير والمسؤولية المالية
         </p>
       </div>
 
       {errorMessage && (
-        <div className="mb-6 p-4 bg-rose-500/10 border border-rose-500/20 text-rose-300 rounded-2xl text-xs font-sans text-center">
+        <div className="mb-6 p-4 bg-rose-500/10 border border-rose-500/20 text-rose-600 rounded-2xl text-xs font-sans text-center">
           ⚠️ {errorMessage}
         </div>
       )}
 
       <form onSubmit={handleCredentialsLogin} className="space-y-5">
         <div className="space-y-1">
-          <label className="block text-xs text-slate-400 font-semibold mr-1">البريد الإلكتروني</label>
+          <label className="block text-xs text-slate-555 mr-1 font-bold">البريد الإلكتروني</label>
           <input
             type="email"
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="father@namaa.com"
-            className="w-full bg-[#111C2E]/80 border border-white/10 focus:border-[#8c7355] focus:ring-1 focus:ring-[#8c7355] rounded-2xl px-4 py-3 text-left text-white text-sm outline-none transition-all placeholder:text-slate-600 font-sans"
+            className="w-full bg-[#0C2341]/5 border border-[#0C2341]/10 focus:border-[#C66E4E] focus:ring-1 focus:ring-[#C66E4E] rounded-2xl px-4 py-3 text-left text-[#0C2341] text-sm outline-none transition-all placeholder:text-slate-400 font-sans"
           />
         </div>
 
         <div className="space-y-1">
-          <label className="block text-xs text-slate-400 font-semibold mr-1">كلمة المرور</label>
+          <label className="block text-xs text-slate-555 mr-1 font-bold">كلمة المرور</label>
           <input
             type="password"
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="••••••••"
-            className="w-full bg-[#111C2E]/80 border border-white/10 focus:border-[#8c7355] focus:ring-1 focus:ring-[#8c7355] rounded-2xl px-4 py-3 text-left text-white text-sm outline-none transition-all placeholder:text-slate-600 font-sans"
+            className="w-full bg-[#0C2341]/5 border border-[#0C2341]/10 focus:border-[#C66E4E] focus:ring-1 focus:ring-[#C66E4E] rounded-2xl px-4 py-3 text-left text-[#0C2341] text-sm outline-none transition-all placeholder:text-slate-400 font-sans"
           />
         </div>
 
         <button
           type="submit"
           disabled={loadingUser !== null}
-          className="w-full mt-2 bg-gradient-to-r from-[#8c7355] to-[#009639] hover:from-[#9c8466] hover:to-[#00a840] text-white font-extrabold py-3.5 px-4 rounded-2xl shadow-lg transition-all duration-300 transform active:scale-[0.98] text-center flex items-center justify-center gap-2 focus:outline-none"
+          className="w-full mt-2 bg-[#0C2341] hover:bg-[#8B84D7] text-white font-extrabold py-3.5 px-4 rounded-2xl shadow-md transition-all duration-300 transform active:scale-[0.98] text-center flex items-center justify-center gap-2 focus:outline-none"
         >
           {loadingUser === 'credentials' ? (
             <span className="flex items-center gap-2">
@@ -156,8 +156,8 @@ export default function LoginPage() {
       </form>
 
       {/* Quick Login Section (Dev Mode Bypass) */}
-      <div className="mt-6 pt-4 border-t border-white/5 space-y-3">
-        <p className="text-center text-xs text-slate-400 font-sans mb-1">الدخول التجريبي السريع (تجاوز المصادقة) ⚡</p>
+      <div className="mt-6 pt-4 border-t border-[#0C2341]/10 space-y-3">
+        <p className="text-center text-xs text-slate-500 font-sans mb-1">الدخول التجريبي السريع (تجاوز المصادقة) ⚡</p>
         <div className="grid grid-cols-2 gap-2">
           <button
             type="button"
@@ -165,7 +165,7 @@ export default function LoginPage() {
               setProfile({ name: 'أبو خالد', role: 'father' });
               navigate('/father');
             }}
-            className="bg-[#8c7355]/10 border border-[#8c7355]/20 hover:border-[#8c7355]/50 text-orange-300 text-[11px] font-bold py-2.5 rounded-xl transition-all active:scale-95 text-center focus:outline-none"
+            className="bg-[#C66E4E]/10 border border-[#C66E4E]/20 hover:bg-[#C66E4E]/20 text-[#C66E4E] text-[11px] font-bold py-2.5 rounded-xl transition-all active:scale-95 text-center focus:outline-none"
           >
             دخول كولي أمر (أبو خالد) 👤
           </button>
@@ -176,7 +176,7 @@ export default function LoginPage() {
               setProfile({ name: 'سالم', role: 'kid' });
               navigate('/kid');
             }}
-            className="bg-emerald-500/10 border border-emerald-500/20 hover:border-emerald-500/50 text-emerald-300 text-[11px] font-bold py-2.5 rounded-xl transition-all active:scale-95 text-center focus:outline-none"
+            className="bg-[#8B84D7]/10 border border-[#8B84D7]/20 hover:bg-[#8B84D7]/20 text-[#8B84D7] text-[11px] font-bold py-2.5 rounded-xl transition-all active:scale-95 text-center focus:outline-none"
           >
             دخول كابن (سالم) 👦
           </button>
@@ -187,7 +187,7 @@ export default function LoginPage() {
               setProfile({ name: 'خالد', role: 'kid' });
               navigate('/kid');
             }}
-            className="bg-rose-500/10 border border-rose-500/20 hover:border-rose-500/50 text-rose-300 text-[11px] font-bold py-2.5 rounded-xl transition-all active:scale-95 text-center focus:outline-none"
+            className="bg-[#8B84D7]/10 border border-[#8B84D7]/20 hover:bg-[#8B84D7]/20 text-[#8B84D7] text-[11px] font-bold py-2.5 rounded-xl transition-all active:scale-95 text-center focus:outline-none"
           >
             دخول كابن (خالد) 👦
           </button>
@@ -198,17 +198,17 @@ export default function LoginPage() {
               setProfile({ name: 'المطور', role: 'dev' });
               navigate('/dev');
             }}
-            className="bg-blue-500/10 border border-blue-500/20 hover:border-blue-500/50 text-blue-300 text-[11px] font-bold py-2.5 rounded-xl transition-all active:scale-95 text-center focus:outline-none"
+            className="bg-[#0C2341]/10 border border-[#0C2341]/20 hover:bg-[#0C2341]/20 text-[#0C2341] text-[11px] font-bold py-2.5 rounded-xl transition-all active:scale-95 text-center focus:outline-none"
           >
             دخول كمطور 🛠️
           </button>
         </div>
       </div>
 
-      <div className="mt-6 text-center border-t border-white/5 pt-4">
+      <div className="mt-6 text-center border-t border-[#0C2341]/10 pt-4">
         <button
           onClick={() => navigate('/dev')}
-          className="text-xs text-slate-500 hover:text-[#8c7355] transition-colors font-sans"
+          className="text-xs text-slate-500 hover:text-[#C66E4E] transition-colors font-sans"
         >
           لوحة تحكم المطورين (God Mode) 🛠️
         </button>

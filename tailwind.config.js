@@ -5,7 +5,15 @@ export default {
     "./src/**/*.{js,ts,jsx,tsx}"
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        'amad-bg': 'var(--bg)',
+        'amad-bg-deep': 'var(--bg-deep)',
+        'amad-text': 'var(--text)',
+        'amad-primary': 'var(--primary)',
+        'amad-secondary': 'var(--secondary)',
+      }
+    },
   },
   plugins: [],
 }

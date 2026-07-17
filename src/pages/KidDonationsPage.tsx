@@ -32,24 +32,24 @@ export default function KidDonationsPage() {
   return (
     <div className="w-full space-y-8 text-right font-sans">
       {/* Header and Back Button */}
-      <div className="relative overflow-hidden bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl rounded-3xl p-6 flex flex-col md:flex-row-reverse md:items-center justify-between gap-4">
-        <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-emerald-500/10 blur-2xl"></div>
+      <div className="relative overflow-hidden bg-white border border-[#0C2341]/10 shadow-2xl rounded-3xl p-6 flex flex-col md:flex-row-reverse md:items-center justify-between gap-4">
+        <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-[#C66E4E]/5 blur-2xl"></div>
         <div className="flex items-center justify-between w-full">
           <button
             onClick={() => navigate('/kid')}
-            className="rounded-xl bg-white/10 hover:bg-white/20 px-3 py-2 text-xs font-bold text-white transition-all border border-white/5"
+            className="rounded-xl bg-[#0C2341]/5 hover:bg-[#0C2341]/10 px-3 py-2 text-xs font-bold text-slate-600 transition-all border border-[#0C2341]/10"
           >
             👦 العودة للوحة التحكم
           </button>
           <div>
-            <h2 className="text-xs font-semibold text-emerald-400">تبرع للمسؤولية المجتمعية والمشاريع الخيرية</h2>
-            <h3 className="text-2xl font-black text-white mt-1">بوابة التبرعات العائلية 🤲</h3>
+            <h2 className="text-xs font-semibold text-[#C66E4E]">تبرع للمسؤولية المجتمعية والمشاريع الخيرية</h2>
+            <h3 className="text-2xl font-black text-[#0C2341] mt-1">بوابة التبرعات العائلية 🤲</h3>
           </div>
         </div>
       </div>
 
       {/* Balance Summary Banner */}
-      <div className="flex justify-between items-center bg-emerald-500/10 border border-emerald-500/20 text-emerald-200 p-4 rounded-2xl text-xs">
+      <div className="flex justify-between items-center bg-[#C66E4E]/10 border border-[#C66E4E]/25 text-[#0C2341] p-4 rounded-2xl text-xs">
         <div className="flex items-center gap-1 font-bold text-sm">
           <span>{kid.balance}</span>
           <span>ريال</span>
@@ -69,17 +69,17 @@ export default function KidDonationsPage() {
           return (
             <div
               key={cause.id}
-              className="relative overflow-hidden bg-[#111C2E]/60 backdrop-blur-2xl border border-white/10 shadow-2xl rounded-3xl p-5 text-right flex flex-col justify-between gap-4 transition-all duration-300 hover:scale-[1.01]"
+              className="relative overflow-hidden bg-white border border-[#0C2341]/10 shadow-sm rounded-3xl p-5 text-right flex flex-col justify-between gap-4 transition-all duration-300 hover:scale-[1.01] hover:border-[#8B84D7]/50 text-[#0C2341]"
             >
-              <div className="absolute left-0 top-0 -z-10 h-full w-24 bg-emerald-500/5 blur-xl"></div>
+              <div className="absolute left-0 top-0 -z-10 h-full w-24 bg-[#C66E4E]/5 blur-xl"></div>
               
               {/* Cause Info */}
-              <div className="border-b border-white/5 pb-3 flex justify-between items-center">
+              <div className="border-b border-[#0C2341]/5 pb-3 flex justify-between items-center">
                 <span className="text-2xl">💚</span>
-                <h4 className="font-bold text-sm text-white">{cause.title}</h4>
+                <h4 className="font-bold text-sm text-[#0C2341]">{cause.title}</h4>
               </div>
 
-              <p className="text-[11px] text-slate-300 leading-relaxed">
+              <p className="text-[11px] text-slate-500 leading-relaxed font-semibold">
                 ساهم في هذه المبادرة الإنسانية لمساعدة الآخرين وكسب نقاط تبرع لرفع ترتيبك العائلي!
               </p>
 
@@ -96,8 +96,8 @@ export default function KidDonationsPage() {
                     setAmounts((prev) => ({ ...prev, [cause.id]: val }));
                   }}
                   placeholder={kid.balance === 0 ? 'رصيدك فارغ 🚫' : 'المبلغ بالريال...'}
-                  className={`w-full bg-[#111C2E]/80 border border-white/10 rounded-xl px-3 py-2 text-left text-white text-xs outline-none placeholder:text-slate-700 transition-all ${
-                    kid.balance === 0 ? 'opacity-40 cursor-not-allowed' : 'focus:border-emerald-500'
+                  className={`w-full bg-[#0C2341]/5 border border-[#0C2341]/10 rounded-xl px-3 py-2 text-left text-[#0C2341] text-xs outline-none placeholder:text-slate-400 transition-all ${
+                    kid.balance === 0 ? 'opacity-40 cursor-not-allowed' : 'focus:border-[#C66E4E]'
                   }`}
                 />
 
@@ -107,14 +107,14 @@ export default function KidDonationsPage() {
                   onClick={() => handleDonate(cause.id, cause.title)}
                   className={`w-full text-white text-xs font-bold py-2 rounded-xl transition-all flex items-center justify-center gap-1 ${
                     kid.balance === 0 || isInsufficient
-                      ? 'bg-slate-600 opacity-40 cursor-not-allowed active:scale-100'
+                      ? 'bg-slate-400 opacity-40 cursor-not-allowed active:scale-100'
                       : isZeroOrNegative || isCauseLoading
-                        ? 'bg-emerald-600 opacity-40 cursor-not-allowed active:scale-100'
-                        : 'bg-emerald-600 hover:bg-emerald-700 active:scale-95 shadow-md'
+                        ? 'bg-[#C66E4E] opacity-40 cursor-not-allowed active:scale-100'
+                        : 'bg-[#C66E4E] hover:bg-[#C66E4E]/90 active:scale-95 shadow-md'
                   }`}
                 >
                   {isCauseLoading ? (
-                    <span className="flex items-center gap-1">
+                    <span className="flex items-center gap-1 font-sans">
                       <span className="animate-spin">⏳</span> جاري التبرع...
                     </span>
                   ) : kid.balance === 0 || isInsufficient ? (
