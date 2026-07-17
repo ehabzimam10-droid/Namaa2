@@ -101,18 +101,18 @@ export default function KidCastlePage() {
   return (
     <div className="w-full space-y-8 text-right font-sans pb-12">
       {/* Header Panel */}
-      <div className="relative overflow-hidden bg-[#0C2341] border border-[#0C2341]/10 shadow-2xl rounded-3xl p-6 flex flex-col md:flex-row-reverse md:items-center justify-between gap-4">
-        <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-orange-500/10 blur-2xl"></div>
+      <div className="relative overflow-hidden bg-white border border-[#0C2341]/10 shadow-2xl rounded-3xl p-6 flex flex-col md:flex-row-reverse md:items-center justify-between gap-4">
+        <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-[#C66E4E]/5 blur-2xl"></div>
         <div className="flex items-center justify-between w-full z-10">
           <button
             onClick={() => navigate('/kid')}
-            className="rounded-xl bg-white/15 hover:bg-white/25 px-3.5 py-2 text-xs font-bold text-white transition-all border border-white/10 active:scale-95 cursor-pointer font-sans"
+            className="rounded-xl bg-[#0C2341]/5 hover:bg-[#0C2341]/10 px-3.5 py-2 text-xs font-bold text-[#0C2341] transition-all border border-[#0C2341]/10 active:scale-95 cursor-pointer font-sans"
           >
             👦 العودة للوحة التحكم
           </button>
           <div>
-            <h2 className="text-xs font-semibold text-orange-300">التمثيل البصري ثلاثي الأبعاد لنموك المالي وسلوكك</h2>
-            <h3 className="text-2xl font-black text-white mt-1">القرية الافتراضية ثلاثية الأبعاد 🏰</h3>
+            <h2 className="text-xs font-semibold text-[#C66E4E]">التمثيل البصري ثلاثي الأبعاد لنموك المالي وسلوكك</h2>
+            <h3 className="text-2xl font-black text-[#0C2341] mt-1">القرية الافتراضية ثلاثية الأبعاد 🏰</h3>
           </div>
         </div>
       </div>
