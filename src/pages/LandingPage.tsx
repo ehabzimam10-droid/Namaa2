@@ -611,7 +611,7 @@ export default function LandingPage() {
           <span className="text-sm font-black">نماء العائلي - بوابة الحوكمة والاستثمار المشترك</span>
         </div>
         <p className="text-[10px] text-slate-500">
-          &copy; {new Date().getFullYear()} نماء. جميع الحقوق محفوظة لغرض مسابقة هكاثون مصرف الإنماء.
+          &copy; {new Date().getFullYear()} نماء. جميع الحقوق محفوظة لفريق GOTL.
         </p>
       </footer>
 
