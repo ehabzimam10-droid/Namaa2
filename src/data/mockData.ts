@@ -91,6 +91,11 @@ export const mockFamilyData: FamilyData = {
       saved: 100,
       balance: 0,
       donationPoints: 0,
+      bank_level: 2,
+      farm_level: 2,
+      market_level: 1,
+      center_level: 2,
+      tasks_level: 2,
       transactions: [
         {
           id: "tx_k_1",
@@ -150,6 +155,11 @@ export const mockFamilyData: FamilyData = {
       saved: 60,
       balance: 300,
       donationPoints: 0,
+      bank_level: 1,
+      farm_level: 1,
+      market_level: 1,
+      center_level: 1,
+      tasks_level: 1,
       transactions: [
         {
           id: "tx_s_1",

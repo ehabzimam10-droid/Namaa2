@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import DynamicCarousel from '../components/ui/DynamicCarousel';
+import { computeVillageLevel } from '../components/village3d/villageLogic';
 
 export default function FatherDashboard() {
   const { kids, projects, activeLeague } = useApp();
@@ -35,15 +36,17 @@ export default function FatherDashboard() {
   // Calculate total family balance (sum of all kids' saved amounts)
   const totalBalance = kids.reduce((sum, kid) => sum + kid.saved, 0);
 
-  // Find highest level across all kids' villages dynamically
-  const highestLevel = Math.max(
+  // Find highest village level dynamically across all kids
+  const highestVillageLevel = Math.max(
     1,
-    ...kids.flatMap((k) => [
-      k.bank_level || 1,
-      k.farm_level || 1,
-      k.market_level || 1,
-      k.tasks_level || 1
-    ])
+    ...kids.map((k) =>
+      computeVillageLevel({
+        bank: k.bank_level || 1,
+        farm: k.farm_level || 1,
+        market: k.market_level || 1,
+        windmill: k.tasks_level || 1,
+      })
+    )
   );
 
   return (
@@ -82,12 +85,12 @@ export default function FatherDashboard() {
             
             <div className="pt-2 grid grid-cols-2 gap-2 text-center text-xs">
               <div className="bg-[#0C2341]/5 p-3 rounded-2xl border border-[#0C2341]/5">
-                <span className="text-slate-500 font-bold block">قلاع نشطة</span>
-                <span className="text-sm font-extrabold text-[#C66E4E] mt-1 block">{kids.length} قلاع</span>
+                <span className="text-slate-500 font-bold block">القرى النشطة</span>
+                <span className="text-sm font-extrabold text-[#C66E4E] mt-1 block">قريتان 🏡</span>
               </div>
               <div className="bg-[#0C2341]/5 p-3 rounded-2xl border border-[#0C2341]/5">
-                <span className="text-slate-500 font-bold block">أعلى مستوى</span>
-                <span className="text-sm font-extrabold text-emerald-600 mt-1 block">مستوى {highestLevel} 🌟</span>
+                <span className="text-slate-500 font-bold block">مستوى القرية الأعلى</span>
+                <span className="text-sm font-extrabold text-emerald-600 mt-1 block">المستوى {highestVillageLevel} 🌟</span>
               </div>
             </div>
           </div>
