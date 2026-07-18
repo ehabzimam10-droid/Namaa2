@@ -57,7 +57,7 @@ export default function LandingPage() {
             ? 'bg-[#0D1527]/85 border-white/10 text-slate-100' 
             : 'bg-white/85 border-[#0C2341]/15 text-[#0C2341]'
         }`
-      : `top-0 w-full rounded-none border-b px-8 py-5 ${
+      : `top-0 w-full rounded-none border-b px-4 py-3.5 md:px-8 md:py-5 ${
           darkMode 
             ? 'bg-[#080F1E]/80 border-white/5 text-slate-100' 
             : 'bg-[#F7F5EE]/80 border-[#0C2341]/5 text-[#0C2341]'
@@ -186,7 +186,7 @@ export default function LandingPage() {
       </header>
 
       {/* Hero Section */}
-      <section className="relative max-w-6xl mx-auto px-6 py-20 md:py-28 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center z-10">
+      <section className="relative max-w-6xl mx-auto px-6 pt-32 pb-20 md:pt-40 md:pb-28 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center z-10">
         
         {/* Left Content */}
         <div className="space-y-6 text-right reveal">
