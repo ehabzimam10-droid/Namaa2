@@ -7,7 +7,7 @@ interface TopbarProps {
 }
 
 export default function Topbar({ onMenuToggle }: TopbarProps) {
-  const { profile, kids, notifications, markNotificationAsRead, showToast } = useApp();
+  const { profile, kids, notifications, markNotificationAsRead } = useApp();
   const [isTxModalOpen, setIsTxModalOpen] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
