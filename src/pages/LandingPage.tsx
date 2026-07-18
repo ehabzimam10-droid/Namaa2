@@ -1,10 +1,87 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+// Mini vector buildings for the landing page interactive simulation card
+const BankSVG = ({ level }: { level: number }) => (
+  <svg className="transition-all duration-500 ease-out hover:scale-105 cursor-pointer origin-bottom" width="40" height={30 + level * 7} viewBox="0 0 50 90" fill="none">
+    <rect x="5" y="80" width="40" height="10" rx="2" fill="#C66E4E" />
+    <rect x="9" y="40" width="6" height="40" fill="#a65638" opacity="0.8" />
+    <rect x="22" y="40" width="6" height="40" fill="#a65638" opacity="0.8" />
+    <rect x="35" y="40" width="6" height="40" fill="#a65638" opacity="0.8" />
+    <polygon points="2,40 25,12 48,40" fill="#C66E4E" />
+    {level >= 4 && <circle cx="25" cy="5" r="4" fill="#FBBF24" className="animate-bounce" />}
+  </svg>
+);
+
+const MarketSVG = ({ level }: { level: number }) => (
+  <svg className="transition-all duration-500 ease-out hover:scale-105 cursor-pointer origin-bottom" width="40" height={30 + level * 7} viewBox="0 0 50 90" fill="none">
+    <rect x="5" y="48" width="40" height="42" rx="4" fill="#8B84D7" />
+    <rect x="15" y="62" width="20" height="28" rx="2" fill="#5F57C7" />
+    <rect x="2" y="38" width="46" height="12" rx="3" fill="#C66E4E" />
+    {level >= 4 && <polygon points="25,38 25,10 38,18" fill="#FBBF24" />}
+    {level >= 4 && <line x1="25" y1="38" x2="25" y2="10" stroke="#FBBF24" strokeWidth="2" />}
+  </svg>
+);
+
+const FarmSVG = ({ level }: { level: number }) => (
+  <svg className="transition-all duration-500 ease-out hover:scale-105 cursor-pointer origin-bottom" width="40" height={30 + level * 7} viewBox="0 0 50 90" fill="none">
+    <rect x="22" y="42" width="6" height="48" fill="#a65638" rx="2" />
+    <circle cx="25" cy="35" r={8 + level * 2} fill="#10B981" opacity="0.9" />
+    {level >= 3 && <circle cx="17" cy="28" r="7" fill="#059669" opacity="0.8" />}
+    {level >= 3 && <circle cx="33" cy="30" r="7" fill="#059669" opacity="0.8" />}
+    {level >= 4 && <circle cx="25" cy="22" r="2" fill="#EF4444" />}
+    {level >= 4 && <circle cx="16" cy="32" r="2" fill="#EF4444" />}
+    {level >= 4 && <circle cx="34" cy="26" r="2" fill="#EF4444" />}
+  </svg>
+);
+
+const WindmillSVG = ({ level }: { level: number }) => (
+  <svg className="transition-all duration-500 ease-out hover:scale-105 cursor-pointer origin-bottom" width="40" height={30 + level * 7} viewBox="0 0 50 90" fill="none">
+    <polygon points="12,90 18,32 32,32 38,90" fill="#6B7280" />
+    <circle cx="25" cy="55" r="4" fill="#374151" />
+    <g transform={`translate(25, 32)`} className="origin-center animate-spin-slow" style={{ animationDuration: `${6.5 - level}s` }}>
+      <circle cx="0" cy="0" r="3" fill="#FBBF24" />
+      <line x1="0" y1="0" x2="0" y2="-22" stroke="#FBBF24" strokeWidth="2" strokeLinecap="round" />
+      <line x1="0" y1="0" x2="0" y2="22" stroke="#FBBF24" strokeWidth="2" strokeLinecap="round" />
+      <line x1="0" y1="0" x2="-22" y2="0" stroke="#FBBF24" strokeWidth="2" strokeLinecap="round" />
+      <line x1="0" y1="0" x2="22" y2="0" stroke="#FBBF24" strokeWidth="2" strokeLinecap="round" />
+    </g>
+  </svg>
+);
+
+const CastleSVG = ({ level }: { level: number }) => (
+  <svg className="transition-all duration-500 ease-out hover:scale-105 cursor-pointer origin-bottom" width="50" height={30 + level * 7} viewBox="0 0 60 90" fill="none">
+    <rect x="5" y="32" width="12" height="58" fill="#4B5563" rx="1" />
+    <polygon points="5,32 11,12 17,32" fill="#EF4444" />
+    <rect x="43" y="32" width="12" height="58" fill="#4B5563" rx="1" />
+    <polygon points="43,32 49,12 55,32" fill="#EF4444" />
+    <rect x="15" y="44" width="30" height="46" fill="#374151" rx="1" />
+    <rect x="18" y="37" width="5" height="7" fill="#374151" />
+    <rect x="27" y="37" width="5" height="7" fill="#374151" />
+    <rect x="36" y="37" width="5" height="7" fill="#374151" />
+    <path d="M24 90V76c0-3.3 2.7-6 6-6s6 2.7 6 6v14" fill="#1F2937" />
+  </svg>
+);
+
 export default function LandingPage() {
   const navigate = useNavigate();
   const [darkMode, setDarkMode] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+
+  const [demoLevels, setDemoLevels] = useState({
+    bank: 4,      // 💰 الادخار
+    market: 2,    // 📈 الاستثمار
+    farm: 3,      // 💚 الخير
+    windmill: 5,  // 🌀 المهام
+    castle: 3,    // 🏰 الحوكمة
+  });
+
+  const incrementLevel = (key: keyof typeof demoLevels) => {
+    setDemoLevels((prev) => ({
+      ...prev,
+      [key]: prev[key] >= 5 ? 1 : prev[key] + 1,
+    }));
+  };
 
   // Scroll listener for floating floating island header
   useEffect(() => {
@@ -250,19 +327,66 @@ export default function LandingPage() {
               </div>
 
               {/* Graphic elements */}
-              <div className="w-full flex justify-around items-end z-10">
-                <div className="h-20 w-8 bg-orange-500/80 rounded-t-lg border-t border-orange-400 flex items-center justify-center text-white text-xs hover:-translate-y-1 transition-all duration-300">💰</div>
-                <div className="h-28 w-12 bg-purple-500/80 rounded-t-lg border-t border-purple-400 flex items-center justify-center text-white text-xs hover:-translate-y-1 transition-all duration-300 animate-float-delayed">👑</div>
-                <div className="h-16 w-8 bg-emerald-500/80 rounded-t-lg border-t border-emerald-400 flex items-center justify-center text-white text-xs hover:-translate-y-1 transition-all duration-300">🌳</div>
+              <div className="w-full flex justify-around items-end z-10 pb-1">
+                <div className="flex flex-col items-center gap-1">
+                  <BankSVG level={demoLevels.bank} />
+                  <span className="text-[8px] text-slate-400 font-bold">الادخار</span>
+                </div>
+                <div className="flex flex-col items-center gap-1">
+                  <MarketSVG level={demoLevels.market} />
+                  <span className="text-[8px] text-slate-400 font-bold">الاستثمار</span>
+                </div>
+                <div className="flex flex-col items-center gap-1">
+                  <CastleSVG level={demoLevels.castle} />
+                  <span className="text-[8px] text-slate-400 font-bold animate-pulse-ring">القلعة</span>
+                </div>
+                <div className="flex flex-col items-center gap-1">
+                  <FarmSVG level={demoLevels.farm} />
+                  <span className="text-[8px] text-slate-400 font-bold">الخير</span>
+                </div>
+                <div className="flex flex-col items-center gap-1">
+                  <WindmillSVG level={demoLevels.windmill} />
+                  <span className="text-[8px] text-slate-400 font-bold">المهام</span>
+                </div>
               </div>
               <div className="w-full h-4 bg-emerald-700/60 rounded-b-lg border-t border-emerald-600/30"></div>
             </div>
 
-            {/* Values indicators */}
-            <div className="grid grid-cols-3 gap-2 mt-4 text-[10px] text-center">
-              <div className="bg-[#C66E4E]/10 p-2 rounded-xl text-[#C66E4E] font-bold transition-all hover:scale-105">💰 الادخار (4/5)</div>
-              <div className="bg-[#8B84D7]/10 p-2 rounded-xl text-[#8B84D7] font-bold transition-all hover:scale-105">📜 المهام (5/5)</div>
-              <div className="bg-emerald-500/10 p-2 rounded-xl text-emerald-600 font-bold transition-all hover:scale-105">🌳 الخير (3/5)</div>
+            {/* Values indicators (Clickable to adjust levels) */}
+            <div className="space-y-2 mt-4 select-none">
+              <span className="text-[9px] text-[#C66E4E] font-bold block text-right">💡 انقر على الأزرار بالأسفل لتطوير مباني القرية وتجربتها:</span>
+              <div className="grid grid-cols-5 gap-1 text-[8px] text-center">
+                <button 
+                  onClick={() => incrementLevel('bank')}
+                  className="bg-[#C66E4E]/10 hover:bg-[#C66E4E]/20 p-2 rounded-xl text-[#C66E4E] font-black transition-all hover:scale-105 active:scale-95 cursor-pointer border border-[#C66E4E]/15"
+                >
+                  💰 الادخار ({demoLevels.bank}/5)
+                </button>
+                <button 
+                  onClick={() => incrementLevel('market')}
+                  className="bg-amber-500/10 hover:bg-amber-500/20 p-2 rounded-xl text-amber-600 font-black transition-all hover:scale-105 active:scale-95 cursor-pointer border border-amber-500/15"
+                >
+                  📈 الاستثمار ({demoLevels.market}/5)
+                </button>
+                <button 
+                  onClick={() => incrementLevel('castle')}
+                  className="bg-purple-500/10 hover:bg-purple-500/20 p-2 rounded-xl text-purple-600 font-black transition-all hover:scale-105 active:scale-95 cursor-pointer border border-purple-500/15"
+                >
+                  🏰 القلعة ({demoLevels.castle}/5)
+                </button>
+                <button 
+                  onClick={() => incrementLevel('farm')}
+                  className="bg-emerald-500/10 hover:bg-emerald-500/20 p-2 rounded-xl text-emerald-600 font-black transition-all hover:scale-105 active:scale-95 cursor-pointer border border-emerald-500/15"
+                >
+                  🌳 الخير ({demoLevels.farm}/5)
+                </button>
+                <button 
+                  onClick={() => incrementLevel('windmill')}
+                  className="bg-[#8B84D7]/10 hover:bg-[#8B84D7]/20 p-2 rounded-xl text-[#8B84D7] font-black transition-all hover:scale-105 active:scale-95 cursor-pointer border border-[#8B84D7]/15"
+                >
+                  🌀 المهام ({demoLevels.windmill}/5)
+                </button>
+              </div>
             </div>
 
           </div>
