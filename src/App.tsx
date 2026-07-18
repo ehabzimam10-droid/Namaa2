@@ -60,7 +60,7 @@ function App() {
   return (
     <BrowserRouter>
       {toast.show && (
-        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[999] bg-white border border-stone-200/80 px-6 py-3 rounded-full shadow-2xl flex items-center gap-3 max-w-md text-right animate-bounce">
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[1000] bg-white border border-stone-200/80 px-6 py-3 rounded-full shadow-2xl flex items-center gap-3 max-w-md text-right animate-bounce">
           <span className="text-base shrink-0">
             {toast.type === 'success' ? '🎉' : '❌'}
           </span>

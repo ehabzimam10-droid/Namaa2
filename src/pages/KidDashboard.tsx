@@ -397,7 +397,7 @@ export default function KidDashboard() {
                   onClick={() => setIsPayModalOpen(false)}
                   className="px-5 py-2 border border-[#0C2341]/10 text-[#0C2341] rounded-xl text-xs font-bold bg-[#0C2341]/5 hover:bg-[#0C2341]/10 transition-all"
                 >
-                  إلغلاق
+                  إلغاء
                 </button>
                 <button
                   type="submit"
