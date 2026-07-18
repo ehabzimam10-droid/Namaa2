@@ -14,6 +14,7 @@ import FatherLeaguePage from './pages/FatherLeaguePage';
 import KidLeaguePage from './pages/KidLeaguePage';
 import DashboardLayout from './components/layout/DashboardLayout';
 import KidCastlePage from './pages/KidCastlePage';
+import KidRewardsPage from './pages/KidRewardsPage';
 import FatherVillagePage from './pages/FatherVillagePage';
 import LandingPage from './pages/LandingPage';
 import { useApp } from './context/AppContext';
@@ -93,6 +94,7 @@ function App() {
           <Route path="/kid/donations" element={<KidDonationsPage />} />
           <Route path="/kid/league" element={<KidLeaguePage />} />
           <Route path="/kid/castle" element={<KidCastlePage />} />
+          <Route path="/kid/rewards" element={<KidRewardsPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

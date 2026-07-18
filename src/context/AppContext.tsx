@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { mockFamilyData } from '../data/mockData';
-import type { Kid, FamilyProject, Task, Transaction, SavingsGoal, ActiveLeague } from '../data/mockData';
+import type { Kid, FamilyProject, Task, Transaction, SavingsGoal, ActiveLeague, RedeemedReward } from '../data/mockData';
 import { supabase } from '../utils/supabaseClient';
 
 export interface UserProfile {
@@ -24,6 +24,7 @@ interface AppContextType {
   profile: UserProfile | null;
   kids: Kid[];
   projects: FamilyProject[];
+  redeemReward: (kidId: string, rewardId: string, rewardTitle: string, cost: number, partnerName: string) => Promise<void>;
   setProfile: (profile: UserProfile | null) => void;
   addDonation: (kidId: string, amount: number) => Promise<void>;
   approveTask: (kidId: string, taskTitle: string, rewardAmount: number, rewardType: 'cash' | 'points' | 'custom', customReward?: string) => Promise<void>;
@@ -1553,6 +1554,87 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   };
 
+  const redeemReward = async (
+    kidId: string,
+    rewardId: string,
+    rewardTitle: string,
+    cost: number,
+    partnerName: string
+  ) => {
+    let success = false;
+    let generatedCode = '';
+
+    setKids((prevKids) =>
+      prevKids.map((kid) => {
+        if (kid.id === kidId || kid.name === kidId) {
+          if (kid.donationPoints < cost) {
+            showToast('عذراً، نقاطك غير كافية لاسترداد هذه المكافأة', 'error');
+            return kid;
+          }
+
+          success = true;
+          // Generate random 8-character promo code
+          const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+          let codeSuffix = '';
+          for (let i = 0; i < 6; i++) {
+            codeSuffix += chars.charAt(Math.floor(Math.random() * chars.length));
+          }
+          generatedCode = `ALINMA-${partnerName.toUpperCase()}-${codeSuffix}`;
+
+          const newRedeemed: RedeemedReward = {
+            id: rewardId,
+            rewardTitle,
+            cost,
+            code: generatedCode,
+            date: new Date().toISOString().substring(0, 10),
+            partnerName,
+          };
+
+          // Also add a transaction log
+          const newTx: Transaction = {
+            id: `tx_${Date.now()}_${Math.random()}`,
+            title: `استرداد مكافأة: ${rewardTitle}`,
+            amount: cost,
+            type: 'withdrawal', // points are withdrawn/spent
+            date: new Date().toISOString().substring(0, 10),
+          };
+
+          showToast(`تم استرداد قسيمة ${rewardTitle} بنجاح! 🎉`, 'success');
+
+          return {
+            ...kid,
+            donationPoints: kid.donationPoints - cost,
+            redeemedRewards: [...(kid.redeemedRewards || []), newRedeemed],
+            transactions: [newTx, ...(kid.transactions || [])],
+          };
+        }
+        return kid;
+      })
+    );
+
+    if (success) {
+      // Find kid profile to get name
+      const kidObj = kids.find(k => k.id === kidId || k.name === kidId);
+      const kidName = kidObj ? kidObj.name : 'الطفل';
+
+      // Add notification for the kid
+      await addNotification(
+        kidId,
+        'kid',
+        'استرداد مكافأة ناجح 🎁',
+        `تهانينا! لقد قمت باستبدال ${cost} نقطة مقابل قسيمة ${rewardTitle}. كود الخصم الخاص بك هو: ${generatedCode}`
+      );
+
+      // Add notification for the father
+      await addNotification(
+        'father',
+        'father',
+        `استرداد مكافأة من الشركاء 🎁`,
+        `قام ${kidName} باستبدال ${cost} نقطة بنجاح للحصول على: ${rewardTitle} (${partnerName}).`
+      );
+    }
+  };
+
   const calculateROI = (investedAmount: number, roiPercentage: number): number => {
     return investedAmount + (investedAmount * (roiPercentage / 100));
   };
@@ -1651,6 +1733,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         finalizeTaskApproval,
         logout,
         assignManualTask,
+        redeemReward,
         calculateROI,
         updateKidLevels,
         geminiApiKey,

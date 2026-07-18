@@ -21,7 +21,9 @@ export async function suggestTaskForKid(
     - Age: ${kidData.age}
     - Current Balance: ${kidData.balance} SAR
     - Saved Amount: ${kidData.saved} SAR
+    - Points Balance: ${kidData.donationPoints || 0} Points (🌟)
     - Savings Goals: ${JSON.stringify(kidData.savingsGoals || [])}
+    - Redeemed Rewards: ${JSON.stringify(kidData.redeemedRewards || [])}
     - Expired/Failed Tasks count: ${(kidData.tasks || []).filter((t: any) => t.status === 'expired' || t.status === 'failed').length}
     - Recent Transaction History: ${JSON.stringify((kidData.transactions || []).slice(0, 10))}
     - Father's Specific Notes: "${fatherNotes || 'None provided'}"
@@ -30,6 +32,7 @@ export async function suggestTaskForKid(
     Analyze this data. Suggest an age-appropriate task for the child.
     - If the child has a high count of expired/failed tasks, suggest a simpler/easier task.
     - If the child's balance is low relative to their savings target, suggest a task with a cash/points reward.
+    - If they have excess points (e.g. 100+ points), suggest they visit the Rewards Store to redeem them for Sony PlayStation gift cards (100 pts) or Jarir bookstore coupons (150 pts).
     - If they have excess money, suggest a task involving donation or charity.
     
     You MUST output a clean, strictly typed JSON object in this exact schema:

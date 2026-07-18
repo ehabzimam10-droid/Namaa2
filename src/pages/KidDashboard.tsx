@@ -307,6 +307,26 @@ export default function KidDashboard() {
           </div>
         </Link>
 
+        {/* Card 7: متجر المكافآت */}
+        <Link to="/kid/rewards" className="block relative overflow-hidden bg-white border border-[#0C2341]/10 shadow-sm rounded-3xl p-5 flex flex-col justify-between transition-all hover:scale-[1.02] hover:border-[#8B84D7]/50 duration-300">
+          <div className="absolute -left-6 -top-6 text-6xl opacity-5">🎁</div>
+          <div className="space-y-3 w-full">
+            <div className="flex items-center justify-end gap-2 border-b border-[#0C2341]/5 pb-2">
+              <h4 className="text-sm font-bold text-purple-600">متجر المكافآت والشركاء</h4>
+              <span className="text-base">🎁</span>
+            </div>
+            <div className="flex justify-between items-center text-xs">
+              <span className="bg-purple-100/60 border border-purple-200/50 text-purple-700 font-bold px-2 py-0.5 rounded-full text-[9px] font-sans">
+                {kid.donationPoints || 0} نقطة متوفرة 🌟
+              </span>
+              <span className="font-extrabold text-[#0C2341]">Alinma Store 🏦</span>
+            </div>
+            <p className="text-xs leading-relaxed text-slate-500">
+              استبدل نقاطك بقسائم مجانية وأكواد خصم حقيقية من سوني وجرير!
+            </p>
+          </div>
+        </Link>
+
       </div>
 
       {toast && (

@@ -38,6 +38,15 @@ export interface Task {
   difficulty?: 'easy' | 'medium' | 'hard';
 }
 
+export interface RedeemedReward {
+  id: string;
+  rewardTitle: string;
+  cost: number;
+  code: string;
+  date: string;
+  partnerName: string;
+}
+
 export interface Kid {
   id: string;
   name: string;
@@ -57,6 +66,7 @@ export interface Kid {
   market_level?: number;
   center_level?: number;
   tasks_level?: number;
+  redeemedRewards?: RedeemedReward[];
 }
 
 export interface Father {
@@ -90,12 +100,13 @@ export const mockFamilyData: FamilyData = {
       allowance: 500,
       saved: 100,
       balance: 0,
-      donationPoints: 0,
+      donationPoints: 120,
       bank_level: 2,
       farm_level: 2,
       market_level: 1,
       center_level: 2,
       tasks_level: 2,
+      redeemedRewards: [],
       transactions: [
         {
           id: "tx_k_1",
@@ -154,12 +165,13 @@ export const mockFamilyData: FamilyData = {
       allowance: 100,
       saved: 60,
       balance: 300,
-      donationPoints: 0,
+      donationPoints: 50,
       bank_level: 1,
       farm_level: 1,
       market_level: 1,
       center_level: 1,
       tasks_level: 1,
+      redeemedRewards: [],
       transactions: [
         {
           id: "tx_s_1",

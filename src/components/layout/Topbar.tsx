@@ -154,19 +154,33 @@ export default function Topbar({ onMenuToggle }: TopbarProps) {
             </span>
           </button>
 
-          {/* Permanently Fixed Balance Pill */}
+          {/* Permanently Fixed Balance & Points Pills */}
           {isKid && kid && (
-            <div className="flex items-center gap-1.5 bg-[#8B84D7]/10 border border-[#8B84D7]/20 px-3.5 py-1.5 rounded-full text-xs font-bold text-[#0C2341] shadow-sm font-sans" dir="rtl">
-              <span className="text-[10px] text-slate-500 font-bold">الرصيد المتاح:</span>
-              <span className="text-[#C66E4E] font-black text-sm">{balance}</span>
-              <span className="text-[10px] text-slate-500 font-bold">ريال</span>
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5 bg-[#8B84D7]/10 border border-[#8B84D7]/20 px-3.5 py-1.5 rounded-full text-xs font-bold text-[#0C2341] shadow-sm font-sans" dir="rtl">
+                <span className="text-[10px] text-slate-500 font-bold">الرصيد:</span>
+                <span className="text-[#C66E4E] font-black text-sm">{balance}</span>
+                <span className="text-[10px] text-slate-500 font-bold">ريال</span>
+              </div>
+              <div className="flex items-center gap-1.5 bg-purple-500/10 border border-purple-500/20 px-3.5 py-1.5 rounded-full text-xs font-bold text-[#0C2341] shadow-sm font-sans" dir="rtl">
+                <span className="text-[10px] text-slate-500 font-bold">النقاط:</span>
+                <span className="text-purple-600 font-black text-sm">{kid.donationPoints || 0}</span>
+                <span className="text-[10px] text-slate-500 font-bold">🌟</span>
+              </div>
             </div>
           )}
           {isFather && (
-            <div className="flex items-center gap-1.5 bg-[#C66E4E]/10 border border-[#C66E4E]/20 px-3.5 py-1.5 rounded-full text-xs font-bold text-[#0C2341] shadow-sm font-sans" dir="rtl">
-              <span className="text-[10px] text-slate-500 font-bold">إجمالي أرصدة الأبناء:</span>
-              <span className="text-[#C66E4E] font-black text-sm">{kids.reduce((sum, k) => sum + k.balance, 0)}</span>
-              <span className="text-[10px] text-slate-500 font-bold">ريال</span>
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5 bg-[#C66E4E]/10 border border-[#C66E4E]/20 px-3.5 py-1.5 rounded-full text-xs font-bold text-[#0C2341] shadow-sm font-sans" dir="rtl">
+                <span className="text-[10px] text-slate-500 font-bold">إجمالي الأرصدة:</span>
+                <span className="text-[#C66E4E] font-black text-sm">{kids.reduce((sum, k) => sum + k.balance, 0)}</span>
+                <span className="text-[10px] text-slate-500 font-bold">ريال</span>
+              </div>
+              <div className="flex items-center gap-1.5 bg-purple-500/10 border border-purple-500/20 px-3.5 py-1.5 rounded-full text-xs font-bold text-[#0C2341] shadow-sm font-sans" dir="rtl">
+                <span className="text-[10px] text-slate-500 font-bold">إجمالي النقاط:</span>
+                <span className="text-purple-600 font-black text-sm">{kids.reduce((sum, k) => sum + (k.donationPoints || 0), 0)}</span>
+                <span className="text-[10px] text-slate-500 font-bold">🌟</span>
+              </div>
             </div>
           )}
 
