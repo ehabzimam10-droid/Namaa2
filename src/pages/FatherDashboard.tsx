@@ -35,6 +35,17 @@ export default function FatherDashboard() {
   // Calculate total family balance (sum of all kids' saved amounts)
   const totalBalance = kids.reduce((sum, kid) => sum + kid.saved, 0);
 
+  // Find highest level across all kids' villages dynamically
+  const highestLevel = Math.max(
+    1,
+    ...kids.flatMap((k) => [
+      k.bank_level || 1,
+      k.farm_level || 1,
+      k.market_level || 1,
+      k.tasks_level || 1
+    ])
+  );
+
   return (
     <div className="w-full space-y-8 text-right font-sans">
       {/* Header Summary */}
@@ -76,13 +87,13 @@ export default function FatherDashboard() {
               </div>
               <div className="bg-[#0C2341]/5 p-3 rounded-2xl border border-[#0C2341]/5">
                 <span className="text-slate-500 font-bold block">أعلى مستوى</span>
-                <span className="text-sm font-extrabold text-emerald-600 mt-1 block">مستوى 4 🌟</span>
+                <span className="text-sm font-extrabold text-emerald-600 mt-1 block">مستوى {highestLevel} 🌟</span>
               </div>
             </div>
           </div>
-          <button className="w-full mt-4 bg-[#0C2341]/5 hover:bg-[#0C2341]/10 text-[#0C2341] font-bold py-2.5 rounded-xl text-xs border border-[#0C2341]/10 transition-all">
+          <Link to="/father/village" className="w-full mt-4 bg-[#0C2341]/5 hover:bg-[#0C2341]/10 text-[#0C2341] font-bold py-2.5 rounded-xl text-xs border border-[#0C2341]/10 transition-all text-center block">
             استعراض القرية ➜
-          </button>
+          </Link>
         </div>
 
         {/* Card 2: المستشار المالي الذكي */}
