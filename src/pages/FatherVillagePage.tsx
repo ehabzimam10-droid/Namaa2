@@ -266,7 +266,7 @@ export default function FatherVillagePage() {
               </button>
               <div>
                 <h4 className="font-extrabold text-sm text-[#0C2341]">قرية الابن الخاصة: {selectedKid.name} 👦🏰</h4>
-                <p className="text-[10px] text-slate-500 font-sans mt-0.5 font-bold">منظور ثلاثي الأبعاد تفاعلي لمباني قريته الحقيقية (منزل القصر + مبانيه الشخصية الـ 3)</p>
+                <p className="text-[10px] text-slate-500 font-sans mt-0.5 font-bold">منظور ثلاثي الأبعاد تفاعلي لمباني قريته الحقيقية (منزل القصر + مبانيه الشخصية الـ 4)</p>
               </div>
             </div>
 
