@@ -169,7 +169,7 @@ export default function SuggestedTaskWidget({
                   className="w-full bg-[#111C2E]/60 border border-white/10 focus:border-[#8c7355] rounded-xl px-2.5 py-1.5 text-right text-white text-xs outline-none transition-all"
                 >
                   <option value="cash">ريال 💸</option>
-                  {activeLeague && activeLeague.isActive && <option value="points">نقاط 🌟</option>}
+                  <option value="points">نقاط 🌟</option>
                   <option value="custom">مخصصة 🎁</option>
                 </select>
               </div>
@@ -181,7 +181,7 @@ export default function SuggestedTaskWidget({
                   <label className="text-[9px] text-slate-400 block mb-1">قيمة المكافأة</label>
                   <input
                     type="number"
-                    disabled={type === 'points'}
+                    disabled={type === 'points' && !!(activeLeague && activeLeague.isActive)}
                     value={amount === 0 ? '' : amount}
                     onChange={(e) => setAmount(Number(e.target.value))}
                     className="w-full bg-[#111C2E]/60 border border-white/10 focus:border-[#8c7355] rounded-xl px-2.5 py-1.5 text-left text-white text-xs outline-none transition-all font-sans disabled:opacity-50"

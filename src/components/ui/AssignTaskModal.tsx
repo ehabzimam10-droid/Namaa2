@@ -177,11 +177,10 @@ export default function AssignTaskModal({ isOpen, onClose, kidName }: AssignTask
           )}
 
           {/* Reward Type (Segmented Toggle - Hide points if no active league) */}
+          {/* Reward Type (Segmented Toggle) */}
           <div className="space-y-1">
             <label className="block text-xs text-slate-500 font-bold">نوع المكافأة</label>
-            <div className={`grid gap-1 bg-stone-100 p-1 rounded-xl border border-stone-200/60 ${
-              activeLeague && activeLeague.isActive ? 'grid-cols-3' : 'grid-cols-2'
-            }`}>
+            <div className="grid grid-cols-3 gap-1 bg-stone-100 p-1 rounded-xl border border-stone-200/60">
               <button
                 type="button"
                 onClick={() => setRewardType('cash')}
@@ -193,22 +192,20 @@ export default function AssignTaskModal({ isOpen, onClose, kidName }: AssignTask
               >
                 ريال
               </button>
-              {activeLeague && activeLeague.isActive && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setRewardType('points');
-                    setAmount(difficulty === 'easy' ? 5 : difficulty === 'medium' ? 10 : 15);
-                  }}
-                  className={`py-2 rounded-lg text-xs font-bold transition-all text-center ${
-                    rewardType === 'points'
-                      ? 'bg-gradient-to-r from-[#C66E4E] to-[#8B84D7] text-white shadow-sm'
-                      : 'text-slate-550 hover:text-[#0C2341]'
-                  }`}
-                >
-                  نقطة
-                </button>
-              )}
+              <button
+                type="button"
+                onClick={() => {
+                  setRewardType('points');
+                  setAmount(difficulty === 'easy' ? 5 : difficulty === 'medium' ? 10 : 15);
+                }}
+                className={`py-2 rounded-lg text-xs font-bold transition-all text-center ${
+                  rewardType === 'points'
+                    ? 'bg-gradient-to-r from-[#C66E4E] to-[#8B84D7] text-white shadow-sm'
+                    : 'text-slate-550 hover:text-[#0C2341]'
+                }`}
+              >
+                نقطة
+              </button>
               <button
                 type="button"
                 onClick={() => setRewardType('custom')}
@@ -233,7 +230,7 @@ export default function AssignTaskModal({ isOpen, onClose, kidName }: AssignTask
                 type="number"
                 required
                 min="1"
-                disabled={rewardType === 'points'}
+                disabled={rewardType === 'points' && !!(activeLeague && activeLeague.isActive)}
                 value={amount}
                 onChange={(e) => setAmount(e.target.value === '' ? '' : Number(e.target.value))}
                 placeholder={rewardType === 'cash' ? 'مثال: 20' : 'مثال: 5'}
