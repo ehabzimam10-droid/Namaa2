@@ -39,7 +39,7 @@ const WindmillSVG = ({ level }: { level: number }) => (
   <svg className="transition-all duration-500 ease-out hover:scale-105 cursor-pointer origin-bottom" width="40" height={30 + level * 7} viewBox="0 0 50 90" fill="none">
     <polygon points="12,90 18,32 32,32 38,90" fill="#6B7280" />
     <circle cx="25" cy="55" r="4" fill="#374151" />
-    <g transform={`translate(25, 32)`} className="origin-center animate-spin-slow" style={{ animationDuration: `${6.5 - level}s` }}>
+    <g style={{ animation: `windmill-spin ${6.5 - level}s linear infinite` }}>
       <circle cx="0" cy="0" r="3" fill="#FBBF24" />
       <line x1="0" y1="0" x2="0" y2="-22" stroke="#FBBF24" strokeWidth="2" strokeLinecap="round" />
       <line x1="0" y1="0" x2="0" y2="22" stroke="#FBBF24" strokeWidth="2" strokeLinecap="round" />
@@ -186,6 +186,10 @@ export default function LandingPage() {
         .reveal-delay-3 { transition-delay: 300ms; }
         .transition-premium {
           transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        @keyframes windmill-spin {
+          0% { transform: translate(25px, 32px) rotate(0deg); }
+          100% { transform: translate(25px, 32px) rotate(360deg); }
         }
         
         html {
