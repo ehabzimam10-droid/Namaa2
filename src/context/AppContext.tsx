@@ -939,8 +939,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (!foundKid || !foundTask) return;
 
     const isCash = foundTask.rewardType === 'cash';
+    const isPoints = foundTask.rewardType === 'points';
     const amount = foundTask.rewardAmount;
     const newBalance = isCash ? foundKid.balance + amount : foundKid.balance;
+    const newPoints = isPoints ? (foundKid.donationPoints || 0) + amount : (foundKid.donationPoints || 0);
 
     // Local state update
     setKids((prevKids) =>
@@ -955,6 +957,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           return {
             ...kid,
             balance: newBalance,
+            donationPoints: newPoints,
             tasks: updatedTasks,
           };
         }
@@ -984,6 +987,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         );
         updates.push(
           logTransaction(foundKid.name, `مكافأة إتمام مهمة: ${foundTask.title} 💸`, amount, 'deposit')
+        );
+      } else if (isPoints) {
+        updates.push(
+          supabase
+            .from('kids_profiles')
+            .update({ donation_points: newPoints })
+            .eq('id', foundKid.id)
+        );
+        updates.push(
+          logTransaction(foundKid.name, `نقاط إتمام مهمة: ${foundTask.title} 🌟`, amount, 'deposit')
         );
       }
 
