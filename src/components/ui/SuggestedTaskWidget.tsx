@@ -99,27 +99,29 @@ export default function SuggestedTaskWidget({
       <div className="space-y-2.5 text-xs text-right">
         {status === 'idle' ? (
           <>
-            {/* Visual Counters */}
-            <div className="bg-white/5 border border-white/5 p-2 rounded-xl text-right text-[10px] space-y-1 backdrop-blur-md">
-              <span className="font-bold text-orange-400 block">📊 أهداف المهام لهذا الدوري:</span>
-              <div className="grid grid-cols-3 gap-1.5 text-center text-[9px] text-slate-350 font-sans">
-                <div className="bg-white/5 p-1 rounded-lg border border-white/5">
-                  <span className="block text-slate-400">سهلة (5)</span>
-                  <span className="font-extrabold text-white">{easyCount}/5</span>
-                  <span className="block text-[8px] text-slate-500">({remainingEasy} متبقي)</span>
-                </div>
-                <div className="bg-white/5 p-1 rounded-lg border border-white/5">
-                  <span className="block text-slate-400">متوسطة (3)</span>
-                  <span className="font-extrabold text-white">{mediumCount}/3</span>
-                  <span className="block text-[8px] text-slate-500">({remainingMedium} متبقي)</span>
-                </div>
-                <div className="bg-white/5 p-1 rounded-lg border border-white/5">
-                  <span className="block text-slate-400">صعبة (3)</span>
-                  <span className="font-extrabold text-white">{hardCount}/3</span>
-                  <span className="block text-[8px] text-slate-500">({remainingHard} متبقي)</span>
+            {/* Visual Counters (Only show if league is active) */}
+            {activeLeague && activeLeague.isActive && (
+              <div className="bg-white/5 border border-white/5 p-2 rounded-xl text-right text-[10px] space-y-1 backdrop-blur-md">
+                <span className="font-bold text-orange-400 block">📊 أهداف المهام لهذا الدوري:</span>
+                <div className="grid grid-cols-3 gap-1.5 text-center text-[9px] text-slate-350 font-sans">
+                  <div className="bg-white/5 p-1 rounded-lg border border-white/5">
+                    <span className="block text-slate-400">سهلة (5)</span>
+                    <span className="font-extrabold text-white">{easyCount}/5</span>
+                    <span className="block text-[8px] text-slate-500">({remainingEasy} متبقي)</span>
+                  </div>
+                  <div className="bg-white/5 p-1 rounded-lg border border-white/5">
+                    <span className="block text-slate-400">متوسطة (3)</span>
+                    <span className="font-extrabold text-white">{mediumCount}/3</span>
+                    <span className="block text-[8px] text-slate-500">({remainingMedium} متبقي)</span>
+                  </div>
+                  <div className="bg-white/5 p-1 rounded-lg border border-white/5">
+                    <span className="block text-slate-400">صعبة (3)</span>
+                    <span className="font-extrabold text-white">{hardCount}/3</span>
+                    <span className="block text-[8px] text-slate-500">({remainingHard} متبقي)</span>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
 
             <div>
               <label className="text-[9px] text-slate-400 block mb-1">اسم المهمة</label>
@@ -132,26 +134,28 @@ export default function SuggestedTaskWidget({
             </div>
 
             <div className="grid grid-cols-2 gap-2">
-              <div>
-                <label className="text-[9px] text-slate-400 block mb-1">مستوى الصعوبة</label>
-                <select
-                  value={difficulty}
-                  onChange={(e) => {
-                    const diffVal = e.target.value as 'easy' | 'medium' | 'hard';
-                    setDifficulty(diffVal);
-                    if (type === 'points') {
-                      setAmount(diffVal === 'easy' ? 5 : diffVal === 'medium' ? 10 : 15);
-                    }
-                  }}
-                  className="w-full bg-[#111C2E]/60 border border-white/10 focus:border-[#8c7355] rounded-xl px-2.5 py-1.5 text-right text-white text-xs outline-none transition-all font-sans"
-                >
-                  <option value="easy" disabled={remainingEasy === 0}>سهل (5 نقاط) - متبقي {remainingEasy}</option>
-                  <option value="medium" disabled={remainingMedium === 0}>متوسط (10 نقاط) - متبقي {remainingMedium}</option>
-                  <option value="hard" disabled={remainingHard === 0}>صعب (15 نقطة) - متبقي {remainingHard}</option>
-                </select>
-              </div>
+              {activeLeague && activeLeague.isActive && (
+                <div>
+                  <label className="text-[9px] text-slate-400 block mb-1">مستوى الصعوبة</label>
+                  <select
+                    value={difficulty}
+                    onChange={(e) => {
+                      const diffVal = e.target.value as 'easy' | 'medium' | 'hard';
+                      setDifficulty(diffVal);
+                      if (type === 'points') {
+                        setAmount(diffVal === 'easy' ? 5 : diffVal === 'medium' ? 10 : 15);
+                      }
+                    }}
+                    className="w-full bg-[#111C2E]/60 border border-white/10 focus:border-[#8c7355] rounded-xl px-2.5 py-1.5 text-right text-white text-xs outline-none transition-all font-sans"
+                  >
+                    <option value="easy" disabled={remainingEasy === 0}>سهل (5 نقاط) - متبقي {remainingEasy}</option>
+                    <option value="medium" disabled={remainingMedium === 0}>متوسط (10 نقاط) - متبقي {remainingMedium}</option>
+                    <option value="hard" disabled={remainingHard === 0}>صعب (15 نقطة) - متبقي {remainingHard}</option>
+                  </select>
+                </div>
+              )}
 
-              <div>
+              <div className={activeLeague && activeLeague.isActive ? "" : "col-span-2"}>
                 <label className="text-[9px] text-slate-400 block mb-1">نوع المكافأة</label>
                 <select
                   value={type}
@@ -165,7 +169,7 @@ export default function SuggestedTaskWidget({
                   className="w-full bg-[#111C2E]/60 border border-white/10 focus:border-[#8c7355] rounded-xl px-2.5 py-1.5 text-right text-white text-xs outline-none transition-all"
                 >
                   <option value="cash">ريال 💸</option>
-                  <option value="points">نقاط 🌟</option>
+                  {activeLeague && activeLeague.isActive && <option value="points">نقاط 🌟</option>}
                   <option value="custom">مخصصة 🎁</option>
                 </select>
               </div>
@@ -200,20 +204,22 @@ export default function SuggestedTaskWidget({
             <div className="space-y-1.5">
               <div className="flex items-center justify-between flex-row-reverse text-[10px] text-slate-400">
                 <label className="block font-bold">تاريخ النهاية</label>
-                <label className="flex items-center gap-1 cursor-pointer select-none">
-                  <input
-                    type="checkbox"
-                    checked={bindToLeagueEnd}
-                    onChange={(e) => {
-                      setBindToLeagueEnd(e.target.checked);
-                      if (e.target.checked && activeLeague && activeLeague.endDate) {
-                        setEndDate(activeLeague.endDate.substring(0, 16));
-                      }
-                    }}
-                    className="rounded border-white/10 text-orange-500 focus:ring-0 focus:ring-offset-0 bg-[#111C2E]"
-                  />
-                  <span className="text-[9px] text-orange-300">ربط نهاية المهمة بنهاية الدوري 🏆</span>
-                </label>
+                {activeLeague && activeLeague.isActive && (
+                  <label className="flex items-center gap-1 cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={bindToLeagueEnd}
+                      onChange={(e) => {
+                        setBindToLeagueEnd(e.target.checked);
+                        if (e.target.checked && activeLeague && activeLeague.endDate) {
+                          setEndDate(activeLeague.endDate.substring(0, 16));
+                        }
+                      }}
+                      className="rounded border-white/10 text-orange-500 focus:ring-0 focus:ring-offset-0 bg-[#111C2E]"
+                    />
+                    <span className="text-[9px] text-orange-300">ربط نهاية المهمة بنهاية الدوري 🏆</span>
+                  </label>
+                )}
               </div>
               <input
                 type="datetime-local"

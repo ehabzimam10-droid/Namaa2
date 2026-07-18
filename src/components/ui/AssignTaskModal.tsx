@@ -154,30 +154,34 @@ export default function AssignTaskModal({ isOpen, onClose, kidName }: AssignTask
             />
           </div>
 
-          {/* Difficulty Dropdown */}
-          <div className="space-y-1">
-            <label className="block text-xs text-slate-500 font-bold">مستوى الصعوبة</label>
-            <select
-              value={difficulty}
-              onChange={(e) => {
-                const diffVal = e.target.value as 'easy' | 'medium' | 'hard';
-                setDifficulty(diffVal);
-                if (rewardType === 'points') {
-                  setAmount(diffVal === 'easy' ? 5 : diffVal === 'medium' ? 10 : 15);
-                }
-              }}
-              className="w-full bg-stone-50 border border-stone-200 focus:border-[#8B84D7] rounded-xl px-3 py-2.5 text-right text-[#0C2341] text-xs outline-none transition-all font-sans"
-            >
-              <option value="easy" disabled={activeLeague && activeLeague.isActive && remainingEasy === 0}>سهل (5 نقاط) - المتبقي: {remainingEasy}/5</option>
-              <option value="medium" disabled={activeLeague && activeLeague.isActive && remainingMedium === 0}>متوسط (10 نقاط) - المتبقي: {remainingMedium}/3</option>
-              <option value="hard" disabled={activeLeague && activeLeague.isActive && remainingHard === 0}>صعب (15 نقطة) - المتبقي: {remainingHard}/3</option>
-            </select>
-          </div>
+          {/* Difficulty Dropdown (Only show if there is an active league) */}
+          {activeLeague && activeLeague.isActive && (
+            <div className="space-y-1">
+              <label className="block text-xs text-slate-500 font-bold">مستوى الصعوبة</label>
+              <select
+                value={difficulty}
+                onChange={(e) => {
+                  const diffVal = e.target.value as 'easy' | 'medium' | 'hard';
+                  setDifficulty(diffVal);
+                  if (rewardType === 'points') {
+                    setAmount(diffVal === 'easy' ? 5 : diffVal === 'medium' ? 10 : 15);
+                  }
+                }}
+                className="w-full bg-stone-50 border border-stone-200 focus:border-[#8B84D7] rounded-xl px-3 py-2.5 text-right text-[#0C2341] text-xs outline-none transition-all font-sans"
+              >
+                <option value="easy" disabled={activeLeague && activeLeague.isActive && remainingEasy === 0}>سهل (5 نقاط) - المتبقي: {remainingEasy}/5</option>
+                <option value="medium" disabled={activeLeague && activeLeague.isActive && remainingMedium === 0}>متوسط (10 نقاط) - المتبقي: {remainingMedium}/3</option>
+                <option value="hard" disabled={activeLeague && activeLeague.isActive && remainingHard === 0}>صعب (15 نقطة) - المتبقي: {remainingHard}/3</option>
+              </select>
+            </div>
+          )}
 
-          {/* Reward Type (Segmented Toggle) */}
+          {/* Reward Type (Segmented Toggle - Hide points if no active league) */}
           <div className="space-y-1">
             <label className="block text-xs text-slate-500 font-bold">نوع المكافأة</label>
-            <div className="grid grid-cols-3 gap-1 bg-stone-100 p-1 rounded-xl border border-stone-200/60">
+            <div className={`grid gap-1 bg-stone-100 p-1 rounded-xl border border-stone-200/60 ${
+              activeLeague && activeLeague.isActive ? 'grid-cols-3' : 'grid-cols-2'
+            }`}>
               <button
                 type="button"
                 onClick={() => setRewardType('cash')}
@@ -189,20 +193,22 @@ export default function AssignTaskModal({ isOpen, onClose, kidName }: AssignTask
               >
                 ريال
               </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setRewardType('points');
-                  setAmount(difficulty === 'easy' ? 5 : difficulty === 'medium' ? 10 : 15);
-                }}
-                className={`py-2 rounded-lg text-xs font-bold transition-all text-center ${
-                  rewardType === 'points'
-                    ? 'bg-gradient-to-r from-[#C66E4E] to-[#8B84D7] text-white shadow-sm'
-                    : 'text-slate-550 hover:text-[#0C2341]'
-                }`}
-              >
-                نقطة
-              </button>
+              {activeLeague && activeLeague.isActive && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setRewardType('points');
+                    setAmount(difficulty === 'easy' ? 5 : difficulty === 'medium' ? 10 : 15);
+                  }}
+                  className={`py-2 rounded-lg text-xs font-bold transition-all text-center ${
+                    rewardType === 'points'
+                      ? 'bg-gradient-to-r from-[#C66E4E] to-[#8B84D7] text-white shadow-sm'
+                      : 'text-slate-550 hover:text-[#0C2341]'
+                  }`}
+                >
+                  نقطة
+                </button>
+              )}
               <button
                 type="button"
                 onClick={() => setRewardType('custom')}
@@ -255,20 +261,22 @@ export default function AssignTaskModal({ isOpen, onClose, kidName }: AssignTask
           <div className="space-y-2">
             <div className="flex items-center justify-between flex-row-reverse text-xs text-slate-500">
               <label className="block font-bold">تاريخ نهاية المهمة</label>
-              <label className="flex items-center gap-1 cursor-pointer select-none">
-                <input
-                  type="checkbox"
-                  checked={bindToLeagueEnd}
-                  onChange={(e) => {
-                    setBindToLeagueEnd(e.target.checked);
-                    if (e.target.checked && activeLeague && activeLeague.endDate) {
-                      setEndDate(activeLeague.endDate.substring(0, 16));
-                    }
-                  }}
-                  className="rounded border-stone-300 text-[#C66E4E] focus:ring-0 focus:ring-offset-0 bg-stone-50"
-                />
-                <span className="text-[10px] text-[#C66E4E] font-bold">ربط نهاية المهمة بنهاية الدوري 🏆</span>
-              </label>
+              {activeLeague && activeLeague.isActive && (
+                <label className="flex items-center gap-1 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={bindToLeagueEnd}
+                    onChange={(e) => {
+                      setBindToLeagueEnd(e.target.checked);
+                      if (e.target.checked && activeLeague && activeLeague.endDate) {
+                        setEndDate(activeLeague.endDate.substring(0, 16));
+                      }
+                    }}
+                    className="rounded border-stone-300 text-[#C66E4E] focus:ring-0 focus:ring-offset-0 bg-stone-50"
+                  />
+                  <span className="text-[10px] text-[#C66E4E] font-bold">ربط نهاية المهمة بنهاية الدوري 🏆</span>
+                </label>
+              )}
             </div>
             <input
               type="datetime-local"
