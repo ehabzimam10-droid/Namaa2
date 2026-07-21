@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Outlet } from 'react-router-dom';
+import { Analytics } from '@vercel/analytics/react';
 import LoginPage from './pages/LoginPage';
 import KidDashboard from './pages/KidDashboard';
 import FatherDashboard from './pages/FatherDashboard';
@@ -97,6 +98,7 @@ function App() {
           <Route path="/kid/rewards" element={<KidRewardsPage />} />
         </Route>
       </Routes>
+      <Analytics />
     </BrowserRouter>
   );
 }
