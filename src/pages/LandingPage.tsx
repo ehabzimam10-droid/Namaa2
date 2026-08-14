@@ -1,7 +1,5 @@
-import { useState, useEffect, useMemo, Suspense } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import VillageScene from '../components/village3d/VillageScene';
-import type { BuildingLevels } from '../components/village3d/villageLogic';
 
 // Mini vector buildings for the landing page interactive simulation card
 const BankSVG = ({ level }: { level: number }) => (
@@ -69,7 +67,7 @@ export default function LandingPage() {
   const navigate = useNavigate();
   const [darkMode, setDarkMode] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [scrollProgress, setScrollProgress] = useState(0); 
+  const [scrollProgress, setScrollProgress] = useState(0); // 0 (top/best) to 1 (bottom/starter)
 
   const [demoLevels, setDemoLevels] = useState({
     bank: 4,      
@@ -104,15 +102,45 @@ export default function LandingPage() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const dynamic3DLevels: BuildingLevels = useMemo(() => {
-    const currentVal = Math.round(5 - scrollProgress * 4);
-    const clampedVal = Math.max(1, Math.min(5, currentVal));
+  // Smooth continuous cross-fade opacities for the 3 stages:
+  // Stage 1 (Tier 5 Legendary): 100% at top (0.0), fades out around 0.45
+  // Stage 2 (Tier 3 Developing): Peaks at middle (0.5), fades towards 0.0 and 1.0
+  // Stage 3 (Tier 1 Starter): Fades in after 0.55, 100% at bottom (1.0)
+  const imageOpacities = useMemo(() => {
+    let op5 = 0;
+    let op3 = 0;
+    let op1 = 0;
+
+    if (scrollProgress <= 0.45) {
+      op5 = (0.45 - scrollProgress) / 0.45;
+      op3 = scrollProgress / 0.45;
+      op1 = 0;
+    } else if (scrollProgress <= 0.55) {
+      op5 = 0;
+      op3 = 1;
+      op1 = 0;
+    } else {
+      op5 = 0;
+      op3 = (1 - scrollProgress) / 0.45;
+      op1 = (scrollProgress - 0.55) / 0.45;
+    }
+
     return {
-      bank: clampedVal,
-      farm: clampedVal,
-      market: clampedVal,
-      windmill: clampedVal,
+      tier5: Math.max(0, Math.min(1, op5)),
+      tier3: Math.max(0, Math.min(1, op3)),
+      tier1: Math.max(0, Math.min(1, op1)),
     };
+  }, [scrollProgress]);
+
+  // Current village description for the interactive indicator badge
+  const villageStatus = useMemo(() => {
+    if (scrollProgress < 0.35) {
+      return { level: 5, label: 'المستوى 5 🌟 (القرية الأسطورية المكتملة)', icon: '👑' };
+    } else if (scrollProgress < 0.7) {
+      return { level: 3, label: 'المستوى 3 🏰 (قرية نامية ومتطورة)', icon: '🏰' };
+    } else {
+      return { level: 1, label: 'المستوى 1 🌾 (المرحلة الأساسية الأولى)', icon: '🏡' };
+    }
   }, [scrollProgress]);
 
   useEffect(() => {
@@ -161,39 +189,54 @@ export default function LandingPage() {
   return (
     <div dir="rtl" className={`min-h-screen relative transition-colors duration-500 font-sans overflow-x-hidden ${bgClass}`}>
       
-      {/* 1. Dynamic 3D Village Background Canvas that shifts and degrades/rebuilds on scroll */}
-      <div className="fixed inset-0 z-0 pointer-events-none transition-opacity duration-700">
-        <Suspense fallback={null}>
-          <VillageScene
-            levels={dynamic3DLevels}
-            villageLevel={dynamic3DLevels.bank}
-            autoRotate={true}
-            className="w-full h-full opacity-65 md:opacity-75 scale-105"
-          />
-        </Suspense>
-        {/* Apple liquid glass soft tint overlay */}
+      {/* 1. Ultra-Smooth Light-weight Image Background Layers with Scroll Cross-Fade */}
+      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+        {/* Tier 1 Starter Village Image */}
+        <div
+          className="absolute inset-0 bg-cover bg-center transition-opacity duration-300 transform scale-105"
+          style={{
+            backgroundImage: "url('/village_tier1.jpg')",
+            opacity: imageOpacities.tier1 * 0.75,
+          }}
+        />
+
+        {/* Tier 3 Developing Village Image */}
+        <div
+          className="absolute inset-0 bg-cover bg-center transition-opacity duration-300 transform scale-105"
+          style={{
+            backgroundImage: "url('/village_tier3.jpg')",
+            opacity: imageOpacities.tier3 * 0.75,
+          }}
+        />
+
+        {/* Tier 5 Legendary Golden Kingdom Image */}
+        <div
+          className="absolute inset-0 bg-cover bg-center transition-opacity duration-300 transform scale-105"
+          style={{
+            backgroundImage: "url('/village_tier5.jpg')",
+            opacity: imageOpacities.tier5 * 0.75,
+          }}
+        />
+
+        {/* Apple liquid glass soft tint & subtle grain overlay */}
         <div
           className={`absolute inset-0 transition-colors duration-700 pointer-events-none ${
             darkMode
-              ? 'bg-gradient-to-b from-slate-950/45 via-slate-950/65 to-slate-950/90 backdrop-blur-[2px]'
-              : 'bg-gradient-to-b from-[#F7F5EE]/40 via-[#F7F5EE]/55 to-[#F7F5EE]/80 backdrop-blur-[1.5px]'
+              ? 'bg-gradient-to-b from-slate-950/40 via-slate-950/60 to-slate-950/90 backdrop-blur-[2px]'
+              : 'bg-gradient-to-b from-[#F7F5EE]/40 via-[#F7F5EE]/55 to-[#F7F5EE]/80 backdrop-blur-[1px]'
           }`}
         />
       </div>
 
       {/* Floating Interactive Village Level Indicator Badge (Apple Liquid Glass) */}
       <div className="fixed bottom-6 right-6 z-40 hidden md:flex items-center gap-3 bg-white/70 dark:bg-slate-900/70 backdrop-blur-2xl border border-white/60 dark:border-white/15 px-4 py-2.5 rounded-full shadow-2xl animate-fade-in font-sans">
-        <span className="text-base animate-spin" style={{ animationDuration: `${6 - dynamic3DLevels.bank}s` }}>
-          {dynamic3DLevels.bank >= 4 ? '👑' : dynamic3DLevels.bank >= 3 ? '🏰' : '🏡'}
+        <span className="text-base animate-bounce">
+          {villageStatus.icon}
         </span>
         <div className="text-right">
           <span className="text-[9px] font-bold text-slate-500 block leading-tight">مستوى القرية بالخلفية (محاكاة التمرير)</span>
           <span className="text-xs font-black text-[#C66E4E]">
-            {dynamic3DLevels.bank === 5
-              ? 'المستوى 5 🌟 (القرية الأسطورية المكتملة)'
-              : dynamic3DLevels.bank >= 3
-              ? `المستوى ${dynamic3DLevels.bank} 🏰 (قرية نامية ومتطورة)`
-              : `المستوى ${dynamic3DLevels.bank} 🌾 (المرحلة الأساسية)`}
+            {villageStatus.label}
           </span>
         </div>
       </div>
