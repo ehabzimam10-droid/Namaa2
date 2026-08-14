@@ -4,6 +4,11 @@ import { OrbitControls } from '@react-three/drei';
 import type { BuildingLevels } from './villageLogic';
 import { computeVillageLevel, villageTier, tierForLevel } from './villageLogic';
 import { Terrain } from './Terrain';
+import { RoadsAndPaths } from './RoadsAndPaths';
+import { VillageHouses } from './VillageHouses';
+import { ForestAndNature } from './ForestAndNature';
+import { Villagers } from './Villagers';
+import { VillageAtmosphere, TownFountain } from './VillageAtmosphere';
 import { Bank } from './Bank';
 import { Farm } from './Farm';
 import { Market } from './Market';
@@ -68,41 +73,66 @@ export default function VillageScene({ levels, villageLevel, autoRotate = false,
         <WebGLFallback />
       ) : (
         <CanvasBoundary>
-          <Canvas camera={{ position: [16, 12, 16], fov: 45 }} dpr={[1, 2]} shadows>
-            <fog attach="fog" args={['#c9e8c0', 30, 80]} />
-            <color attach="background" args={['#d4eeca']} />
+          <Canvas camera={{ position: [18, 14, 18], fov: 45 }} dpr={[1, 2]} shadows>
+            <fog attach="fog" args={['#bfe3d5', 38, 90]} />
+            <color attach="background" args={['#d2ecdc']} />
 
-            <ambientLight intensity={0.7} color="#ffffff" />
+            {/* Ambient and Warm Sun Lighting */}
+            <ambientLight intensity={0.75} color="#ffffff" />
             <directionalLight
-              position={[15, 25, 15]}
-              intensity={2.0}
-              color="#fff5cc"
+              position={[18, 28, 18]}
+              intensity={2.1}
+              color="#fff8d6"
               castShadow
               shadow-mapSize-width={2048}
               shadow-mapSize-height={2048}
               shadow-camera-near={0.5}
-              shadow-camera-far={80}
-              shadow-camera-left={-20}
-              shadow-camera-right={20}
-              shadow-camera-top={20}
-              shadow-camera-bottom={-20}
+              shadow-camera-far={95}
+              shadow-camera-left={-25}
+              shadow-camera-right={25}
+              shadow-camera-top={25}
+              shadow-camera-bottom={-25}
             />
-            <directionalLight position={[-8, 8, -8]} intensity={0.4} color="#aaddff" />
+            {/* Soft sky fill light */}
+            <directionalLight position={[-12, 12, -12]} intensity={0.45} color="#cce7ff" />
 
             <OrbitControls
               autoRotate={autoRotate}
-              autoRotateSpeed={0.5}
+              autoRotateSpeed={0.4}
               enablePan={false}
               maxPolarAngle={Math.PI / 2.2}
               minPolarAngle={Math.PI / 6}
-              minDistance={12}
-              maxDistance={35}
+              minDistance={10}
+              maxDistance={42}
               enableDamping
             />
 
             <group position={[0, 0, 0]}>
+              {/* 1. Base Terrain, River Stream and Rolling Hills */}
               <Terrain />
+
+              {/* 2. Nature: Dense Outer Pine Forest, Orchards, Flowerbeds and Distant Mountain Backdrop */}
+              <ForestAndNature />
+
+              {/* 3. Cobblestone Roads, Plaza and Footpaths */}
+              <RoadsAndPaths />
+
+              {/* 4. Fortified City Wall */}
               <Wall tier={vTier} />
+
+              {/* 5. Residential Cottages & Village Houses */}
+              <VillageHouses />
+
+              {/* 6. Animated Living Citizens, Guards & Villagers */}
+              <Villagers />
+
+              {/* 7. Atmosphere: Flying Birds, Butterflies, Drifting Clouds, Street Lamps & Props */}
+              <VillageAtmosphere />
+
+              {/* 8. Central Plaza Water Fountain */}
+              <TownFountain position={[0, 0, 2.5]} />
+
+              {/* 9. Landmark Buildings */}
               {/* جميع المباني تواجه باب السور (+X) — دوران π/2 */}
               <group position={[0, 0, 0]} rotation={[0, Math.PI / 2, 0]}>
                 <Palace tier={vTier} level={vLevel} position={[0, 0, 0]} />
