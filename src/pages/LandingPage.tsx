@@ -1,5 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
+import VillageScene from '../components/village3d/VillageScene';
+import type { BuildingLevels } from '../components/village3d/villageLogic';
 
 // Mini vector buildings for the landing page interactive simulation card
 const BankSVG = ({ level }: { level: number }) => (
@@ -67,13 +69,14 @@ export default function LandingPage() {
   const navigate = useNavigate();
   const [darkMode, setDarkMode] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0); 
 
   const [demoLevels, setDemoLevels] = useState({
-    bank: 4,      // 💰 الادخار
-    market: 2,    // 📈 الاستثمار
-    farm: 3,      // 💚 الخير
-    windmill: 5,  // 🌀 المهام
-    castle: 3,    // 🏰 الحوكمة
+    bank: 4,      
+    market: 2,    
+    farm: 3,      
+    windmill: 5,  
+    castle: 3,    
   });
 
   const incrementLevel = (key: keyof typeof demoLevels) => {
@@ -83,20 +86,35 @@ export default function LandingPage() {
     }));
   };
 
-  // Scroll listener for floating floating island header
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 40) {
+      const scrollY = window.scrollY;
+      const maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+      const progress = Math.min(1, Math.max(0, scrollY / maxScroll));
+      setScrollProgress(progress);
+
+      if (scrollY > 40) {
         setIsScrolled(true);
       } else {
         setIsScrolled(false);
       }
     };
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Intersection Observer for scroll reveal animations
+  const dynamic3DLevels: BuildingLevels = useMemo(() => {
+    const currentVal = Math.round(5 - scrollProgress * 4);
+    const clampedVal = Math.max(1, Math.min(5, currentVal));
+    return {
+      bank: clampedVal,
+      farm: clampedVal,
+      market: clampedVal,
+      windmill: clampedVal,
+    };
+  }, [scrollProgress]);
+
   useEffect(() => {
     const reveals = document.querySelectorAll('.reveal');
     const observer = new IntersectionObserver(
@@ -113,7 +131,6 @@ export default function LandingPage() {
     return () => observer.disconnect();
   }, []);
 
-  // Smooth scroll helper
   const scrollToSection = (id: string) => {
     const el = document.getElementById(id);
     if (el) {
@@ -121,28 +138,65 @@ export default function LandingPage() {
     }
   };
 
-  // Theme-based class helpers
-  const bgClass = darkMode ? 'bg-[#080F1E] text-slate-100' : 'bg-[#F7F5EE] text-[#0C2341]';
-  const cardBgClass = darkMode ? 'bg-[#0D1527] border-white/10' : 'bg-white border-[#0C2341]/10';
-  const subTextClass = darkMode ? 'text-slate-400' : 'text-slate-600';
+  const bgClass = darkMode ? 'bg-slate-950 text-slate-100' : 'bg-[#F7F5EE] text-[#0C2341]';
+  const cardBgClass = darkMode
+    ? 'bg-slate-900/40 backdrop-blur-2xl border border-white/10 text-white shadow-[0_16px_36px_rgba(0,0,0,0.45)] hover:bg-slate-900/60 hover:border-white/20'
+    : 'bg-white/45 backdrop-blur-2xl border border-white/60 text-[#0C2341] shadow-[0_16px_36px_rgba(12,35,65,0.08)] hover:bg-white/65 hover:border-white/80';
+  const subTextClass = darkMode ? 'text-slate-300' : 'text-slate-600';
 
-  // Navigation container layout transition classes
-  const headerClasses = `fixed left-0 right-0 mx-auto z-50 backdrop-blur-md transition-premium ${
+  const headerClasses = `fixed left-0 right-0 mx-auto z-50 backdrop-blur-2xl transition-premium ${
     isScrolled
-      ? `top-4 w-[92%] max-w-4xl rounded-full border shadow-xl shadow-black/10 px-6 py-2.5 ${
+      ? `top-4 w-[92%] max-w-4xl rounded-full border shadow-2xl shadow-black/10 px-6 py-2.5 ${
           darkMode 
-            ? 'bg-[#0D1527]/85 border-white/10 text-slate-100' 
-            : 'bg-white/85 border-[#0C2341]/15 text-[#0C2341]'
+            ? 'bg-slate-900/60 border-white/15 text-slate-100' 
+            : 'bg-white/60 border-white/60 text-[#0C2341]'
         }`
       : `top-0 w-full rounded-none border-b px-4 py-3.5 md:px-8 md:py-5 ${
           darkMode 
-            ? 'bg-[#080F1E]/80 border-white/5 text-slate-100' 
-            : 'bg-[#F7F5EE]/80 border-[#0C2341]/5 text-[#0C2341]'
+            ? 'bg-slate-950/40 border-white/5 text-slate-100' 
+            : 'bg-[#F7F5EE]/40 border-[#0C2341]/5 text-[#0C2341]'
         }`
   }`;
 
   return (
-    <div dir="rtl" className={`min-h-screen transition-colors duration-500 font-sans overflow-x-hidden ${bgClass}`}>
+    <div dir="rtl" className={`min-h-screen relative transition-colors duration-500 font-sans overflow-x-hidden ${bgClass}`}>
+      
+      {/* 1. Dynamic 3D Village Background Canvas that shifts and degrades/rebuilds on scroll */}
+      <div className="fixed inset-0 z-0 pointer-events-none transition-opacity duration-700">
+        <Suspense fallback={null}>
+          <VillageScene
+            levels={dynamic3DLevels}
+            villageLevel={dynamic3DLevels.bank}
+            autoRotate={true}
+            className="w-full h-full opacity-65 md:opacity-75 scale-105"
+          />
+        </Suspense>
+        {/* Apple liquid glass soft tint overlay */}
+        <div
+          className={`absolute inset-0 transition-colors duration-700 pointer-events-none ${
+            darkMode
+              ? 'bg-gradient-to-b from-slate-950/45 via-slate-950/65 to-slate-950/90 backdrop-blur-[2px]'
+              : 'bg-gradient-to-b from-[#F7F5EE]/40 via-[#F7F5EE]/55 to-[#F7F5EE]/80 backdrop-blur-[1.5px]'
+          }`}
+        />
+      </div>
+
+      {/* Floating Interactive Village Level Indicator Badge (Apple Liquid Glass) */}
+      <div className="fixed bottom-6 right-6 z-40 hidden md:flex items-center gap-3 bg-white/70 dark:bg-slate-900/70 backdrop-blur-2xl border border-white/60 dark:border-white/15 px-4 py-2.5 rounded-full shadow-2xl animate-fade-in font-sans">
+        <span className="text-base animate-spin" style={{ animationDuration: `${6 - dynamic3DLevels.bank}s` }}>
+          {dynamic3DLevels.bank >= 4 ? '👑' : dynamic3DLevels.bank >= 3 ? '🏰' : '🏡'}
+        </span>
+        <div className="text-right">
+          <span className="text-[9px] font-bold text-slate-500 block leading-tight">مستوى القرية بالخلفية (محاكاة التمرير)</span>
+          <span className="text-xs font-black text-[#C66E4E]">
+            {dynamic3DLevels.bank === 5
+              ? 'المستوى 5 🌟 (القرية الأسطورية المكتملة)'
+              : dynamic3DLevels.bank >= 3
+              ? `المستوى ${dynamic3DLevels.bank} 🏰 (قرية نامية ومتطورة)`
+              : `المستوى ${dynamic3DLevels.bank} 🌾 (المرحلة الأساسية)`}
+          </span>
+        </div>
+      </div>
       
       {/* Injecting CSS Keyframes & Floating/Reveal Styles */}
       <style>{`

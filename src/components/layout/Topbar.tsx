@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useApp } from '../../context/AppContext';
 import TransactionsModal from '../ui/TransactionsModal';
+import { GlobalSearchModal } from '../ui/GlobalSearchModal';
 
 interface TopbarProps {
   onMenuToggle: () => void;
@@ -9,6 +10,9 @@ interface TopbarProps {
 export default function Topbar({ onMenuToggle }: TopbarProps) {
   const { profile, kids, notifications, markNotificationAsRead } = useApp();
   const [isTxModalOpen, setIsTxModalOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchInitialQuery, setSearchInitialQuery] = useState('');
+  const [topbarSearchValue, setTopbarSearchValue] = useState('');
   const [showNotifications, setShowNotifications] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -108,17 +112,40 @@ export default function Topbar({ onMenuToggle }: TopbarProps) {
 
         {/* Left Section: Search, Logs, Notifications, Profile (Align Left in RTL) */}
         <div className="flex items-center gap-3.5 flex-row-reverse justify-end md:justify-start w-full md:w-auto">
-          {/* Mock Search Pill (matches screenshot) */}
-          <div className="hidden sm:flex items-center bg-white border border-stone-200 shadow-sm rounded-full p-1 w-64 justify-between transition-all focus-within:border-[#8B84D7]/50 focus-within:ring-1 focus-within:ring-[#8B84D7]/30" dir="rtl">
-            <button className="w-8 h-8 rounded-full bg-[#0C2341] hover:bg-[#8B84D7] text-white flex items-center justify-center transition-all shadow-sm shrink-0 active:scale-95">
+          {/* Real Global Search Bar */}
+          <div
+            onClick={() => {
+              setSearchInitialQuery(topbarSearchValue);
+              setIsSearchOpen(true);
+            }}
+            className="hidden sm:flex items-center bg-white/90 hover:bg-white border border-stone-200 hover:border-[#8B84D7]/50 shadow-sm rounded-full p-1 w-64 justify-between transition-all focus-within:border-[#8B84D7]/50 focus-within:ring-2 focus-within:ring-[#8B84D7]/20 cursor-pointer"
+            dir="rtl"
+          >
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setSearchInitialQuery(topbarSearchValue);
+                setIsSearchOpen(true);
+              }}
+              className="w-8 h-8 rounded-full bg-[#0C2341] hover:bg-[#8B84D7] text-white flex items-center justify-center transition-all shadow-sm shrink-0 active:scale-95 cursor-pointer"
+            >
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
                 <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.637 10.637Z" />
               </svg>
             </button>
             <input
               type="text"
-              placeholder="ابحث عن مهام، أهداف..."
-              className="bg-transparent text-xs text-[#0C2341] outline-none w-full text-right placeholder:text-slate-400 font-sans px-3"
+              value={topbarSearchValue}
+              onChange={(e) => setTopbarSearchValue(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  setSearchInitialQuery(topbarSearchValue);
+                  setIsSearchOpen(true);
+                }
+              }}
+              placeholder="ابحث عن مهام، أهداف، مشاريع..."
+              className="bg-transparent text-xs text-[#0C2341] outline-none w-full text-right placeholder:text-slate-400 font-sans px-3 cursor-pointer"
             />
           </div>
 
@@ -265,6 +292,13 @@ export default function Topbar({ onMenuToggle }: TopbarProps) {
           </div>
         </div>
       </header>
+
+      {/* Global Real-Time Search Modal */}
+      <GlobalSearchModal
+        isOpen={isSearchOpen}
+        onClose={() => setIsSearchOpen(false)}
+        initialQuery={searchInitialQuery}
+      />
 
       {/* Transactions Modal for Kids */}
       {isKid && kid && (
