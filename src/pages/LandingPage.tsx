@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 // Mini vector buildings for the landing page interactive simulation card
@@ -67,7 +67,12 @@ export default function LandingPage() {
   const navigate = useNavigate();
   const [darkMode, setDarkMode] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [scrollProgress, setScrollProgress] = useState(0); // 0 (top/best) to 1 (bottom/starter)
+  const [scrollProgress, setScrollProgress] = useState(0); // 0 (top/starter village) to 1 (bottom/grand castle)
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const imagesRef = useRef<HTMLImageElement[]>([]);
+  const [imagesLoaded, setImagesLoaded] = useState(false);
+
+  const TOTAL_FRAMES = 240;
 
   const [demoLevels, setDemoLevels] = useState({
     bank: 4,      
@@ -84,6 +89,27 @@ export default function LandingPage() {
     }));
   };
 
+  // Preload all 240 frames
+  useEffect(() => {
+    let loadedCount = 0;
+    const loadedImages: HTMLImageElement[] = [];
+
+    for (let i = 1; i <= TOTAL_FRAMES; i++) {
+      const img = new Image();
+      const numStr = String(i).padStart(3, '0');
+      img.src = `/village_frames/ezgif-frame-${numStr}.jpg`;
+      img.onload = () => {
+        loadedCount++;
+        if (loadedCount === TOTAL_FRAMES) {
+          setImagesLoaded(true);
+        }
+      };
+      loadedImages.push(img);
+    }
+    imagesRef.current = loadedImages;
+  }, []);
+
+  // Scroll listener for frame animation
   useEffect(() => {
     const handleScroll = () => {
       const scrollY = window.scrollY;
@@ -102,44 +128,91 @@ export default function LandingPage() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Smooth continuous cross-fade opacities for the 3 stages:
-  // Stage 1 (Tier 5 Legendary): 100% at top (0.0), fades out around 0.45
-  // Stage 2 (Tier 3 Developing): Peaks at middle (0.5), fades towards 0.0 and 1.0
-  // Stage 3 (Tier 1 Starter): Fades in after 0.55, 100% at bottom (1.0)
-  const imageOpacities = useMemo(() => {
-    let op5 = 0;
-    let op3 = 0;
-    let op1 = 0;
+  // Draw current frame on canvas whenever scrollProgress or window resize changes
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
 
-    if (scrollProgress <= 0.45) {
-      op5 = (0.45 - scrollProgress) / 0.45;
-      op3 = scrollProgress / 0.45;
-      op1 = 0;
-    } else if (scrollProgress <= 0.55) {
-      op5 = 0;
-      op3 = 1;
-      op1 = 0;
+    // Frame index: Top of page (progress = 0) is frame 0 (basic village)
+    // Bottom of page (progress = 1) is frame 239 (grand castle)
+    const frameIndex = Math.min(TOTAL_FRAMES - 1, Math.floor(scrollProgress * (TOTAL_FRAMES - 1)));
+    const img = imagesRef.current[frameIndex];
+
+    if (!img || !img.complete) return;
+
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    canvas.width = width;
+    canvas.height = height;
+
+    // Object-fit: cover implementation on canvas
+    const imgAspect = img.width / img.height;
+    const canvasAspect = width / height;
+    let renderW = width;
+    let renderH = height;
+    let offsetX = 0;
+    let offsetY = 0;
+
+    if (canvasAspect > imgAspect) {
+      renderH = width / imgAspect;
+      offsetY = (height - renderH) / 2;
     } else {
-      op5 = 0;
-      op3 = (1 - scrollProgress) / 0.45;
-      op1 = (scrollProgress - 0.55) / 0.45;
+      renderW = height * imgAspect;
+      offsetX = (width - renderW) / 2;
     }
 
-    return {
-      tier5: Math.max(0, Math.min(1, op5)),
-      tier3: Math.max(0, Math.min(1, op3)),
-      tier1: Math.max(0, Math.min(1, op1)),
+    ctx.clearRect(0, 0, width, height);
+    ctx.drawImage(img, offsetX, offsetY, renderW, renderH);
+  }, [scrollProgress, imagesLoaded]);
+
+  // Handle resize
+  useEffect(() => {
+    const handleResize = () => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      const frameIndex = Math.min(TOTAL_FRAMES - 1, Math.floor(scrollProgress * (TOTAL_FRAMES - 1)));
+      const img = imagesRef.current[frameIndex];
+      if (!img || !img.complete) return;
+
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+      canvas.width = width;
+      canvas.height = height;
+
+      const imgAspect = img.width / img.height;
+      const canvasAspect = width / height;
+      let renderW = width;
+      let renderH = height;
+      let offsetX = 0;
+      let offsetY = 0;
+
+      if (canvasAspect > imgAspect) {
+        renderH = width / imgAspect;
+        offsetY = (height - renderH) / 2;
+      } else {
+        renderW = height * imgAspect;
+        offsetX = (width - renderW) / 2;
+      }
+
+      ctx.clearRect(0, 0, width, height);
+      ctx.drawImage(img, offsetX, offsetY, renderW, renderH);
     };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, [scrollProgress]);
 
-  // Current village description for the interactive indicator badge
+  // Current village status label
   const villageStatus = useMemo(() => {
-    if (scrollProgress < 0.35) {
-      return { level: 5, label: 'المستوى 5 🌟 (القرية الأسطورية المكتملة)', icon: '👑' };
+    if (scrollProgress < 0.3) {
+      return { label: 'المرحلة 1 🌾 (القرية الريفية البسيطة)', icon: '🏡' };
     } else if (scrollProgress < 0.7) {
-      return { level: 3, label: 'المستوى 3 🏰 (قرية نامية ومتطورة)', icon: '🏰' };
+      return { label: 'المرحلة 2 🔨 (تطور المباني ونمو الاقتصاد)', icon: '🏰' };
     } else {
-      return { level: 1, label: 'المستوى 1 🌾 (المرحلة الأساسية الأولى)', icon: '🏡' };
+      return { label: 'المرحلة 3 🌟 (المملكة الذهبية والقلعة الملكية)', icon: '👑' };
     }
   }, [scrollProgress]);
 
@@ -189,36 +262,15 @@ export default function LandingPage() {
   return (
     <div dir="rtl" className={`min-h-screen relative transition-colors duration-500 font-sans overflow-x-hidden ${bgClass}`}>
       
-      {/* 1. Ultra-Smooth Light-weight Image Background Layers with Scroll Cross-Fade */}
+      {/* 1. HTML5 Canvas rendering 240 frames based on scroll depth */}
       <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-        {/* Tier 1 Starter Village Image */}
-        <div
-          className="absolute inset-0 bg-cover bg-center transition-opacity duration-300 transform scale-105"
-          style={{
-            backgroundImage: "url('/village_tier1.jpg')",
-            opacity: imageOpacities.tier1 * 0.75,
-          }}
+        <canvas
+          ref={canvasRef}
+          className="w-full h-full object-cover transition-opacity duration-500"
+          style={{ opacity: 0.75 }}
         />
 
-        {/* Tier 3 Developing Village Image */}
-        <div
-          className="absolute inset-0 bg-cover bg-center transition-opacity duration-300 transform scale-105"
-          style={{
-            backgroundImage: "url('/village_tier3.jpg')",
-            opacity: imageOpacities.tier3 * 0.75,
-          }}
-        />
-
-        {/* Tier 5 Legendary Golden Kingdom Image */}
-        <div
-          className="absolute inset-0 bg-cover bg-center transition-opacity duration-300 transform scale-105"
-          style={{
-            backgroundImage: "url('/village_tier5.jpg')",
-            opacity: imageOpacities.tier5 * 0.75,
-          }}
-        />
-
-        {/* Apple liquid glass soft tint & subtle grain overlay */}
+        {/* Apple liquid glass soft tint overlay */}
         <div
           className={`absolute inset-0 transition-colors duration-700 pointer-events-none ${
             darkMode
