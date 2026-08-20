@@ -241,21 +241,21 @@ export default function LandingPage() {
 
   const bgClass = darkMode ? 'bg-slate-950 text-slate-100' : 'bg-[#F7F5EE] text-[#0C2341]';
   const cardBgClass = darkMode
-    ? 'bg-slate-900/40 backdrop-blur-2xl border border-white/10 text-white shadow-[0_16px_36px_rgba(0,0,0,0.45)] hover:bg-slate-900/60 hover:border-white/20'
-    : 'bg-white/45 backdrop-blur-2xl border border-white/60 text-[#0C2341] shadow-[0_16px_36px_rgba(12,35,65,0.08)] hover:bg-white/65 hover:border-white/80';
-  const subTextClass = darkMode ? 'text-slate-300' : 'text-slate-600';
+    ? 'bg-slate-900/85 backdrop-blur-3xl border border-white/20 text-white shadow-[0_20px_45px_rgba(0,0,0,0.6)] hover:bg-slate-900/95 hover:border-white/30'
+    : 'bg-white/85 backdrop-blur-3xl border border-white/80 text-[#0C2341] shadow-[0_20px_45px_rgba(12,35,65,0.12)] hover:bg-white/95 hover:border-white';
+  const subTextClass = darkMode ? 'text-slate-200 font-semibold' : 'text-slate-700 font-semibold';
 
-  const headerClasses = `fixed left-0 right-0 mx-auto z-50 backdrop-blur-2xl transition-premium ${
+  const headerClasses = `fixed left-0 right-0 mx-auto z-50 backdrop-blur-3xl transition-premium ${
     isScrolled
-      ? `top-4 w-[92%] max-w-4xl rounded-full border shadow-2xl shadow-black/10 px-6 py-2.5 ${
+      ? `top-4 w-[92%] max-w-4xl rounded-full border shadow-2xl shadow-black/20 px-6 py-2.5 ${
           darkMode 
-            ? 'bg-slate-900/60 border-white/15 text-slate-100' 
-            : 'bg-white/60 border-white/60 text-[#0C2341]'
+            ? 'bg-slate-900/85 border-white/20 text-slate-100' 
+            : 'bg-white/85 border-white/80 text-[#0C2341]'
         }`
       : `top-0 w-full rounded-none border-b px-4 py-3.5 md:px-8 md:py-5 ${
           darkMode 
-            ? 'bg-slate-950/40 border-white/5 text-slate-100' 
-            : 'bg-[#F7F5EE]/40 border-[#0C2341]/5 text-[#0C2341]'
+            ? 'bg-slate-950/80 border-white/10 text-slate-100' 
+            : 'bg-[#F7F5EE]/80 border-[#0C2341]/10 text-[#0C2341]'
         }`
   }`;
 
@@ -267,27 +267,27 @@ export default function LandingPage() {
         <canvas
           ref={canvasRef}
           className="w-full h-full object-cover transition-opacity duration-500"
-          style={{ opacity: 0.75 }}
+          style={{ opacity: darkMode ? 0.45 : 0.55 }}
         />
 
-        {/* Apple liquid glass soft tint overlay */}
+        {/* Soft gradient glass tint overlay for guaranteed contrast */}
         <div
           className={`absolute inset-0 transition-colors duration-700 pointer-events-none ${
             darkMode
-              ? 'bg-gradient-to-b from-slate-950/40 via-slate-950/60 to-slate-950/90 backdrop-blur-[2px]'
-              : 'bg-gradient-to-b from-[#F7F5EE]/40 via-[#F7F5EE]/55 to-[#F7F5EE]/80 backdrop-blur-[1px]'
+              ? 'bg-gradient-to-b from-slate-950/60 via-slate-950/75 to-slate-950/95 backdrop-blur-[3px]'
+              : 'bg-gradient-to-b from-[#F7F5EE]/60 via-[#F7F5EE]/75 to-[#F7F5EE]/90 backdrop-blur-[3px]'
           }`}
         />
       </div>
 
       {/* Floating Interactive Village Level Indicator Badge (Apple Liquid Glass) */}
-      <div className="fixed bottom-6 right-6 z-40 hidden md:flex items-center gap-3 bg-white/70 dark:bg-slate-900/70 backdrop-blur-2xl border border-white/60 dark:border-white/15 px-4 py-2.5 rounded-full shadow-2xl animate-fade-in font-sans">
+      <div className="fixed bottom-6 right-6 z-40 hidden md:flex items-center gap-3 bg-white/90 dark:bg-slate-900/90 backdrop-blur-3xl border border-white/80 dark:border-white/20 px-4 py-2.5 rounded-full shadow-2xl animate-fade-in font-sans">
         <span className="text-base animate-bounce">
           {villageStatus.icon}
         </span>
         <div className="text-right">
-          <span className="text-[9px] font-bold text-slate-500 block leading-tight">مستوى القرية بالخلفية (محاكاة التمرير)</span>
-          <span className="text-xs font-black text-[#C66E4E]">
+          <span className="text-[9px] font-bold text-slate-500 dark:text-slate-400 block leading-tight">مستوى القرية بالخلفية (محاكاة التمرير)</span>
+          <span className="text-xs font-black text-[#C66E4E] dark:text-[#E88D6A]">
             {villageStatus.label}
           </span>
         </div>
