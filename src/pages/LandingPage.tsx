@@ -241,16 +241,15 @@ export default function LandingPage() {
 
   const bgClass = darkMode ? 'bg-slate-950 text-slate-100' : 'bg-[#F7F5EE] text-[#0C2341]';
   const cardBgClass = darkMode
-    ? 'bg-slate-900/85 backdrop-blur-3xl border border-white/20 text-white shadow-[0_20px_45px_rgba(0,0,0,0.6)] hover:bg-slate-900/95 hover:border-white/30'
-    : 'bg-white/85 backdrop-blur-3xl border border-white/80 text-[#0C2341] shadow-[0_20px_45px_rgba(12,35,65,0.12)] hover:bg-white/95 hover:border-white';
-  const subTextClass = darkMode ? 'text-slate-200 font-semibold' : 'text-slate-700 font-semibold';
+    ? 'bg-slate-900/85 backdrop-blur-2xl border border-white/20 text-white shadow-[0_20px_50px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.2)] hover:bg-slate-900/95 hover:border-white/30'
+    : 'bg-white/85 backdrop-blur-2xl border border-white/90 text-[#0C2341] shadow-[0_20px_50px_rgba(12,35,65,0.15),inset_0_1px_0_rgba(255,255,255,0.9)] hover:bg-white/95 hover:border-white';
 
-  const headerClasses = `fixed left-0 right-0 mx-auto z-50 backdrop-blur-3xl transition-premium ${
+  const headerClasses = `fixed left-0 right-0 mx-auto z-50 backdrop-blur-2xl transition-premium ${
     isScrolled
-      ? `top-4 w-[92%] max-w-4xl rounded-full border shadow-2xl shadow-black/20 px-6 py-2.5 ${
+      ? `top-4 w-[92%] max-w-4xl rounded-full border shadow-2xl px-6 py-2.5 ${
           darkMode 
-            ? 'bg-slate-900/85 border-white/20 text-slate-100' 
-            : 'bg-white/85 border-white/80 text-[#0C2341]'
+            ? 'bg-slate-900/85 border-white/20 text-slate-100 shadow-black/40' 
+            : 'bg-white/85 border-white/90 text-[#0C2341] shadow-slate-900/10'
         }`
       : `top-0 w-full rounded-none border-b px-4 py-3.5 md:px-8 md:py-5 ${
           darkMode 
@@ -262,26 +261,26 @@ export default function LandingPage() {
   return (
     <div dir="rtl" className={`min-h-screen relative transition-colors duration-500 font-sans overflow-x-hidden ${bgClass}`}>
       
-      {/* 1. HTML5 Canvas rendering 240 frames based on scroll depth */}
+      {/* 1. Clear HTML5 Canvas rendering 240 village frames without milky white overlay */}
       <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
         <canvas
           ref={canvasRef}
           className="w-full h-full object-cover transition-opacity duration-500"
-          style={{ opacity: darkMode ? 0.45 : 0.55 }}
+          style={{ opacity: 0.95 }}
         />
 
-        {/* Soft gradient glass tint overlay for guaranteed contrast */}
+        {/* Subtle vignette gradient for natural depth without fogging */}
         <div
           className={`absolute inset-0 transition-colors duration-700 pointer-events-none ${
             darkMode
-              ? 'bg-gradient-to-b from-slate-950/60 via-slate-950/75 to-slate-950/95 backdrop-blur-[3px]'
-              : 'bg-gradient-to-b from-[#F7F5EE]/60 via-[#F7F5EE]/75 to-[#F7F5EE]/90 backdrop-blur-[3px]'
+              ? 'bg-gradient-to-b from-slate-950/40 via-transparent to-slate-950/70'
+              : 'bg-gradient-to-b from-black/10 via-transparent to-black/30'
           }`}
         />
       </div>
 
       {/* Floating Interactive Village Level Indicator Badge (Apple Liquid Glass) */}
-      <div className="fixed bottom-6 right-6 z-40 hidden md:flex items-center gap-3 bg-white/90 dark:bg-slate-900/90 backdrop-blur-3xl border border-white/80 dark:border-white/20 px-4 py-2.5 rounded-full shadow-2xl animate-fade-in font-sans">
+      <div className="fixed bottom-6 right-6 z-40 hidden md:flex items-center gap-3 bg-white/90 dark:bg-slate-900/90 backdrop-blur-2xl border border-white/80 dark:border-white/20 px-4 py-2.5 rounded-full shadow-2xl animate-fade-in font-sans">
         <span className="text-base animate-bounce">
           {villageStatus.icon}
         </span>
@@ -365,16 +364,16 @@ export default function LandingPage() {
           {/* Logo */}
           <div className="flex items-center gap-2.5">
             <span className="text-3xl animate-float">🍃</span>
-            <span className="text-lg font-black bg-gradient-to-r from-[#C66E4E] to-[#8B84D7] bg-clip-text text-transparent">
+            <span className="text-xl font-black bg-gradient-to-r from-[#C66E4E] to-[#8B84D7] bg-clip-text text-transparent">
               نماء العائلي
             </span>
           </div>
 
           {/* Navigation Links */}
-          <nav className="hidden md:flex items-center gap-8 text-sm font-bold">
-            <button onClick={() => scrollToSection('features')} className="hover:text-[#C66E4E] transition-colors cursor-pointer">المميزات</button>
-            <button onClick={() => scrollToSection('showcase')} className="hover:text-[#C66E4E] transition-colors cursor-pointer">الأقسام واللوحات</button>
-            <button onClick={() => scrollToSection('how-it-works')} className="hover:text-[#C66E4E] transition-colors cursor-pointer">كيف نعمل</button>
+          <nav className="hidden md:flex items-center gap-8 text-sm font-black">
+            <button onClick={() => scrollToSection('features')} className="hover:text-[#C66E4E] transition-colors cursor-pointer text-[#0C2341] dark:text-white">المميزات</button>
+            <button onClick={() => scrollToSection('showcase')} className="hover:text-[#C66E4E] transition-colors cursor-pointer text-[#0C2341] dark:text-white">الأقسام واللوحات</button>
+            <button onClick={() => scrollToSection('how-it-works')} className="hover:text-[#C66E4E] transition-colors cursor-pointer text-[#0C2341] dark:text-white">كيف نعمل</button>
           </nav>
 
           {/* Actions */}
@@ -385,7 +384,7 @@ export default function LandingPage() {
               onClick={() => setDarkMode(!darkMode)}
               className={`p-2.5 rounded-xl border transition-all active:scale-95 cursor-pointer flex items-center justify-center ${
                 darkMode 
-                  ? 'bg-slate-800 border-white/10 text-yellow-300 hover:bg-slate-700' 
+                  ? 'bg-slate-800 border-white/20 text-yellow-300 hover:bg-slate-700' 
                   : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
               }`}
               title={darkMode ? 'تفعيل الوضع المضيء' : 'تفعيل الوضع المظلم'}
@@ -406,7 +405,7 @@ export default function LandingPage() {
             {/* Login Button */}
             <button
               onClick={() => navigate('/login')}
-              className="px-5 py-2 text-xs md:text-sm font-extrabold bg-[#0C2341] hover:bg-[#8B84D7] text-white rounded-xl transition-all shadow-md active:scale-95 cursor-pointer font-sans"
+              className="px-5 py-2.5 text-xs md:text-sm font-black bg-[#0C2341] hover:bg-[#8B84D7] text-white rounded-xl transition-all shadow-lg active:scale-95 cursor-pointer font-sans"
             >
               تسجيل الدخول ➜
             </button>
@@ -418,34 +417,34 @@ export default function LandingPage() {
       {/* Hero Section */}
       <section className="relative max-w-6xl mx-auto px-6 pt-32 pb-20 md:pt-40 md:pb-28 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center z-10">
         
-        {/* Left Content */}
-        <div className="space-y-6 text-right reveal">
-          <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#C66E4E]/10 text-[#C66E4E] text-xs font-black animate-pulse-ring">
+        {/* Left Content Card */}
+        <div className={`p-8 md:p-10 rounded-[36px] backdrop-blur-2xl space-y-6 text-right reveal ${cardBgClass}`}>
+          <span className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#C66E4E]/15 text-[#C66E4E] text-xs md:text-sm font-black animate-pulse-ring border border-[#C66E4E]/30">
             🏛️ شراكة تعليمية مبتكرة مع مصرف الإنماء
           </span>
-          <h1 className="text-4xl md:text-5xl font-black leading-tight">
+          <h1 className="text-3xl md:text-5xl font-black leading-tight text-[#0C2341] dark:text-white">
             ابنِ وعي أطفالك المالي عبر <br />
             <span className="bg-gradient-to-r from-[#C66E4E] to-[#8B84D7] bg-clip-text text-transparent animate-pulse-ring">
               مملكة افتراضية ثلاثية الأبعاد
             </span>
           </h1>
-          <p className={`text-base leading-relaxed font-medium ${subTextClass}`}>
+          <p className="text-sm md:text-base leading-relaxed font-bold text-slate-800 dark:text-slate-200">
             نماء هي منصة مالية عائلية متكاملة تدمج بين محاكاة الألعاب ثلاثية الأبعاد والذكاء الاصطناعي لتدريب الأطفال على الادخار والاستثمار ومشاركة الخير والمبادرة في مهام المنزل بطريقة ممتعة وفاعلة.
           </p>
           
           <div className="flex gap-4 pt-4">
             <button
               onClick={() => navigate('/login')}
-              className="px-6 py-3.5 bg-[#C66E4E] hover:bg-[#a65638] text-white text-sm font-black rounded-2xl shadow-lg transition-all hover:scale-105 active:scale-95 cursor-pointer"
+              className="px-7 py-4 bg-[#C66E4E] hover:bg-[#a65638] text-white text-sm font-black rounded-2xl shadow-xl transition-all hover:scale-105 active:scale-95 cursor-pointer font-sans"
             >
               ابدأ تجربة المنصة الآن 🚀
             </button>
             <button
               onClick={() => scrollToSection('features')}
-              className={`px-6 py-3.5 border rounded-2xl text-sm font-black transition-all active:scale-95 flex items-center justify-center hover:scale-105 cursor-pointer ${
+              className={`px-6 py-4 border rounded-2xl text-sm font-black transition-all active:scale-95 flex items-center justify-center hover:scale-105 cursor-pointer ${
                 darkMode 
-                  ? 'border-white/10 hover:bg-white/5 text-white' 
-                  : 'border-slate-200 hover:bg-slate-50 text-[#0C2341]'
+                  ? 'border-white/20 hover:bg-white/10 text-white' 
+                  : 'border-slate-300 hover:bg-slate-100 text-[#0C2341]'
               }`}
             >
               استكشف المزايا ⬇️
@@ -453,24 +452,24 @@ export default function LandingPage() {
           </div>
         </div>
 
-        {/* Right Visual */}
+        {/* Right Visual Card */}
         <div className="relative flex justify-center items-center reveal reveal-delay-2">
           <div className="absolute inset-0 bg-gradient-to-r from-[#8B84D7]/20 to-[#C66E4E]/20 rounded-full blur-[80px] pointer-events-none"></div>
           
           {/* Card Mockup representing the 3D visual */}
-          <div className={`relative w-full max-w-md p-6 rounded-[32px] border shadow-2xl transition-all duration-500 hover:scale-[1.03] hover:-translate-y-2 hover:shadow-black/20 ${cardBgClass}`}>
+          <div className={`relative w-full max-w-md p-6 rounded-[32px] border shadow-2xl transition-all duration-500 hover:scale-[1.03] hover:-translate-y-2 ${cardBgClass}`}>
             
             {/* Visual Header */}
-            <div className="flex justify-between items-center border-b border-slate-100/10 pb-4 mb-4 flex-row-reverse">
+            <div className="flex justify-between items-center border-b border-slate-200 dark:border-white/10 pb-4 mb-4 flex-row-reverse">
               <span className="text-xl animate-float">🏰</span>
               <div className="text-right">
-                <span className="text-[10px] text-slate-550 font-bold block">مملكة نماء العائلية</span>
-                <span className="text-xs font-black block">القرية ثلاثية الأبعاد (3D)</span>
+                <span className="text-[10px] text-slate-500 dark:text-slate-400 font-bold block">مملكة نماء العائلية</span>
+                <span className="text-xs font-black text-[#0C2341] dark:text-white block">القرية ثلاثية الأبعاد (3D)</span>
               </div>
             </div>
 
             {/* Simulated 3D Graphic */}
-            <div className="h-48 w-full bg-[#0D1527] rounded-2xl border border-white/5 overflow-hidden flex flex-col justify-end p-4 relative shadow-inner">
+            <div className="h-48 w-full bg-[#0D1527] rounded-2xl border border-white/10 overflow-hidden flex flex-col justify-end p-4 relative shadow-inner">
               
               {/* Stars animation */}
               <div className="absolute inset-0 pointer-events-none opacity-40">
@@ -483,23 +482,23 @@ export default function LandingPage() {
               <div className="w-full flex justify-around items-end z-10 pb-1">
                 <div className="flex flex-col items-center gap-1">
                   <BankSVG level={demoLevels.bank} />
-                  <span className="text-[8px] text-slate-400 font-bold">الادخار</span>
+                  <span className="text-[8px] text-slate-300 font-bold">الادخار</span>
                 </div>
                 <div className="flex flex-col items-center gap-1">
                   <MarketSVG level={demoLevels.market} />
-                  <span className="text-[8px] text-slate-400 font-bold">الاستثمار</span>
+                  <span className="text-[8px] text-slate-300 font-bold">الاستثمار</span>
                 </div>
                 <div className="flex flex-col items-center gap-1">
                   <CastleSVG level={demoLevels.castle} />
-                  <span className="text-[8px] text-slate-400 font-bold animate-pulse-ring">القلعة</span>
+                  <span className="text-[8px] text-slate-300 font-bold animate-pulse-ring">القلعة</span>
                 </div>
                 <div className="flex flex-col items-center gap-1">
                   <FarmSVG level={demoLevels.farm} />
-                  <span className="text-[8px] text-slate-400 font-bold">الخير</span>
+                  <span className="text-[8px] text-slate-300 font-bold">الخير</span>
                 </div>
                 <div className="flex flex-col items-center gap-1">
                   <WindmillSVG level={demoLevels.windmill} />
-                  <span className="text-[8px] text-slate-400 font-bold">المهام</span>
+                  <span className="text-[8px] text-slate-300 font-bold">المهام</span>
                 </div>
               </div>
               <div className="w-full h-4 bg-emerald-700/60 rounded-b-lg border-t border-emerald-600/30"></div>
@@ -507,35 +506,35 @@ export default function LandingPage() {
 
             {/* Values indicators (Clickable to adjust levels) */}
             <div className="space-y-2 mt-4 select-none">
-              <span className="text-[9px] text-[#C66E4E] font-bold block text-right">💡 انقر على الأزرار بالأسفل لتطوير مباني القرية وتجربتها:</span>
+              <span className="text-[9px] text-[#C66E4E] font-extrabold block text-right">💡 انقر على الأزرار بالأسفل لتطوير مباني القرية وتجربتها:</span>
               <div className="grid grid-cols-5 gap-1 text-[8px] text-center">
                 <button 
                   onClick={() => incrementLevel('bank')}
-                  className="bg-[#C66E4E]/10 hover:bg-[#C66E4E]/20 p-2 rounded-xl text-[#C66E4E] font-black transition-all hover:scale-105 active:scale-95 cursor-pointer border border-[#C66E4E]/15"
+                  className="bg-[#C66E4E]/15 hover:bg-[#C66E4E]/30 p-2 rounded-xl text-[#C66E4E] font-black transition-all hover:scale-105 active:scale-95 cursor-pointer border border-[#C66E4E]/30"
                 >
                   💰 الادخار ({demoLevels.bank}/5)
                 </button>
                 <button 
                   onClick={() => incrementLevel('market')}
-                  className="bg-amber-500/10 hover:bg-amber-500/20 p-2 rounded-xl text-amber-600 font-black transition-all hover:scale-105 active:scale-95 cursor-pointer border border-amber-500/15"
+                  className="bg-amber-500/15 hover:bg-amber-500/30 p-2 rounded-xl text-amber-700 dark:text-amber-400 font-black transition-all hover:scale-105 active:scale-95 cursor-pointer border border-amber-500/30"
                 >
                   📈 الاستثمار ({demoLevels.market}/5)
                 </button>
                 <button 
                   onClick={() => incrementLevel('castle')}
-                  className="bg-purple-500/10 hover:bg-purple-500/20 p-2 rounded-xl text-purple-600 font-black transition-all hover:scale-105 active:scale-95 cursor-pointer border border-purple-500/15"
+                  className="bg-purple-500/15 hover:bg-purple-500/30 p-2 rounded-xl text-purple-700 dark:text-purple-400 font-black transition-all hover:scale-105 active:scale-95 cursor-pointer border border-purple-500/30"
                 >
                   🏰 القلعة ({demoLevels.castle}/5)
                 </button>
                 <button 
                   onClick={() => incrementLevel('farm')}
-                  className="bg-emerald-500/10 hover:bg-emerald-500/20 p-2 rounded-xl text-emerald-600 font-black transition-all hover:scale-105 active:scale-95 cursor-pointer border border-emerald-500/15"
+                  className="bg-emerald-500/15 hover:bg-emerald-500/30 p-2 rounded-xl text-emerald-700 dark:text-emerald-400 font-black transition-all hover:scale-105 active:scale-95 cursor-pointer border border-emerald-500/30"
                 >
                   🌳 الخير ({demoLevels.farm}/5)
                 </button>
                 <button 
                   onClick={() => incrementLevel('windmill')}
-                  className="bg-[#8B84D7]/10 hover:bg-[#8B84D7]/20 p-2 rounded-xl text-[#8B84D7] font-black transition-all hover:scale-105 active:scale-95 cursor-pointer border border-[#8B84D7]/15"
+                  className="bg-[#8B84D7]/15 hover:bg-[#8B84D7]/30 p-2 rounded-xl text-[#5F57C7] dark:text-[#8B84D7] font-black transition-all hover:scale-105 active:scale-95 cursor-pointer border border-[#8B84D7]/30"
                 >
                   🌀 المهام ({demoLevels.windmill}/5)
                 </button>
@@ -549,10 +548,11 @@ export default function LandingPage() {
 
       {/* Bento Grid Features Section */}
       <section id="features" className="max-w-6xl mx-auto px-6 py-20 z-10 relative space-y-12">
-        <div className="text-center space-y-3 reveal">
+        {/* Section Header Card */}
+        <div className="max-w-xl mx-auto p-6 md:p-8 rounded-[32px] backdrop-blur-2xl text-center space-y-3 reveal border shadow-2xl bg-white/85 dark:bg-slate-900/85 border-white/90 dark:border-white/20">
           <span className="text-xs font-black text-[#C66E4E] tracking-widest block">أركان المنصة الأساسية</span>
-          <h2 className="text-3xl font-black">تصميم ذكي ومزايا تفاعلية متكاملة</h2>
-          <p className={`max-w-lg mx-auto text-sm ${subTextClass}`}>
+          <h2 className="text-2xl md:text-3xl font-black text-[#0C2341] dark:text-white">تصميم ذكي ومزايا تفاعلية متكاملة</h2>
+          <p className="text-sm font-bold text-slate-800 dark:text-slate-200">
             نهدف لتبسيط المفاهيم المالية الصعبة مثل الاستثمار وإدارة الميزانيات والعمل الخيري للأطفال عبر تجارب محفزة.
           </p>
         </div>
@@ -561,73 +561,74 @@ export default function LandingPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           
           {/* Card 1: 3D Village (Big span) */}
-          <div className={`md:col-span-2 p-8 rounded-[32px] border shadow-md flex flex-col justify-between min-h-[300px] transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:border-[#C66E4E]/30 reveal reveal-delay-1 ${cardBgClass}`}>
+          <div className={`md:col-span-2 p-8 rounded-[32px] border flex flex-col justify-between min-h-[300px] transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:border-[#C66E4E]/40 reveal reveal-delay-1 ${cardBgClass}`}>
             <div className="space-y-4">
               <div className="text-4xl animate-float">🏡✨</div>
-              <h3 className="text-xl font-black">القرية والمملكة ثلاثية الأبعاد (3D Visuals)</h3>
-              <p className={`text-sm leading-relaxed ${subTextClass}`}>
+              <h3 className="text-xl font-black text-[#0C2341] dark:text-white">القرية والمملكة ثلاثية الأبعاد (3D Visuals)</h3>
+              <p className="text-sm font-bold text-slate-800 dark:text-slate-200 leading-relaxed">
                 شاهد مدخراتك ومساهماتك تتحول لمباني ومزارع وقصور أسطورية ثلاثية الأبعاد تتفاعل وتنمو معك. يمكن للأبناء اللعب بها، ويستطيع الأب متابعة ورعاية تطورها مباشرة من لوحته.
               </p>
             </div>
             <div className="mt-6 flex gap-2">
-              <span className="bg-amber-500/10 px-3 py-1 rounded-full text-amber-600 text-xs font-bold">Three.js</span>
-              <span className="bg-violet-500/10 px-3 py-1 rounded-full text-violet-600 text-xs font-bold">React Three Fiber</span>
+              <span className="bg-amber-500/15 px-3 py-1 rounded-full text-amber-700 dark:text-amber-400 text-xs font-black border border-amber-500/30">Three.js</span>
+              <span className="bg-violet-500/15 px-3 py-1 rounded-full text-violet-700 dark:text-violet-400 text-xs font-black border border-violet-500/30">React Three Fiber</span>
             </div>
           </div>
 
           {/* Card 2: AI Gemini Advisor */}
-          <div className={`p-8 rounded-[32px] border shadow-md flex flex-col justify-between min-h-[300px] transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:border-[#8B84D7]/30 reveal reveal-delay-2 ${cardBgClass}`}>
+          <div className={`p-8 rounded-[32px] border flex flex-col justify-between min-h-[300px] transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:border-[#8B84D7]/40 reveal reveal-delay-2 ${cardBgClass}`}>
             <div className="space-y-4">
               <div className="text-4xl">🤖🔮</div>
-              <h3 className="text-xl font-black">المستشار المالي الذكي</h3>
-              <p className={`text-sm leading-relaxed ${subTextClass}`}>
+              <h3 className="text-xl font-black text-[#0C2341] dark:text-white">المستشار المالي الذكي</h3>
+              <p className="text-sm font-bold text-slate-800 dark:text-slate-200 leading-relaxed">
                 تحليل ذكي مدعوم بمجسمات الذكاء الاصطناعي من Google Gemini يقدم للأبناء نصائح تفاعلية، وللآباء إرشادات تربوية لتوجيه أداء أبنائهم.
               </p>
             </div>
             <div className="mt-6">
-              <span className="bg-purple-500/10 px-3 py-1 rounded-full text-purple-600 text-xs font-bold">Gemini 3.5 Flash</span>
+              <span className="bg-purple-500/15 px-3 py-1 rounded-full text-purple-700 dark:text-purple-400 text-xs font-black border border-purple-500/30">Gemini 3.5 Flash</span>
             </div>
           </div>
 
           {/* Card 3: Family League */}
-          <div className={`p-8 rounded-[32px] border shadow-md flex flex-col justify-between min-h-[300px] transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:border-[#8B84D7]/30 reveal reveal-delay-1 ${cardBgClass}`}>
+          <div className={`p-8 rounded-[32px] border flex flex-col justify-between min-h-[300px] transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:border-[#8B84D7]/40 reveal reveal-delay-1 ${cardBgClass}`}>
             <div className="space-y-4">
               <div className="text-4xl animate-float-delayed">🏆⚔️</div>
-              <h3 className="text-xl font-black">دوري العائلة الأسبوعي</h3>
-              <p className={`text-sm leading-relaxed ${subTextClass}`}>
+              <h3 className="text-xl font-black text-[#0C2341] dark:text-white">دوري العائلة الأسبوعي</h3>
+              <p className="text-sm font-bold text-slate-800 dark:text-slate-200 leading-relaxed">
                 تحديات ممتعة وتنافسية بين الأبناء تشجعهم على التوفير وإكمال المهام لحصد المكافآت الأسبوعية المصروفة ذكياً.
               </p>
             </div>
             <div className="mt-6">
-              <span className="bg-[#C66E4E]/10 px-3 py-1 rounded-full text-[#C66E4E] text-xs font-bold">Gamification</span>
+              <span className="bg-[#C66E4E]/15 px-3 py-1 rounded-full text-[#C66E4E] text-xs font-black border border-[#C66E4E]/30">Gamification</span>
             </div>
           </div>
 
           {/* Card 4: Investments & Savings (Big span) */}
-          <div className={`md:col-span-2 p-8 rounded-[32px] border shadow-md flex flex-col justify-between min-h-[300px] transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:border-[#C66E4E]/30 reveal reveal-delay-2 ${cardBgClass}`}>
+          <div className={`md:col-span-2 p-8 rounded-[32px] border flex flex-col justify-between min-h-[300px] transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:border-[#C66E4E]/40 reveal reveal-delay-2 ${cardBgClass}`}>
             <div className="space-y-4">
               <div className="text-4xl">📈💚</div>
-              <h3 className="text-xl font-black">حصالات الادخار ومشاريع الاستثمار المشترك</h3>
-              <p className={`text-sm leading-relaxed ${subTextClass}`}>
+              <h3 className="text-xl font-black text-[#0C2341] dark:text-white">حصالات الادخار ومشاريع الاستثمار المشترك</h3>
+              <p className="text-sm font-bold text-slate-800 dark:text-slate-200 leading-relaxed">
                 حصالات ذكية تتيح للأبناء وضع أهداف وحظر سحبها لضمان التوفير، مع إمكانية مساهمة الأبناء مع الأب في مشاريع استثمار عائلية بفائدة وعائد ربحي، ليتعلم الأطفال معنى تنمية المال.
               </p>
             </div>
             <div className="mt-6 flex gap-2">
-              <span className="bg-orange-500/10 px-3 py-1 rounded-full text-orange-600 text-xs font-bold">الادخار الذكي</span>
-              <span className="bg-emerald-500/10 px-3 py-1 rounded-full text-emerald-600 text-xs font-bold">الاستثمار العائلي</span>
+              <span className="bg-orange-500/15 px-3 py-1 rounded-full text-orange-700 dark:text-orange-400 text-xs font-black border border-orange-500/30">الادخار الذكي</span>
+              <span className="bg-emerald-500/15 px-3 py-1 rounded-full text-emerald-700 dark:text-emerald-400 text-xs font-black border border-emerald-500/30">الاستثمار العائلي</span>
             </div>
           </div>
 
         </div>
       </section>
 
-      {/* Detailed Feature Showcase (New replacement section for stats) */}
+      {/* Detailed Feature Showcase */}
       <section id="showcase" className="max-w-6xl mx-auto px-6 py-20 z-10 relative space-y-16">
         
-        <div className="text-center space-y-3 reveal">
-          <span className="text-xs font-black text-[#8B84D7] tracking-widest block">دليل المزايا والوظائف</span>
-          <h2 className="text-3xl font-black">تجربة متكاملة للأبناء والآباء</h2>
-          <p className={`max-w-xl mx-auto text-sm ${subTextClass}`}>
+        {/* Section Header Card */}
+        <div className="max-w-xl mx-auto p-6 md:p-8 rounded-[32px] backdrop-blur-2xl text-center space-y-3 reveal border shadow-2xl bg-white/85 dark:bg-slate-900/85 border-white/90 dark:border-white/20">
+          <span className="text-xs font-black text-[#5F57C7] dark:text-[#8B84D7] tracking-widest block">دليل المزايا والوظائف</span>
+          <h2 className="text-2xl md:text-3xl font-black text-[#0C2341] dark:text-white">تجربة متكاملة للأبناء والآباء</h2>
+          <p className="text-sm font-bold text-slate-800 dark:text-slate-200">
             تتوزع وظائف نماء لتضمن حوكمة عائلية مالية سهلة للأب، ورحلة تعليمية تفاعلية ممتعة للأطفال.
           </p>
         </div>
@@ -636,63 +637,63 @@ export default function LandingPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           
           {/* Card A: Father Panel */}
-          <div className={`p-8 rounded-[32px] border shadow-xl flex flex-col justify-between space-y-6 transition-all duration-300 hover:scale-[1.02] ${cardBgClass} reveal`}>
+          <div className={`p-8 rounded-[32px] border shadow-2xl flex flex-col justify-between space-y-6 transition-all duration-300 hover:scale-[1.02] ${cardBgClass} reveal`}>
             <div className="space-y-4">
               <div className="flex justify-between items-center">
                 <span className="text-3xl">👨‍💼</span>
-                <span className="text-[10px] font-bold text-[#C66E4E] px-2.5 py-1 bg-[#C66E4E]/10 rounded-full">لوحة التحكم للأب</span>
+                <span className="text-[10px] font-black text-[#C66E4E] px-3 py-1 bg-[#C66E4E]/15 rounded-full border border-[#C66E4E]/30">لوحة التحكم للأب</span>
               </div>
-              <h3 className="text-lg font-black text-[#C66E4E]">إشراف مالي وحوكمة متكاملة</h3>
-              <p className={`text-xs leading-relaxed ${subTextClass}`}>
+              <h3 className="text-xl font-black text-[#C66E4E]">إشراف مالي وحوكمة متكاملة</h3>
+              <p className="text-xs font-bold text-slate-800 dark:text-slate-200 leading-relaxed">
                 يملك الأب الصلاحية الكاملة لإدارة مصروفات الأبناء وتحفيزهم من خلال:
               </p>
-              <ul className="text-xs space-y-3 pr-4 list-disc text-right font-medium text-slate-700 dark:text-slate-300">
-                <li><strong className="text-[#C66E4E]">إدارة المهام اليومية:</strong> إضافة مهام (كالدراسة أو المساعدة) وربطها بمكافأة مالية فورية عند الإنجاز.</li>
-                <li><strong className="text-[#C66E4E]">المشاريع الاستثمارية:</strong> إنشاء مشاريع استثمار عائلية بفائدة وعوائد ربحية محددة يشارك بها الأبناء.</li>
-                <li><strong className="text-[#C66E4E]">إقرار طلبات الصدقة:</strong> مراقبة وإقرار تبرعات الأبناء لتعزيز الروح الإنسانية.</li>
-                <li><strong className="text-[#C66E4E]">دوري نماء العائلي:</strong> تتويج الأبناء بالأوسمة ودفع مكافآت التميز تلقائياً.</li>
-                <li><strong className="text-[#C66E4E]">إقرار مكافآت الشركاء:</strong> متابعة طلبات استرداد الأبناء لبطاقات سوني وجرير وتلقي الإشعارات الفورية.</li>
+              <ul className="text-xs space-y-3 pr-4 list-disc text-right font-extrabold text-slate-800 dark:text-slate-100">
+                <li><strong className="text-[#C66E4E] font-black">إدارة المهام اليومية:</strong> إضافة مهام (كالدراسة أو المساعدة) وربطها بمكافأة مالية فورية عند الإنجاز.</li>
+                <li><strong className="text-[#C66E4E] font-black">المشاريع الاستثمارية:</strong> إنشاء مشاريع استثمار عائلية بفائدة وعوائد ربحية محددة يشارك بها الأبناء.</li>
+                <li><strong className="text-[#C66E4E] font-black">إقرار طلبات الصدقة:</strong> مراقبة وإقرار تبرعات الأبناء لتعزيز الروح الإنسانية.</li>
+                <li><strong className="text-[#C66E4E] font-black">دوري نماء العائلي:</strong> تتويج الأبناء بالأوسمة ودفع مكافآت التميز تلقائياً.</li>
+                <li><strong className="text-[#C66E4E] font-black">إقرار مكافآت الشركاء:</strong> متابعة طلبات استرداد الأبناء لبطاقات سوني وجرير وتلقي الإشعارات الفورية.</li>
               </ul>
             </div>
           </div>
 
           {/* Card B: Kid Panel */}
-          <div className={`p-8 rounded-[32px] border shadow-xl flex flex-col justify-between space-y-6 transition-all duration-300 hover:scale-[1.02] ${cardBgClass} reveal reveal-delay-1`}>
+          <div className={`p-8 rounded-[32px] border shadow-2xl flex flex-col justify-between space-y-6 transition-all duration-300 hover:scale-[1.02] ${cardBgClass} reveal reveal-delay-1`}>
             <div className="space-y-4">
               <div className="flex justify-between items-center">
                 <span className="text-3xl">👦</span>
-                <span className="text-[10px] font-bold text-[#8B84D7] px-2.5 py-1 bg-[#8B84D7]/10 rounded-full">لوحة تفاعل الابن</span>
+                <span className="text-[10px] font-black text-[#5F57C7] dark:text-[#8B84D7] px-3 py-1 bg-[#8B84D7]/15 rounded-full border border-[#8B84D7]/30">لوحة تفاعل الابن</span>
               </div>
-              <h3 className="text-lg font-black text-[#8B84D7]">تعلم الادخار بأسلوب اللعب ثلاثي الأبعاد</h3>
-              <p className={`text-xs leading-relaxed ${subTextClass}`}>
+              <h3 className="text-xl font-black text-[#5F57C7] dark:text-[#8B84D7]">تعلم الادخار بأسلوب اللعب ثلاثي الأبعاد</h3>
+              <p className="text-xs font-bold text-slate-800 dark:text-slate-200 leading-relaxed">
                 يعيش الطفل تجربة بصرية تفاعلية تنمي سلوكه المالي من خلال:
               </p>
-              <ul className="text-xs space-y-3 pr-4 list-disc text-right font-medium text-slate-700 dark:text-slate-300">
-                <li><strong className="text-[#8B84D7]">الحصالات الذكية:</strong> وضع أهداف محددة (كشراء لعبة) وقفل سحب الأموال حتى اكتمال الهدف.</li>
-                <li><strong className="text-[#8B84D7]">الاستثمار وتنمية المال:</strong> استثمار جزء من مصروفه في مشاريع عائلية ومراقبة أرباحه.</li>
-                <li><strong className="text-[#8B84D7]">تطوير القرية 3D:</strong> تطور مباني القرية (البنك، المزرعة، السوق، الطاحونة) بناءً على سلوكه.</li>
-                <li><strong className="text-[#8B84D7]">إنجاز المهام:</strong> إرسال صور إثبات إنجاز المهام لوالده لكسب المكافآت.</li>
-                <li><strong className="text-[#8B84D7]">متجر المكافآت والشراكات:</strong> استبدال نقاط إتمام المهام بهدايا وأكواد شحن حقيقية من سوني وجرير.</li>
+              <ul className="text-xs space-y-3 pr-4 list-disc text-right font-extrabold text-slate-800 dark:text-slate-100">
+                <li><strong className="text-[#5F57C7] dark:text-[#8B84D7] font-black">الحصالات الذكية:</strong> وضع أهداف محددة (كشراء لعبة) وقفل سحب الأموال حتى اكتمال الهدف.</li>
+                <li><strong className="text-[#5F57C7] dark:text-[#8B84D7] font-black">الاستثمار وتنمية المال:</strong> استثمار جزء من مصروفه في مشاريع عائلية ومراقبة أرباحه.</li>
+                <li><strong className="text-[#5F57C7] dark:text-[#8B84D7] font-black">تطوير القرية 3D:</strong> تطور مباني القرية (البنك، المزرعة، السوق، الطاحونة) بناءً على سلوكه.</li>
+                <li><strong className="text-[#5F57C7] dark:text-[#8B84D7] font-black">إنجاز المهام:</strong> إرسال صور إثبات إنجاز المهام لوالده لكسب المكافآت.</li>
+                <li><strong className="text-[#5F57C7] dark:text-[#8B84D7] font-black">متجر المكافآت والشراكات:</strong> استبدال نقاط إتمام المهام بهدايا وأكواد شحن حقيقية من سوني وجرير.</li>
               </ul>
             </div>
           </div>
 
           {/* Card C: AI Coach (Gemini) */}
-          <div className={`p-8 rounded-[32px] border shadow-xl flex flex-col justify-between space-y-6 transition-all duration-300 hover:scale-[1.02] ${cardBgClass} reveal reveal-delay-2`}>
+          <div className={`p-8 rounded-[32px] border shadow-2xl flex flex-col justify-between space-y-6 transition-all duration-300 hover:scale-[1.02] ${cardBgClass} reveal reveal-delay-2`}>
             <div className="space-y-4">
               <div className="flex justify-between items-center">
                 <span className="text-3xl">🤖</span>
-                <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 px-2.5 py-1 bg-emerald-600/10 dark:bg-emerald-400/10 rounded-full">المستشار الذكي (Gemini)</span>
+                <span className="text-[10px] font-black text-emerald-700 dark:text-emerald-400 px-3 py-1 bg-emerald-600/15 rounded-full border border-emerald-500/30">المستشار الذكي (Gemini)</span>
               </div>
-              <h3 className="text-lg font-black text-emerald-650 dark:text-emerald-400">توجيه ذكي للأبناء والآباء</h3>
-              <p className={`text-xs leading-relaxed ${subTextClass}`}>
+              <h3 className="text-xl font-black text-emerald-700 dark:text-emerald-400">توجيه ذكي للأبناء والآباء</h3>
+              <p className="text-xs font-bold text-slate-800 dark:text-slate-200 leading-relaxed">
                 تحليل السلوك وتقديم الإرشادات بالاعتماد على الذكاء الاصطناعي:
               </p>
-              <ul className="text-xs space-y-3 pr-4 list-disc text-right font-medium text-slate-700 dark:text-slate-300">
-                <li><strong className="text-emerald-600 dark:text-emerald-400">نصائح للأبناء:</strong> يقدم Gemini نصائح وتلميحات عربية لتوجيه الطفل لتحقيق أهدافه المالية.</li>
-                <li><strong className="text-emerald-600 dark:text-emerald-400">تقييم مستويات التوازن:</strong> تنبيه الطفل عند وجود خلل بين الادخار والإنفاق والخير.</li>
-                <li><strong className="text-emerald-600 dark:text-emerald-400">مدرب الأبوة المالي:</strong> نصائح للأب حول كيفية تشجيع وتنمية وعي أطفاله استناداً لإنجازهم.</li>
-                <li><strong className="text-emerald-600 dark:text-emerald-400">تحليل القرى ثلاثية الأبعاد:</strong> فهم فوري لمستوى القرية العام وتأثير التغييرات عليه.</li>
+              <ul className="text-xs space-y-3 pr-4 list-disc text-right font-extrabold text-slate-800 dark:text-slate-100">
+                <li><strong className="text-emerald-700 dark:text-emerald-400 font-black">نصائح للأبناء:</strong> يقدم Gemini نصائح وتلميحات عربية لتوجيه الطفل لتحقيق أهدافه المالية.</li>
+                <li><strong className="text-emerald-700 dark:text-emerald-400 font-black">تقييم مستويات التوازن:</strong> تنبيه الطفل عند وجود خلل بين الادخار والإنفاق والخير.</li>
+                <li><strong className="text-emerald-700 dark:text-emerald-400 font-black">مدرب الأبوة المالي:</strong> نصائح للأب حول كيفية تشجيع وتنمية وعي أطفاله استناداً لإنجازهم.</li>
+                <li><strong className="text-emerald-700 dark:text-emerald-400 font-black">تحليل القرى ثلاثية الأبعاد:</strong> فهم فوري لمستوى القرية العام وتأثير التغييرات عليه.</li>
               </ul>
             </div>
           </div>
@@ -703,29 +704,30 @@ export default function LandingPage() {
 
       {/* How it works Section */}
       <section id="how-it-works" className="max-w-6xl mx-auto px-6 py-20 z-10 relative space-y-12">
-        <div className="text-center space-y-3 reveal">
+        {/* Section Header Card */}
+        <div className="max-w-xl mx-auto p-6 md:p-8 rounded-[32px] backdrop-blur-2xl text-center space-y-3 reveal border shadow-2xl bg-white/85 dark:bg-slate-900/85 border-white/90 dark:border-white/20">
           <span className="text-xs font-black text-[#C66E4E] tracking-widest block">سهل وبسيط</span>
-          <h2 className="text-3xl font-black">خطوات بسيطة لبناء الوعي المالي</h2>
+          <h2 className="text-2xl md:text-3xl font-black text-[#0C2341] dark:text-white">خطوات بسيطة لبناء الوعي المالي</h2>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           
-          <div className="text-center space-y-3 p-6 reveal reveal-delay-1 bg-white/5 border border-white/5 rounded-3xl hover:bg-[#8B84D7]/5 hover:border-[#8B84D7]/15 transition-all duration-300">
-            <div className="w-12 h-12 rounded-2xl bg-[#C66E4E]/10 text-[#C66E4E] flex items-center justify-center text-lg font-black mx-auto">١</div>
-            <h4 className="font-extrabold text-lg">سجل حساب العائلة 👤</h4>
-            <p className={`text-xs leading-relaxed ${subTextClass}`}>ينشئ الأب حساباً عائلياً ويقوم بإضافة حسابات مخصصة للأبناء (خالد، سالم) وتحديد مصروفاتهم.</p>
+          <div className={`text-center space-y-3 p-8 reveal reveal-delay-1 border rounded-[32px] hover:scale-105 transition-all duration-300 shadow-xl ${cardBgClass}`}>
+            <div className="w-14 h-14 rounded-2xl bg-[#C66E4E] text-white flex items-center justify-center text-xl font-black mx-auto shadow-md">١</div>
+            <h4 className="font-black text-xl text-[#0C2341] dark:text-white">سجل حساب العائلة 👤</h4>
+            <p className="text-xs font-bold text-slate-800 dark:text-slate-200 leading-relaxed">ينشئ الأب حساباً عائلياً ويقوم بإضافة حسابات مخصصة للأبناء (خالد، سالم) وتحديد مصروفاتهم.</p>
           </div>
 
-          <div className="text-center space-y-3 p-6 reveal reveal-delay-2 bg-white/5 border border-white/5 rounded-3xl hover:bg-[#8B84D7]/5 hover:border-[#8B84D7]/15 transition-all duration-300">
-            <div className="w-12 h-12 rounded-2xl bg-[#8B84D7]/10 text-[#8B84D7] flex items-center justify-center text-lg font-black mx-auto">٢</div>
-            <h4 className="font-extrabold text-lg">أسند المهام والتحديات 📜</h4>
-            <p className={`text-xs leading-relaxed ${subTextClass}`}>يضع الأب المهام ويفعل دوري التوفير الأسبوعي، ليبدأ الأبناء في ادخار المصروف وإكمال الواجبات المنزلية.</p>
+          <div className={`text-center space-y-3 p-8 reveal reveal-delay-2 border rounded-[32px] hover:scale-105 transition-all duration-300 shadow-xl ${cardBgClass}`}>
+            <div className="w-14 h-14 rounded-2xl bg-[#5F57C7] text-white flex items-center justify-center text-xl font-black mx-auto shadow-md">٢</div>
+            <h4 className="font-black text-xl text-[#0C2341] dark:text-white">أسند المهام والتحديات 📜</h4>
+            <p className="text-xs font-bold text-slate-800 dark:text-slate-200 leading-relaxed">يضع الأب المهام ويفعل دوري التوفير الأسبوعي، ليبدأ الأبناء في ادخار المصروف وإكمال الواجبات المنزلية.</p>
           </div>
 
-          <div className="text-center space-y-3 p-6 reveal reveal-delay-3 bg-white/5 border border-white/5 rounded-3xl hover:bg-[#C66E4E]/5 hover:border-[#C66E4E]/15 transition-all duration-300">
-            <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center text-lg font-black mx-auto">٣</div>
-            <h4 className="font-extrabold text-lg">شاهد التطور 🏰</h4>
-            <p className={`text-xs leading-relaxed ${subTextClass}`}>تتحول هذه الأرقام والمدخرات إلى مبانٍ وقلاع وقرى ثلاثية الأبعاد تنمو أمام أعينهم وتوجههم ذكياً.</p>
+          <div className={`text-center space-y-3 p-8 reveal reveal-delay-3 border rounded-[32px] hover:scale-105 transition-all duration-300 shadow-xl ${cardBgClass}`}>
+            <div className="w-14 h-14 rounded-2xl bg-emerald-600 text-white flex items-center justify-center text-xl font-black mx-auto shadow-md">٣</div>
+            <h4 className="font-black text-xl text-[#0C2341] dark:text-white">شاهد التطور 🏰</h4>
+            <p className="text-xs font-bold text-slate-800 dark:text-slate-200 leading-relaxed">تتحول هذه الأرقام والمدخرات إلى مبانٍ وقلاع وقرى ثلاثية الأبعاد تنمو أمام أعينهم وتوجههم ذكياً.</p>
           </div>
 
         </div>
@@ -733,20 +735,20 @@ export default function LandingPage() {
 
       {/* Call to Action Banner */}
       <section className="max-w-6xl mx-auto px-6 py-12 z-10 relative reveal">
-        <div className="bg-gradient-to-r from-[#0C2341] to-[#8B84D7] border border-white/10 rounded-[32px] p-10 md:p-14 text-white text-center shadow-2xl relative overflow-hidden">
+        <div className="bg-gradient-to-r from-[#0C2341]/95 via-[#1A365D]/95 to-[#5F57C7]/95 backdrop-blur-3xl border border-white/30 rounded-[36px] p-10 md:p-14 text-white text-center shadow-[0_30px_70px_rgba(12,35,65,0.4)] relative overflow-hidden">
           {/* Decorative glowing circles inside */}
-          <div className="absolute -left-20 -bottom-20 h-56 w-56 rounded-full bg-[#C66E4E]/20 blur-3xl pointer-events-none"></div>
-          <div className="absolute -right-20 -top-20 h-56 w-56 rounded-full bg-white/10 blur-3xl pointer-events-none"></div>
+          <div className="absolute -left-20 -bottom-20 h-56 w-56 rounded-full bg-[#C66E4E]/30 blur-3xl pointer-events-none"></div>
+          <div className="absolute -right-20 -top-20 h-56 w-56 rounded-full bg-white/15 blur-3xl pointer-events-none"></div>
           
           <div className="max-w-2xl mx-auto space-y-6 relative z-10">
-            <h3 className="text-2xl md:text-3xl font-black">جاهز لبناء مستقبل أطفالك المالي؟ 🍃</h3>
-            <p className="text-sm text-slate-200 leading-relaxed font-medium">
+            <h3 className="text-2xl md:text-3xl font-black text-white">جاهز لبناء مستقبل أطفالك المالي؟ 🍃</h3>
+            <p className="text-sm text-slate-100 leading-relaxed font-extrabold">
               انضم إلى آلاف العائلات السعودية ودع أطفالك يبنون أولى خطواتهم الاستثمارية والادخارية اليوم بطريقة تفاعلية وممتعة.
             </p>
             <div className="pt-4">
               <button
                 onClick={() => navigate('/login')}
-                className="px-8 py-4 bg-[#C66E4E] hover:bg-[#a65638] text-white text-sm font-black rounded-2xl shadow-lg transition-all hover:scale-105 active:scale-95 cursor-pointer font-sans"
+                className="px-8 py-4 bg-[#C66E4E] hover:bg-[#a65638] text-white text-sm font-black rounded-2xl shadow-xl transition-all hover:scale-105 active:scale-95 cursor-pointer font-sans"
               >
                 سجل عائلتك مجاناً الآن 🚀
               </button>
@@ -756,12 +758,12 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="py-12 border-t border-slate-200/10 text-center space-y-4">
-        <div className="flex items-center justify-center gap-2">
-          <span className="animate-float">🍃</span>
-          <span className="text-sm font-black">نماء العائلي - بوابة الحوكمة والاستثمار المشترك</span>
+      <footer className="py-12 z-10 relative text-center space-y-4">
+        <div className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-white/60 dark:border-white/20 shadow-lg">
+          <span className="animate-float text-xl">🍃</span>
+          <span className="text-xs md:text-sm font-black text-[#0C2341] dark:text-white">نماء العائلي - بوابة الحوكمة والاستثمار المشترك</span>
         </div>
-        <p className="text-[10px] text-slate-500">
+        <p className="text-[11px] font-bold text-slate-700 dark:text-slate-300">
           &copy; {new Date().getFullYear()} نماء. جميع الحقوق محفوظة لفريق GOTL.
         </p>
       </footer>
