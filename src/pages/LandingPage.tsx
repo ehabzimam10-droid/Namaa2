@@ -1,78 +1,67 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-export type BuildingType = 'bank' | 'market' | 'castle' | 'farm' | 'windmill';
+// Mini vector buildings for the landing page interactive simulation card
+const BankSVG = ({ level }: { level: number }) => (
+  <svg className="transition-all duration-500 ease-out hover:scale-105 cursor-pointer origin-bottom" width="48" height={36 + level * 8} viewBox="0 0 50 90" fill="none">
+    <rect x="5" y="80" width="40" height="10" rx="2" fill="#D97706" />
+    <rect x="9" y="40" width="6" height="40" fill="#B45309" opacity="0.9" />
+    <rect x="22" y="40" width="6" height="40" fill="#B45309" opacity="0.9" />
+    <rect x="35" y="40" width="6" height="40" fill="#B45309" opacity="0.9" />
+    <polygon points="2,40 25,12 48,40" fill="#F59E0B" />
+    {level >= 4 && <circle cx="25" cy="5" r="5" fill="#FBBF24" className="animate-bounce" />}
+  </svg>
+);
 
-export interface BuildingInfoItem {
-  id: BuildingType;
-  name: string;
-  pillar: string;
-  icon: string;
-  image: string;
-  accentColor: string;
-  badgeClass: string;
-  description: string;
-  impact: string;
-}
+const MarketSVG = ({ level }: { level: number }) => (
+  <svg className="transition-all duration-500 ease-out hover:scale-105 cursor-pointer origin-bottom" width="48" height={36 + level * 8} viewBox="0 0 50 90" fill="none">
+    <rect x="5" y="48" width="40" height="42" rx="4" fill="#6366F1" />
+    <rect x="15" y="62" width="20" height="28" rx="2" fill="#4F46E5" />
+    <rect x="2" y="38" width="46" height="12" rx="3" fill="#EC4899" />
+    {level >= 4 && <polygon points="25,38 25,10 38,18" fill="#FBBF24" />}
+    {level >= 4 && <line x1="25" y1="38" x2="25" y2="10" stroke="#FBBF24" strokeWidth="2" />}
+  </svg>
+);
 
-// Building configuration data for the interactive 3D Kingdom Explorer
-const BUILDINGS_INFO: Record<BuildingType, BuildingInfoItem> = {
-  bank: {
-    id: 'bank',
-    name: 'بنك ومخزن المدخرات',
-    pillar: 'الادخار والتوفير الذكي',
-    icon: '💰',
-    image: '/assets/buildings/bank.jpg',
-    accentColor: '#D97706',
-    badgeClass: 'bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30',
-    description: 'يتطور البنك وتزداد خزائنه الذهبية كلما حافظ الطفل على حصالته وقفل السحب لتحقيق أهدافه المستقبلية.',
-    impact: 'تنمية عادة الصبر وتأجيل الرغبات المالية'
-  },
-  market: {
-    id: 'market',
-    name: 'سوق الاستثمار والتجارة',
-    pillar: 'الاستثمار والشراكة العائلية',
-    icon: '📈',
-    image: '/assets/buildings/market.jpg',
-    accentColor: '#2563EB',
-    badgeClass: 'bg-blue-500/15 text-blue-700 dark:text-blue-300 border-blue-500/30',
-    description: 'تتوسع دكاكين ومتاجر السوق حين يشارك الطفل بجزء من مدخراته مع والده في مشاريع استثمارية بعوائد حقيقية.',
-    impact: 'فهم حركة رأس المال ومضاعفة الأرباح'
-  },
-  castle: {
-    id: 'castle',
-    name: 'قلعة المملكة العائلية',
-    pillar: 'التطور ودوري العائلة الأسبوعي',
-    icon: '🏰',
-    image: '/assets/buildings/castle.jpg',
-    accentColor: '#7C3AED',
-    badgeClass: 'bg-purple-500/15 text-purple-700 dark:text-purple-300 border-purple-500/30',
-    description: 'الرمز العام لهيبة وازدهار القرية وتتويج المتصدر في دوري نماء العائلي لحصد الأوسمة التقديرية.',
-    impact: 'تعزيز الفخر والمنافسة الإيجابية بين الإخوة'
-  },
-  farm: {
-    id: 'farm',
-    name: 'مزرعة وواحة الخير',
-    pillar: 'الصدقة والعطاء الإنساني',
-    icon: '🌳',
-    image: '/assets/buildings/farm.jpg',
-    accentColor: '#059669',
-    badgeClass: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30',
-    description: 'تزهر أشجار المزرعة وتفيض ينابيعها حين يخصص الطفل جزءاً من مصروفه للتبرع ومساعدة المحتاجين بموافقة الوالد.',
-    impact: 'ترسيخ البركة والمسؤولية الاجتماعية'
-  },
-  windmill: {
-    id: 'windmill',
-    name: 'طاحونة وورشة التحديات',
-    pillar: 'المهام اليومية والإنتاجية',
-    icon: '🌀',
-    image: '/assets/buildings/windmill.jpg',
-    accentColor: '#C66E4E',
-    badgeClass: 'bg-orange-500/15 text-orange-700 dark:text-orange-300 border-orange-500/30',
-    description: 'تدور شفرات الطاحونة بقوة مع كل مهمة دراسية أو منزلية ينجزها الطفل ويرسل صورتها لوالده لكسب المكافآت.',
-    impact: 'ربط الجهد الحقيقي بالعائد المالي'
-  }
-};
+const FarmSVG = ({ level }: { level: number }) => (
+  <svg className="transition-all duration-500 ease-out hover:scale-105 cursor-pointer origin-bottom" width="48" height={36 + level * 8} viewBox="0 0 50 90" fill="none">
+    <rect x="22" y="42" width="6" height="48" fill="#78350F" rx="2" />
+    <circle cx="25" cy="35" r={10 + level * 2} fill="#10B981" opacity="0.95" />
+    {level >= 3 && <circle cx="16" cy="26" r="8" fill="#059669" opacity="0.9" />}
+    {level >= 3 && <circle cx="34" cy="28" r="8" fill="#059669" opacity="0.9" />}
+    {level >= 4 && <circle cx="25" cy="20" r="2.5" fill="#EF4444" />}
+    {level >= 4 && <circle cx="15" cy="30" r="2.5" fill="#EF4444" />}
+    {level >= 4 && <circle cx="35" cy="24" r="2.5" fill="#EF4444" />}
+  </svg>
+);
+
+const WindmillSVG = ({ level }: { level: number }) => (
+  <svg className="transition-all duration-500 ease-out hover:scale-105 cursor-pointer origin-bottom" width="48" height={36 + level * 8} viewBox="0 0 50 90" fill="none">
+    <polygon points="12,90 18,32 32,32 38,90" fill="#64748B" />
+    <circle cx="25" cy="55" r="4" fill="#334155" />
+    <g style={{ animation: `windmill-spin ${6.5 - level}s linear infinite` }}>
+      <circle cx="0" cy="0" r="3.5" fill="#F59E0B" />
+      <line x1="0" y1="0" x2="0" y2="-24" stroke="#F59E0B" strokeWidth="2.5" strokeLinecap="round" />
+      <line x1="0" y1="0" x2="0" y2="24" stroke="#F59E0B" strokeWidth="2.5" strokeLinecap="round" />
+      <line x1="0" y1="0" x2="-24" y2="0" stroke="#F59E0B" strokeWidth="2.5" strokeLinecap="round" />
+      <line x1="0" y1="0" x2="24" y2="0" stroke="#F59E0B" strokeWidth="2.5" strokeLinecap="round" />
+    </g>
+  </svg>
+);
+
+const CastleSVG = ({ level }: { level: number }) => (
+  <svg className="transition-all duration-500 ease-out hover:scale-105 cursor-pointer origin-bottom" width="58" height={36 + level * 8} viewBox="0 0 60 90" fill="none">
+    <rect x="5" y="32" width="12" height="58" fill="#475569" rx="1" />
+    <polygon points="5,32 11,12 17,32" fill="#8B5CF6" />
+    <rect x="43" y="32" width="12" height="58" fill="#475569" rx="1" />
+    <polygon points="43,32 49,12 55,32" fill="#8B5CF6" />
+    <rect x="15" y="44" width="30" height="46" fill="#334155" rx="1" />
+    <rect x="18" y="37" width="5" height="7" fill="#1E293B" />
+    <rect x="27" y="37" width="5" height="7" fill="#1E293B" />
+    <rect x="36" y="37" width="5" height="7" fill="#1E293B" />
+    <path d="M24 90V76c0-3.3 2.7-6 6-6s6 2.7 6 6v14" fill="#0F172A" />
+  </svg>
+);
 
 export default function LandingPage() {
   const navigate = useNavigate();
@@ -86,9 +75,7 @@ export default function LandingPage() {
 
   const TOTAL_FRAMES = 240;
 
-  // Selected building for the interactive 3D Explorer
-  const [selectedBuildingKey, setSelectedBuildingKey] = useState<BuildingType>('bank');
-  const [buildingLevels, setBuildingLevels] = useState<Record<BuildingType, number>>({
+  const [demoLevels, setDemoLevels] = useState({
     bank: 4,      
     market: 2,    
     castle: 3,    
@@ -96,8 +83,8 @@ export default function LandingPage() {
     windmill: 5,  
   });
 
-  const incrementBuildingLevel = (key: BuildingType) => {
-    setBuildingLevels((prev) => ({
+  const incrementLevel = (key: keyof typeof demoLevels) => {
+    setDemoLevels((prev) => ({
       ...prev,
       [key]: prev[key] >= 5 ? 1 : prev[key] + 1,
     }));
@@ -242,29 +229,16 @@ export default function LandingPage() {
     }
   };
 
-  const bgClass = darkMode ? 'bg-slate-950 text-slate-100' : 'bg-[#F7F5EE] text-[#0C2341]';
+  const bgClass = darkMode ? 'bg-slate-950 text-slate-100' : 'bg-slate-950 text-white';
 
-  // Authentic Frosted Liquid Glass Cards
-  const cardBgClass = darkMode
-    ? 'bg-slate-900/80 backdrop-blur-xl border border-white/15 text-white shadow-[0_20px_50px_rgba(0,0,0,0.6)] hover:bg-slate-900/90 transition-all'
-    : 'bg-white/80 backdrop-blur-xl border border-white/80 text-[#0C2341] shadow-[0_20px_50px_rgba(12,35,65,0.12)] hover:bg-white/90 transition-all';
+  // Windows 11 Acrylic / Start Menu Dark Frosted Glass (Zero white tint, ultra-crisp white text)
+  const cardBgClass = 'bg-slate-950/75 backdrop-blur-2xl border border-white/15 text-white shadow-[0_20px_50px_rgba(0,0,0,0.6)] hover:bg-slate-900/85 hover:border-white/25 transition-all';
 
-  const headerClasses = `fixed left-0 right-0 mx-auto z-50 backdrop-blur-xl transition-premium ${
+  const headerClasses = `fixed left-0 right-0 mx-auto z-50 backdrop-blur-2xl transition-premium ${
     isScrolled
-      ? `top-4 w-[92%] max-w-4xl rounded-full border shadow-2xl px-6 py-2.5 ${
-          darkMode 
-            ? 'bg-slate-950/80 border-white/20 text-slate-100 shadow-black/50' 
-            : 'bg-white/80 border-white/80 text-[#0C2341] shadow-slate-900/10'
-        }`
-      : `top-0 w-full rounded-none border-b px-4 py-3.5 md:px-8 md:py-5 ${
-          darkMode 
-            ? 'bg-slate-950/70 border-white/10 text-slate-100' 
-            : 'bg-[#F7F5EE]/70 border-[#0C2341]/10 text-[#0C2341]'
-        }`
+      ? 'top-4 w-[92%] max-w-4xl rounded-full border border-white/15 bg-slate-950/80 text-white shadow-2xl shadow-black/60 px-6 py-3'
+      : 'top-0 w-full rounded-none border-b border-white/10 bg-slate-950/75 text-white px-4 py-4 md:px-8 md:py-5'
   }`;
-
-  const currentBuilding = BUILDINGS_INFO[selectedBuildingKey];
-  const currentBuildingLevel = buildingLevels[selectedBuildingKey];
 
   return (
     <div dir="rtl" className={`min-h-screen relative transition-colors duration-500 font-sans overflow-x-hidden ${bgClass}`}>
@@ -277,24 +251,18 @@ export default function LandingPage() {
           style={{ opacity: 1.0 }}
         />
 
-        {/* Subtle gradient overlay to enhance visual depth */}
-        <div
-          className={`absolute inset-0 transition-colors duration-700 pointer-events-none ${
-            darkMode
-              ? 'bg-gradient-to-b from-slate-950/50 via-transparent to-slate-950/70'
-              : 'bg-gradient-to-b from-black/15 via-transparent to-black/25'
-          }`}
-        />
+        {/* Very subtle vignette for natural depth */}
+        <div className="absolute inset-0 bg-gradient-to-b from-slate-950/40 via-transparent to-slate-950/70 pointer-events-none" />
       </div>
 
-      {/* Floating Interactive Village Level Indicator Badge (Apple Liquid Glass) */}
-      <div className="fixed bottom-6 right-6 z-40 hidden md:flex items-center gap-3 bg-white/85 dark:bg-slate-900/85 backdrop-blur-xl border border-white/80 dark:border-white/20 px-4 py-2.5 rounded-full shadow-2xl animate-fade-in font-sans">
-        <span className="text-base animate-bounce">
+      {/* Floating Interactive Village Level Indicator Badge (Windows Acrylic Glass) */}
+      <div className="fixed bottom-6 right-6 z-40 hidden md:flex items-center gap-3 bg-slate-950/80 backdrop-blur-2xl border border-white/20 text-white px-5 py-3 rounded-full shadow-2xl animate-fade-in font-sans">
+        <span className="text-xl animate-bounce">
           {villageStatus.icon}
         </span>
         <div className="text-right">
-          <span className="text-[9px] font-extrabold text-slate-700 dark:text-slate-300 block leading-tight">مستوى القرية بالخلفية (محاكاة التمرير)</span>
-          <span className="text-xs font-black text-[#C66E4E] dark:text-[#E88D6A]">
+          <span className="text-[11px] font-bold text-slate-300 block leading-tight">مستوى القرية بالخلفية (محاكاة التمرير)</span>
+          <span className="text-sm font-black text-amber-400">
             {villageStatus.label}
           </span>
         </div>
@@ -343,14 +311,9 @@ export default function LandingPage() {
         .transition-premium {
           transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        
-        /* Hide scrollbar for tabs on mobile */
-        .no-scrollbar::-webkit-scrollbar {
-          display: none;
-        }
-        .no-scrollbar {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
+        @keyframes windmill-spin {
+          0% { transform: translate(25px, 32px) rotate(0deg); }
+          100% { transform: translate(25px, 32px) rotate(360deg); }
         }
 
         html {
@@ -360,27 +323,27 @@ export default function LandingPage() {
 
       {/* Decorative blurred background blobs */}
       <div className="absolute inset-0 pointer-events-none opacity-30 z-0 overflow-hidden">
-        <div className="absolute top-[-10%] right-[-5%] w-[600px] h-[600px] rounded-full bg-[#C66E4E]/15 blur-[150px]"></div>
-        <div className="absolute bottom-[20%] left-[-10%] w-[500px] h-[500px] rounded-full bg-[#8B84D7]/15 blur-[150px]"></div>
+        <div className="absolute top-[-10%] right-[-5%] w-[600px] h-[600px] rounded-full bg-[#C66E4E]/20 blur-[150px]"></div>
+        <div className="absolute bottom-[20%] left-[-10%] w-[500px] h-[500px] rounded-full bg-[#8B84D7]/20 blur-[150px]"></div>
       </div>
 
-      {/* Floating / Glassmorphic Header */}
+      {/* Floating / Glassmorphic Header (Windows Acrylic) */}
       <header className={headerClasses}>
         <div className="max-w-6xl mx-auto flex justify-between items-center w-full">
           
           {/* Logo */}
           <div className="flex items-center gap-2.5">
             <span className="text-3xl animate-float">🍃</span>
-            <span className="text-xl font-black bg-gradient-to-r from-[#C66E4E] to-[#8B84D7] bg-clip-text text-transparent">
+            <span className="text-2xl font-black bg-gradient-to-r from-amber-400 via-orange-400 to-purple-400 bg-clip-text text-transparent">
               نماء العائلي
             </span>
           </div>
 
           {/* Navigation Links */}
-          <nav className="hidden md:flex items-center gap-8 text-sm font-black">
-            <button onClick={() => scrollToSection('features')} className="hover:text-[#C66E4E] transition-colors cursor-pointer text-[#0C2341] dark:text-white">المميزات</button>
-            <button onClick={() => scrollToSection('showcase')} className="hover:text-[#C66E4E] transition-colors cursor-pointer text-[#0C2341] dark:text-white">الأقسام واللوحات</button>
-            <button onClick={() => scrollToSection('how-it-works')} className="hover:text-[#C66E4E] transition-colors cursor-pointer text-[#0C2341] dark:text-white">كيف نعمل</button>
+          <nav className="hidden md:flex items-center gap-8 text-base font-black">
+            <button onClick={() => scrollToSection('features')} className="text-slate-100 hover:text-amber-400 transition-colors cursor-pointer">المميزات</button>
+            <button onClick={() => scrollToSection('showcase')} className="text-slate-100 hover:text-amber-400 transition-colors cursor-pointer">الأقسام واللوحات</button>
+            <button onClick={() => scrollToSection('how-it-works')} className="text-slate-100 hover:text-amber-400 transition-colors cursor-pointer">كيف نعمل</button>
           </nav>
 
           {/* Actions */}
@@ -389,11 +352,7 @@ export default function LandingPage() {
             {/* Theme Toggle Button */}
             <button
               onClick={() => setDarkMode(!darkMode)}
-              className={`p-2.5 rounded-xl border transition-all active:scale-95 cursor-pointer flex items-center justify-center ${
-                darkMode 
-                  ? 'bg-slate-800 border-white/20 text-yellow-300 hover:bg-slate-700' 
-                  : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
-              }`}
+              className="p-2.5 rounded-xl border border-white/20 bg-slate-900/80 text-yellow-300 hover:bg-slate-800 transition-all active:scale-95 cursor-pointer flex items-center justify-center"
               title={darkMode ? 'تفعيل الوضع المضيء' : 'تفعيل الوضع المظلم'}
             >
               {darkMode ? (
@@ -412,7 +371,7 @@ export default function LandingPage() {
             {/* Login Button */}
             <button
               onClick={() => navigate('/login')}
-              className="px-5 py-2.5 text-xs md:text-sm font-black bg-[#0C2341] hover:bg-[#8B84D7] text-white rounded-xl transition-all shadow-lg active:scale-95 cursor-pointer font-sans"
+              className="px-6 py-2.5 text-sm font-black bg-gradient-to-r from-[#C66E4E] to-[#8B84D7] hover:opacity-90 text-white rounded-xl transition-all shadow-lg active:scale-95 cursor-pointer font-sans"
             >
               تسجيل الدخول ➜
             </button>
@@ -424,135 +383,129 @@ export default function LandingPage() {
       {/* Hero Section */}
       <section className="relative max-w-6xl mx-auto px-6 pt-32 pb-20 md:pt-40 md:pb-28 grid grid-cols-1 lg:grid-cols-2 gap-10 items-center z-10">
         
-        {/* Left Content Card */}
+        {/* Left Content Card (Windows Acrylic Glass) */}
         <div className={`p-8 md:p-10 rounded-[36px] space-y-6 text-right reveal ${cardBgClass}`}>
           <div className="space-y-3">
-            <span className="inline-block px-3.5 py-1.5 rounded-full bg-[#C66E4E]/15 text-[#C66E4E] dark:text-[#FFA07A] text-xs font-black border border-[#C66E4E]/30">
+            <span className="inline-block px-4 py-1.5 rounded-full bg-amber-500/20 text-amber-300 text-xs md:text-sm font-black border border-amber-500/30">
               🌱 الجيل القادم من الوعي المالي العائلي
             </span>
-            <h1 className="text-3xl md:text-5xl font-black leading-tight text-[#0C2341] dark:text-white drop-shadow-sm">
+            <h1 className="text-3xl md:text-5xl font-black leading-tight text-white drop-shadow-md">
               ابنِ وعي أطفالك المالي عبر <br />
-              <span className="bg-gradient-to-r from-[#C66E4E] via-[#8B84D7] to-[#0C2341] dark:from-[#FFA07A] dark:to-[#C4B5FD] bg-clip-text text-transparent font-black block mt-2">
+              <span className="bg-gradient-to-r from-amber-400 via-orange-400 to-purple-400 bg-clip-text text-transparent font-black block mt-2">
                 مملكة افتراضية ثلاثية الأبعاد
               </span>
             </h1>
           </div>
 
-          <p className="text-sm md:text-base leading-relaxed font-bold text-slate-800 dark:text-slate-200">
+          <p className="text-base md:text-lg leading-relaxed font-bold text-slate-200">
             نماء هي منصة مالية عائلية متكاملة تدمج بين محاكاة الألعاب ثلاثية الأبعاد والذكاء الاصطناعي لتدريب الأطفال على الادخار والاستثمار ومشاركة الخير والمبادرة في مهام المنزل بطريقة ممتعة وفاعلة.
           </p>
           
           <div className="flex flex-wrap gap-4 pt-4">
             <button
               onClick={() => navigate('/login')}
-              className="px-7 py-4 bg-[#C66E4E] hover:bg-[#a65638] text-white text-sm font-black rounded-2xl shadow-xl transition-all hover:scale-105 active:scale-95 cursor-pointer font-sans"
+              className="px-8 py-4 bg-[#C66E4E] hover:bg-[#a65638] text-white text-base font-black rounded-2xl shadow-2xl transition-all hover:scale-105 active:scale-95 cursor-pointer font-sans"
             >
               ابدأ تجربة المنصة الآن 🚀
             </button>
             <button
               onClick={() => scrollToSection('features')}
-              className={`px-6 py-4 border rounded-2xl text-sm font-black transition-all active:scale-95 flex items-center justify-center hover:scale-105 cursor-pointer ${
-                darkMode 
-                  ? 'border-white/20 hover:bg-white/10 text-white bg-slate-800/60' 
-                  : 'border-slate-300 hover:bg-slate-100 text-[#0C2341] bg-white/70 shadow-sm'
-              }`}
+              className="px-7 py-4 border border-white/20 bg-slate-900/60 hover:bg-slate-800 text-white rounded-2xl text-base font-black transition-all active:scale-95 flex items-center justify-center hover:scale-105 cursor-pointer shadow-md"
             >
               استكشف المزايا ⬇️
             </button>
           </div>
         </div>
 
-        {/* Right Visual: Interactive 3D Kingdom Building Explorer (Nano Banana Pro 3D Assets) */}
+        {/* Right Visual: Restored Interactive Village 3D Graphic Mockup Card */}
         <div className="relative flex justify-center items-center reveal reveal-delay-2 w-full">
-          <div className="absolute inset-0 bg-gradient-to-r from-[#8B84D7]/25 to-[#C66E4E]/25 rounded-full blur-[80px] pointer-events-none"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-[#8B84D7]/30 to-[#C66E4E]/30 rounded-full blur-[80px] pointer-events-none"></div>
           
-          {/* Main 3D Interactive Card */}
-          <div className={`relative w-full max-w-lg p-6 md:p-8 rounded-[36px] border transition-all duration-500 shadow-2xl ${cardBgClass}`}>
+          {/* Card Mockup representing the 3D visual */}
+          <div className={`relative w-full max-w-lg p-6 md:p-8 rounded-[36px] border transition-all duration-500 hover:scale-[1.02] hover:-translate-y-1 ${cardBgClass}`}>
             
-            {/* Card Top Bar */}
-            <div className="flex justify-between items-center border-b border-slate-200/80 dark:border-white/10 pb-4 mb-4">
-              <div className="flex items-center gap-2">
-                <span className={`text-[10px] md:text-xs font-black px-3 py-1 rounded-full border ${currentBuilding.badgeClass}`}>
-                  {currentBuilding.pillar}
-                </span>
-              </div>
+            {/* Visual Header */}
+            <div className="flex justify-between items-center border-b border-white/15 pb-4 mb-4 flex-row-reverse">
+              <span className="text-2xl animate-float">🏰</span>
               <div className="text-right">
-                <span className="text-[10px] text-slate-500 dark:text-slate-400 font-bold block">مستكشف مباني المملكة (3D)</span>
-                <span className="text-sm font-black text-[#0C2341] dark:text-white flex items-center gap-1.5 justify-end">
-                  {currentBuilding.name} {currentBuilding.icon}
-                </span>
+                <span className="text-xs text-slate-300 font-bold block">مملكة نماء العائلية</span>
+                <span className="text-sm md:text-base font-black text-white block">القرية ثلاثية الأبعاد (3D Interactive)</span>
               </div>
             </div>
 
-            {/* 3D Asset Preview Display Area */}
-            <div className="relative w-full h-56 md:h-64 rounded-2xl overflow-hidden bg-gradient-to-b from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900 border border-slate-200/80 dark:border-white/10 shadow-inner flex items-center justify-center group">
+            {/* Simulated 3D Graphic Box */}
+            <div className="h-56 w-full bg-[#0A1120] rounded-2xl border border-white/15 overflow-hidden flex flex-col justify-end p-4 relative shadow-inner">
               
-              {/* Background ambient lighting */}
-              <div className="absolute inset-0 bg-gradient-to-tr from-amber-500/10 via-transparent to-purple-500/10 pointer-events-none"></div>
-              
-              {/* High-Resolution 3D Building Render (Nano Banana Pro) */}
-              <img
-                src={currentBuilding.image}
-                alt={currentBuilding.name}
-                className="w-full h-full object-contain p-2 transition-all duration-700 group-hover:scale-105 select-none drop-shadow-2xl"
-              />
-
-              {/* Floating Level Badge */}
-              <div className="absolute top-3 right-3 bg-slate-900/85 backdrop-blur-md text-white border border-white/20 px-3 py-1 rounded-full text-xs font-black shadow-lg flex items-center gap-1.5">
-                <span className="text-amber-400">★</span>
-                <span>المستوى {currentBuildingLevel} / 5</span>
+              {/* Stars animation */}
+              <div className="absolute inset-0 pointer-events-none opacity-50">
+                <div className="absolute top-4 left-6 w-1.5 h-1.5 bg-white rounded-full"></div>
+                <div className="absolute top-10 right-12 w-2 h-2 bg-yellow-200 rounded-full"></div>
+                <div className="absolute top-24 left-20 w-1.5 h-1.5 bg-white rounded-full"></div>
+                <div className="absolute top-14 left-44 w-1 h-1 bg-amber-300 rounded-full"></div>
               </div>
 
-              {/* Interactive Upgrade Trigger */}
-              <button
-                onClick={() => incrementBuildingLevel(selectedBuildingKey)}
-                className="absolute bottom-3 left-3 bg-[#C66E4E] hover:bg-[#a65638] text-white px-4 py-2 rounded-xl text-xs font-black shadow-xl transition-all hover:scale-105 active:scale-95 cursor-pointer flex items-center gap-1.5"
-                title="انقر لترقية المبنى وتجربة تأثير التطور"
-              >
-                <span>🚀 ترقية المبنى</span>
-                <span className="text-[10px] bg-black/20 px-1.5 py-0.5 rounded-md">+{currentBuildingLevel}</span>
-              </button>
-            </div>
-
-            {/* Building Info & Educational Impact */}
-            <div className="mt-4 space-y-3">
-              <p className="text-xs font-bold text-slate-700 dark:text-slate-300 leading-relaxed text-right">
-                {currentBuilding.description}
-              </p>
-              
-              <div className="p-3 rounded-xl bg-slate-100/80 dark:bg-slate-800/80 border border-slate-200/60 dark:border-white/10 flex items-center justify-between text-right">
-                <span className="text-[11px] font-black text-emerald-700 dark:text-emerald-400">
-                  {currentBuilding.impact}
-                </span>
-                <span className="text-[10px] text-slate-500 dark:text-slate-400 font-bold">الأثر المالي:</span>
+              {/* Graphic SVG buildings elements */}
+              <div className="w-full flex justify-around items-end z-10 pb-2">
+                <div className="flex flex-col items-center gap-1.5">
+                  <BankSVG level={demoLevels.bank} />
+                  <span className="text-[11px] text-amber-300 font-black">الادخار ({demoLevels.bank}/5)</span>
+                </div>
+                <div className="flex flex-col items-center gap-1.5">
+                  <MarketSVG level={demoLevels.market} />
+                  <span className="text-[11px] text-blue-300 font-black">الاستثمار ({demoLevels.market}/5)</span>
+                </div>
+                <div className="flex flex-col items-center gap-1.5">
+                  <CastleSVG level={demoLevels.castle} />
+                  <span className="text-[11px] text-purple-300 font-black animate-pulse-ring">القلعة ({demoLevels.castle}/5)</span>
+                </div>
+                <div className="flex flex-col items-center gap-1.5">
+                  <FarmSVG level={demoLevels.farm} />
+                  <span className="text-[11px] text-emerald-300 font-black">الخير ({demoLevels.farm}/5)</span>
+                </div>
+                <div className="flex flex-col items-center gap-1.5">
+                  <WindmillSVG level={demoLevels.windmill} />
+                  <span className="text-[11px] text-orange-300 font-black">المهام ({demoLevels.windmill}/5)</span>
+                </div>
               </div>
+              <div className="w-full h-4 bg-emerald-700/80 rounded-b-lg border-t border-emerald-500/40"></div>
             </div>
 
-            {/* 5 Building Selector Tabs (Responsive, High-contrast, Mobile-Friendly) */}
-            <div className="mt-5 pt-4 border-t border-slate-200/80 dark:border-white/10 space-y-2">
-              <span className="text-[10px] text-slate-500 dark:text-slate-400 font-extrabold block text-right">
-                💡 اختر المبنى للاستكشاف والترقية:
+            {/* Values indicators (Clickable to adjust levels) */}
+            <div className="space-y-3 mt-5 select-none">
+              <span className="text-xs text-amber-300 font-black block text-right">
+                💡 انقر على الأزرار بالأسفل لتطوير مباني القرية وتجربتها:
               </span>
-              
-              <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar md:grid md:grid-cols-5 md:overflow-visible">
-                {(Object.keys(BUILDINGS_INFO) as Array<keyof typeof BUILDINGS_INFO>).map((key) => {
-                  const b = BUILDINGS_INFO[key];
-                  const isSelected = selectedBuildingKey === key;
-                  return (
-                    <button
-                      key={key}
-                      onClick={() => setSelectedBuildingKey(key)}
-                      className={`px-3 py-2 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1 shrink-0 cursor-pointer ${
-                        isSelected
-                          ? 'bg-[#0C2341] dark:bg-white text-white dark:text-[#0C2341] shadow-lg scale-105 border border-transparent'
-                          : 'bg-white/80 dark:bg-slate-800/80 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-white/15 hover:bg-white dark:hover:bg-slate-700'
-                      }`}
-                    >
-                      <span>{b.icon}</span>
-                      <span className="truncate">{key === 'bank' ? 'الادخار' : key === 'market' ? 'الاستثمار' : key === 'castle' ? 'القلعة' : key === 'farm' ? 'الخير' : 'المهام'}</span>
-                    </button>
-                  );
-                })}
+              <div className="grid grid-cols-5 gap-2 text-xs text-center">
+                <button 
+                  onClick={() => incrementLevel('bank')}
+                  className="bg-amber-500/25 hover:bg-amber-500/40 text-amber-300 p-2.5 rounded-xl font-black transition-all hover:scale-105 active:scale-95 cursor-pointer border border-amber-500/40 shadow-md"
+                >
+                  💰 الادخار
+                </button>
+                <button 
+                  onClick={() => incrementLevel('market')}
+                  className="bg-blue-500/25 hover:bg-blue-500/40 text-blue-300 p-2.5 rounded-xl font-black transition-all hover:scale-105 active:scale-95 cursor-pointer border border-blue-500/40 shadow-md"
+                >
+                  📈 الاستثمار
+                </button>
+                <button 
+                  onClick={() => incrementLevel('castle')}
+                  className="bg-purple-500/25 hover:bg-purple-500/40 text-purple-300 p-2.5 rounded-xl font-black transition-all hover:scale-105 active:scale-95 cursor-pointer border border-purple-500/40 shadow-md"
+                >
+                  🏰 القلعة
+                </button>
+                <button 
+                  onClick={() => incrementLevel('farm')}
+                  className="bg-emerald-500/25 hover:bg-emerald-500/40 text-emerald-300 p-2.5 rounded-xl font-black transition-all hover:scale-105 active:scale-95 cursor-pointer border border-emerald-500/40 shadow-md"
+                >
+                  🌳 الخير
+                </button>
+                <button 
+                  onClick={() => incrementLevel('windmill')}
+                  className="bg-orange-500/25 hover:bg-orange-500/40 text-orange-300 p-2.5 rounded-xl font-black transition-all hover:scale-105 active:scale-95 cursor-pointer border border-orange-500/40 shadow-md"
+                >
+                  🌀 المهام
+                </button>
               </div>
             </div>
 
@@ -564,10 +517,10 @@ export default function LandingPage() {
       {/* Bento Grid Features Section */}
       <section id="features" className="max-w-6xl mx-auto px-6 py-20 z-10 relative space-y-12">
         {/* Section Header Card */}
-        <div className="max-w-xl mx-auto p-6 md:p-8 rounded-[32px] backdrop-blur-md text-center space-y-3 reveal border shadow-xl bg-white/20 dark:bg-slate-900/50 border-white/50 dark:border-white/15">
-          <span className="text-xs font-black text-[#C66E4E] tracking-widest block">أركان المنصة الأساسية</span>
-          <h2 className="text-2xl md:text-3xl font-black text-[#0C2341] dark:text-white">تصميم ذكي ومزايا تفاعلية متكاملة</h2>
-          <p className="text-sm font-bold text-slate-800 dark:text-slate-200">
+        <div className={`max-w-2xl mx-auto p-8 rounded-[32px] text-center space-y-3 reveal ${cardBgClass}`}>
+          <span className="text-sm font-black text-amber-400 tracking-widest block">أركان المنصة الأساسية</span>
+          <h2 className="text-3xl font-black text-white">تصميم ذكي ومزايا تفاعلية متكاملة</h2>
+          <p className="text-base font-bold text-slate-200">
             نهدف لتبسيط المفاهيم المالية الصعبة مثل الاستثمار وإدارة الميزانيات والعمل الخيري للأطفال عبر تجارب محفزة.
           </p>
         </div>
@@ -576,60 +529,60 @@ export default function LandingPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           
           {/* Card 1: 3D Village (Big span) */}
-          <div className={`md:col-span-2 p-8 rounded-[32px] border flex flex-col justify-between min-h-[300px] transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:border-[#C66E4E]/40 reveal reveal-delay-1 ${cardBgClass}`}>
+          <div className={`md:col-span-2 p-8 md:p-10 rounded-[32px] border flex flex-col justify-between min-h-[320px] transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:border-amber-400/40 reveal reveal-delay-1 ${cardBgClass}`}>
             <div className="space-y-4">
-              <div className="text-4xl animate-float">🏡✨</div>
-              <h3 className="text-xl font-black text-[#0C2341] dark:text-white">القرية والمملكة ثلاثية الأبعاد (3D Visuals)</h3>
-              <p className="text-sm font-bold text-slate-800 dark:text-slate-200 leading-relaxed">
+              <div className="text-5xl animate-float">🏡✨</div>
+              <h3 className="text-2xl font-black text-white">القرية والمملكة ثلاثية الأبعاد (3D Visuals)</h3>
+              <p className="text-base font-bold text-slate-200 leading-relaxed">
                 شاهد مدخراتك ومساهماتك تتحول لمباني ومزارع وقصور أسطورية ثلاثية الأبعاد تتفاعل وتنمو معك. يمكن للأبناء اللعب بها، ويستطيع الأب متابعة ورعاية تطورها مباشرة من لوحته.
               </p>
             </div>
             <div className="mt-6 flex gap-2">
-              <span className="bg-amber-500/15 px-3 py-1 rounded-full text-amber-700 dark:text-amber-400 text-xs font-black border border-amber-500/30">Three.js</span>
-              <span className="bg-violet-500/15 px-3 py-1 rounded-full text-violet-700 dark:text-violet-400 text-xs font-black border border-violet-500/30">React Three Fiber</span>
+              <span className="bg-amber-500/20 px-4 py-1.5 rounded-full text-amber-300 text-xs font-black border border-amber-500/30">Three.js</span>
+              <span className="bg-purple-500/20 px-4 py-1.5 rounded-full text-purple-300 text-xs font-black border border-purple-500/30">React Three Fiber</span>
             </div>
           </div>
 
           {/* Card 2: AI Gemini Advisor */}
-          <div className={`p-8 rounded-[32px] border flex flex-col justify-between min-h-[300px] transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:border-[#8B84D7]/40 reveal reveal-delay-2 ${cardBgClass}`}>
+          <div className={`p-8 rounded-[32px] border flex flex-col justify-between min-h-[320px] transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:border-purple-400/40 reveal reveal-delay-2 ${cardBgClass}`}>
             <div className="space-y-4">
-              <div className="text-4xl">🤖🔮</div>
-              <h3 className="text-xl font-black text-[#0C2341] dark:text-white">المستشار المالي الذكي</h3>
-              <p className="text-sm font-bold text-slate-800 dark:text-slate-200 leading-relaxed">
+              <div className="text-5xl">🤖🔮</div>
+              <h3 className="text-2xl font-black text-white">المستشار المالي الذكي</h3>
+              <p className="text-base font-bold text-slate-200 leading-relaxed">
                 تحليل ذكي مدعوم بمجسمات الذكاء الاصطناعي من Google Gemini يقدم للأبناء نصائح تفاعلية، وللآباء إرشادات تربوية لتوجيه أداء أبنائهم.
               </p>
             </div>
             <div className="mt-6">
-              <span className="bg-purple-500/15 px-3 py-1 rounded-full text-purple-700 dark:text-purple-400 text-xs font-black border border-purple-500/30">Gemini 3.5 Flash</span>
+              <span className="bg-purple-500/20 px-4 py-1.5 rounded-full text-purple-300 text-xs font-black border border-purple-500/30">Gemini 3.5 Flash</span>
             </div>
           </div>
 
           {/* Card 3: Family League */}
-          <div className={`p-8 rounded-[32px] border flex flex-col justify-between min-h-[300px] transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:border-[#8B84D7]/40 reveal reveal-delay-1 ${cardBgClass}`}>
+          <div className={`p-8 rounded-[32px] border flex flex-col justify-between min-h-[320px] transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:border-orange-400/40 reveal reveal-delay-1 ${cardBgClass}`}>
             <div className="space-y-4">
-              <div className="text-4xl animate-float-delayed">🏆⚔️</div>
-              <h3 className="text-xl font-black text-[#0C2341] dark:text-white">دوري العائلة الأسبوعي</h3>
-              <p className="text-sm font-bold text-slate-800 dark:text-slate-200 leading-relaxed">
+              <div className="text-5xl animate-float-delayed">🏆⚔️</div>
+              <h3 className="text-2xl font-black text-white">دوري العائلة الأسبوعي</h3>
+              <p className="text-base font-bold text-slate-200 leading-relaxed">
                 تحديات ممتعة وتنافسية بين الأبناء تشجعهم على التوفير وإكمال المهام لحصد المكافآت الأسبوعية المصروفة ذكياً.
               </p>
             </div>
             <div className="mt-6">
-              <span className="bg-[#C66E4E]/15 px-3 py-1 rounded-full text-[#C66E4E] text-xs font-black border border-[#C66E4E]/30">Gamification</span>
+              <span className="bg-orange-500/20 px-4 py-1.5 rounded-full text-orange-300 text-xs font-black border border-orange-500/30">Gamification</span>
             </div>
           </div>
 
           {/* Card 4: Investments & Savings (Big span) */}
-          <div className={`md:col-span-2 p-8 rounded-[32px] border flex flex-col justify-between min-h-[300px] transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:border-[#C66E4E]/40 reveal reveal-delay-2 ${cardBgClass}`}>
+          <div className={`md:col-span-2 p-8 md:p-10 rounded-[32px] border flex flex-col justify-between min-h-[320px] transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:border-emerald-400/40 reveal reveal-delay-2 ${cardBgClass}`}>
             <div className="space-y-4">
-              <div className="text-4xl">📈💚</div>
-              <h3 className="text-xl font-black text-[#0C2341] dark:text-white">حصالات الادخار ومشاريع الاستثمار المشترك</h3>
-              <p className="text-sm font-bold text-slate-800 dark:text-slate-200 leading-relaxed">
+              <div className="text-5xl">📈💚</div>
+              <h3 className="text-2xl font-black text-white">حصالات الادخار ومشاريع الاستثمار المشترك</h3>
+              <p className="text-base font-bold text-slate-200 leading-relaxed">
                 حصالات ذكية تتيح للأبناء وضع أهداف وحظر سحبها لضمان التوفير، مع إمكانية مساهمة الأبناء مع الأب في مشاريع استثمار عائلية بفائدة وعائد ربحي، ليتعلم الأطفال معنى تنمية المال.
               </p>
             </div>
             <div className="mt-6 flex gap-2">
-              <span className="bg-orange-500/15 px-3 py-1 rounded-full text-orange-700 dark:text-orange-400 text-xs font-black border border-orange-500/30">الادخار الذكي</span>
-              <span className="bg-emerald-500/15 px-3 py-1 rounded-full text-emerald-700 dark:text-emerald-400 text-xs font-black border border-emerald-500/30">الاستثمار العائلي</span>
+              <span className="bg-orange-500/20 px-4 py-1.5 rounded-full text-orange-300 text-xs font-black border border-orange-500/30">الادخار الذكي</span>
+              <span className="bg-emerald-500/20 px-4 py-1.5 rounded-full text-emerald-300 text-xs font-black border border-emerald-500/30">الاستثمار العائلي</span>
             </div>
           </div>
 
@@ -640,10 +593,10 @@ export default function LandingPage() {
       <section id="showcase" className="max-w-6xl mx-auto px-6 py-20 z-10 relative space-y-16">
         
         {/* Section Header Card */}
-        <div className="max-w-xl mx-auto p-6 md:p-8 rounded-[32px] backdrop-blur-md text-center space-y-3 reveal border shadow-xl bg-white/20 dark:bg-slate-900/50 border-white/50 dark:border-white/15">
-          <span className="text-xs font-black text-[#5F57C7] dark:text-[#8B84D7] tracking-widest block">دليل المزايا والوظائف</span>
-          <h2 className="text-2xl md:text-3xl font-black text-[#0C2341] dark:text-white">تجربة متكاملة للأبناء والآباء</h2>
-          <p className="text-sm font-bold text-slate-800 dark:text-slate-200">
+        <div className={`max-w-2xl mx-auto p-8 rounded-[32px] text-center space-y-3 reveal ${cardBgClass}`}>
+          <span className="text-sm font-black text-purple-400 tracking-widest block">دليل المزايا والوظائف</span>
+          <h2 className="text-3xl font-black text-white">تجربة متكاملة للأبناء والآباء</h2>
+          <p className="text-base font-bold text-slate-200">
             تتوزع وظائف نماء لتضمن حوكمة عائلية مالية سهلة للأب، ورحلة تعليمية تفاعلية ممتعة للأطفال.
           </p>
         </div>
@@ -652,63 +605,63 @@ export default function LandingPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           
           {/* Card A: Father Panel */}
-          <div className={`p-8 rounded-[32px] border shadow-2xl flex flex-col justify-between space-y-6 transition-all duration-300 hover:scale-[1.02] ${cardBgClass} reveal`}>
+          <div className={`p-8 md:p-10 rounded-[32px] border shadow-2xl flex flex-col justify-between space-y-6 transition-all duration-300 hover:scale-[1.02] ${cardBgClass} reveal`}>
             <div className="space-y-4">
               <div className="flex justify-between items-center">
-                <span className="text-3xl">👨‍💼</span>
-                <span className="text-[10px] font-black text-[#C66E4E] px-3 py-1 bg-[#C66E4E]/15 rounded-full border border-[#C66E4E]/30">لوحة التحكم للأب</span>
+                <span className="text-4xl">👨‍💼</span>
+                <span className="text-xs font-black text-orange-300 px-3.5 py-1.5 bg-orange-500/20 rounded-full border border-orange-500/30">لوحة التحكم للأب</span>
               </div>
-              <h3 className="text-xl font-black text-[#C66E4E]">إشراف مالي وحوكمة متكاملة</h3>
-              <p className="text-xs font-bold text-slate-800 dark:text-slate-200 leading-relaxed">
+              <h3 className="text-2xl font-black text-amber-400">إشراف مالي وحوكمة متكاملة</h3>
+              <p className="text-sm font-bold text-slate-200 leading-relaxed">
                 يملك الأب الصلاحية الكاملة لإدارة مصروفات الأبناء وتحفيزهم من خلال:
               </p>
-              <ul className="text-xs space-y-3 pr-4 list-disc text-right font-extrabold text-slate-800 dark:text-slate-100">
-                <li><strong className="text-[#C66E4E] font-black">إدارة المهام اليومية:</strong> إضافة مهام (كالدراسة أو المساعدة) وربطها بمكافأة مالية فورية عند الإنجاز.</li>
-                <li><strong className="text-[#C66E4E] font-black">المشاريع الاستثمارية:</strong> إنشاء مشاريع استثمار عائلية بفائدة وعوائد ربحية محددة يشارك بها الأبناء.</li>
-                <li><strong className="text-[#C66E4E] font-black">إقرار طلبات الصدقة:</strong> مراقبة وإقرار تبرعات الأبناء لتعزيز الروح الإنسانية.</li>
-                <li><strong className="text-[#C66E4E] font-black">دوري نماء العائلي:</strong> تتويج الأبناء بالأوسمة ودفع مكافآت التميز تلقائياً.</li>
-                <li><strong className="text-[#C66E4E] font-black">إقرار مكافآت الشركاء:</strong> متابعة طلبات استرداد الأبناء لبطاقات سوني وجرير وتلقي الإشعارات الفورية.</li>
+              <ul className="text-sm space-y-3 pr-4 list-disc text-right font-bold text-slate-200">
+                <li><strong className="text-amber-300 font-black">إدارة المهام اليومية:</strong> إضافة مهام وربطها بمكافأة مالية فورية عند الإنجاز.</li>
+                <li><strong className="text-amber-300 font-black">المشاريع الاستثمارية:</strong> إنشاء مشاريع استثمار عائلية بعوائد محددة يشارك بها الأبناء.</li>
+                <li><strong className="text-amber-300 font-black">إقرار طلبات الصدقة:</strong> مراقبة وإقرار تبرعات الأبناء لتعزيز الروح الإنسانية.</li>
+                <li><strong className="text-amber-300 font-black">دوري نماء العائلي:</strong> تتويج الأبناء بالأوسمة ودفع مكافآت التميز تلقائياً.</li>
+                <li><strong className="text-amber-300 font-black">إقرار مكافآت الشركاء:</strong> متابعة طلبات استرداد الأبناء لبطاقات سوني وجرير.</li>
               </ul>
             </div>
           </div>
 
           {/* Card B: Kid Panel */}
-          <div className={`p-8 rounded-[32px] border shadow-2xl flex flex-col justify-between space-y-6 transition-all duration-300 hover:scale-[1.02] ${cardBgClass} reveal reveal-delay-1`}>
+          <div className={`p-8 md:p-10 rounded-[32px] border shadow-2xl flex flex-col justify-between space-y-6 transition-all duration-300 hover:scale-[1.02] ${cardBgClass} reveal reveal-delay-1`}>
             <div className="space-y-4">
               <div className="flex justify-between items-center">
-                <span className="text-3xl">👦</span>
-                <span className="text-[10px] font-black text-[#5F57C7] dark:text-[#8B84D7] px-3 py-1 bg-[#8B84D7]/15 rounded-full border border-[#8B84D7]/30">لوحة تفاعل الابن</span>
+                <span className="text-4xl">👦</span>
+                <span className="text-xs font-black text-purple-300 px-3.5 py-1.5 bg-purple-500/20 rounded-full border border-purple-500/30">لوحة تفاعل الابن</span>
               </div>
-              <h3 className="text-xl font-black text-[#5F57C7] dark:text-[#8B84D7]">تعلم الادخار بأسلوب اللعب ثلاثي الأبعاد</h3>
-              <p className="text-xs font-bold text-slate-800 dark:text-slate-200 leading-relaxed">
+              <h3 className="text-2xl font-black text-purple-300">تعلم الادخار بأسلوب اللعب ثلاثي الأبعاد</h3>
+              <p className="text-sm font-bold text-slate-200 leading-relaxed">
                 يعيش الطفل تجربة بصرية تفاعلية تنمي سلوكه المالي من خلال:
               </p>
-              <ul className="text-xs space-y-3 pr-4 list-disc text-right font-extrabold text-slate-800 dark:text-slate-100">
-                <li><strong className="text-[#5F57C7] dark:text-[#8B84D7] font-black">الحصالات الذكية:</strong> وضع أهداف محددة (كشراء لعبة) وقفل سحب الأموال حتى اكتمال الهدف.</li>
-                <li><strong className="text-[#5F57C7] dark:text-[#8B84D7] font-black">الاستثمار وتنمية المال:</strong> استثمار جزء من مصروفه في مشاريع عائلية ومراقبة أرباحه.</li>
-                <li><strong className="text-[#5F57C7] dark:text-[#8B84D7] font-black">تطوير القرية 3D:</strong> تطور مباني القرية (البنك، المزرعة، السوق، الطاحونة) بناءً على سلوكه.</li>
-                <li><strong className="text-[#5F57C7] dark:text-[#8B84D7] font-black">إنجاز المهام:</strong> إرسال صور إثبات إنجاز المهام لوالده لكسب المكافآت.</li>
-                <li><strong className="text-[#5F57C7] dark:text-[#8B84D7] font-black">متجر المكافآت والشراكات:</strong> استبدال نقاط إتمام المهام بهدايا وأكواد شحن حقيقية من سوني وجرير.</li>
+              <ul className="text-sm space-y-3 pr-4 list-disc text-right font-bold text-slate-200">
+                <li><strong className="text-purple-300 font-black">الحصالات الذكية:</strong> وضع أهداف محددة وقفل سحب الأموال حتى اكتمال الهدف.</li>
+                <li><strong className="text-purple-300 font-black">الاستثمار وتنمية المال:</strong> استثمار جزء من المصروف في مشاريع عائلية.</li>
+                <li><strong className="text-purple-300 font-black">تطوير القرية 3D:</strong> تطور مباني القرية (البنك، المزرعة، السوق) بناءً على السلوك.</li>
+                <li><strong className="text-purple-300 font-black">إنجاز المهام:</strong> إرسال صور إثبات إنجاز المهام للوالد لكسب المكافآت.</li>
+                <li><strong className="text-purple-300 font-black">متجر المكافآت:</strong> استبدال النقاط بهدايا وأكواد شحن حقيقية من سوني وجرير.</li>
               </ul>
             </div>
           </div>
 
           {/* Card C: AI Coach (Gemini) */}
-          <div className={`p-8 rounded-[32px] border shadow-2xl flex flex-col justify-between space-y-6 transition-all duration-300 hover:scale-[1.02] ${cardBgClass} reveal reveal-delay-2`}>
+          <div className={`p-8 md:p-10 rounded-[32px] border shadow-2xl flex flex-col justify-between space-y-6 transition-all duration-300 hover:scale-[1.02] ${cardBgClass} reveal reveal-delay-2`}>
             <div className="space-y-4">
               <div className="flex justify-between items-center">
-                <span className="text-3xl">🤖</span>
-                <span className="text-[10px] font-black text-emerald-700 dark:text-emerald-400 px-3 py-1 bg-emerald-600/15 rounded-full border border-emerald-500/30">المستشار الذكي (Gemini)</span>
+                <span className="text-4xl">🤖</span>
+                <span className="text-xs font-black text-emerald-300 px-3.5 py-1.5 bg-emerald-500/20 rounded-full border border-emerald-500/30">المستشار الذكي (Gemini)</span>
               </div>
-              <h3 className="text-xl font-black text-emerald-700 dark:text-emerald-400">توجيه ذكي للأبناء والآباء</h3>
-              <p className="text-xs font-bold text-slate-800 dark:text-slate-200 leading-relaxed">
+              <h3 className="text-2xl font-black text-emerald-400">توجيه ذكي للأبناء والآباء</h3>
+              <p className="text-sm font-bold text-slate-200 leading-relaxed">
                 تحليل السلوك وتقديم الإرشادات بالاعتماد على الذكاء الاصطناعي:
               </p>
-              <ul className="text-xs space-y-3 pr-4 list-disc text-right font-extrabold text-slate-800 dark:text-slate-100">
-                <li><strong className="text-emerald-700 dark:text-emerald-400 font-black">نصائح للأبناء:</strong> يقدم Gemini نصائح وتلميحات عربية لتوجيه الطفل لتحقيق أهدافه المالية.</li>
-                <li><strong className="text-emerald-700 dark:text-emerald-400 font-black">تقييم مستويات التوازن:</strong> تنبيه الطفل عند وجود خلل بين الادخار والإنفاق والخير.</li>
-                <li><strong className="text-emerald-700 dark:text-emerald-400 font-black">مدرب الأبوة المالي:</strong> نصائح للأب حول كيفية تشجيع وتنمية وعي أطفاله استناداً لإنجازهم.</li>
-                <li><strong className="text-emerald-700 dark:text-emerald-400 font-black">تحليل القرى ثلاثية الأبعاد:</strong> فهم فوري لمستوى القرية العام وتأثير التغييرات عليه.</li>
+              <ul className="text-sm space-y-3 pr-4 list-disc text-right font-bold text-slate-200">
+                <li><strong className="text-emerald-300 font-black">نصائح للأبناء:</strong> يقدم Gemini نصائح وتلميحات عربية لتوجيه الطفل لأهدافه.</li>
+                <li><strong className="text-emerald-300 font-black">تقييم التوازن:</strong> تنبيه الطفل عند وجود خلل بين الادخار والإنفاق والخير.</li>
+                <li><strong className="text-emerald-300 font-black">مدرب الأبوة المالي:</strong> نصائح للأب حول كيفية تشجيع وتنمية وعي أطفاله.</li>
+                <li><strong className="text-emerald-300 font-black">تحليل القرى 3D:</strong> فهم فوري لمستوى القرية العام وتأثير التغييرات عليه.</li>
               </ul>
             </div>
           </div>
@@ -720,29 +673,29 @@ export default function LandingPage() {
       {/* How it works Section */}
       <section id="how-it-works" className="max-w-6xl mx-auto px-6 py-20 z-10 relative space-y-12">
         {/* Section Header Card */}
-        <div className="max-w-xl mx-auto p-6 md:p-8 rounded-[32px] backdrop-blur-md text-center space-y-3 reveal border shadow-xl bg-white/20 dark:bg-slate-900/50 border-white/50 dark:border-white/15">
-          <span className="text-xs font-black text-[#C66E4E] tracking-widest block">سهل وبسيط</span>
-          <h2 className="text-2xl md:text-3xl font-black text-[#0C2341] dark:text-white">خطوات بسيطة لبناء الوعي المالي</h2>
+        <div className={`max-w-2xl mx-auto p-8 rounded-[32px] text-center space-y-3 reveal ${cardBgClass}`}>
+          <span className="text-sm font-black text-amber-400 tracking-widest block">سهل وبسيط</span>
+          <h2 className="text-3xl font-black text-white">خطوات بسيطة لبناء الوعي المالي</h2>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           
-          <div className={`text-center space-y-3 p-8 reveal reveal-delay-1 border rounded-[32px] hover:scale-105 transition-all duration-300 shadow-xl ${cardBgClass}`}>
-            <div className="w-14 h-14 rounded-2xl bg-[#C66E4E] text-white flex items-center justify-center text-xl font-black mx-auto shadow-md">١</div>
-            <h4 className="font-black text-xl text-[#0C2341] dark:text-white">سجل حساب العائلة 👤</h4>
-            <p className="text-xs font-bold text-slate-800 dark:text-slate-200 leading-relaxed">ينشئ الأب حساباً عائلياً ويقوم بإضافة حسابات مخصصة للأبناء (خالد، سالم) وتحديد مصروفاتهم.</p>
+          <div className={`text-center space-y-4 p-8 md:p-10 reveal reveal-delay-1 border rounded-[32px] hover:scale-105 transition-all duration-300 shadow-xl ${cardBgClass}`}>
+            <div className="w-16 h-16 rounded-2xl bg-amber-500 text-white flex items-center justify-center text-2xl font-black mx-auto shadow-lg">١</div>
+            <h4 className="font-black text-2xl text-white">سجل حساب العائلة 👤</h4>
+            <p className="text-sm font-bold text-slate-200 leading-relaxed">ينشئ الأب حساباً عائلياً ويقوم بإضافة حسابات مخصصة للأبناء (خالد، سالم) وتحديد مصروفاتهم.</p>
           </div>
 
-          <div className={`text-center space-y-3 p-8 reveal reveal-delay-2 border rounded-[32px] hover:scale-105 transition-all duration-300 shadow-xl ${cardBgClass}`}>
-            <div className="w-14 h-14 rounded-2xl bg-[#5F57C7] text-white flex items-center justify-center text-xl font-black mx-auto shadow-md">٢</div>
-            <h4 className="font-black text-xl text-[#0C2341] dark:text-white">أسند المهام والتحديات 📜</h4>
-            <p className="text-xs font-bold text-slate-800 dark:text-slate-200 leading-relaxed">يضع الأب المهام ويفعل دوري التوفير الأسبوعي، ليبدأ الأبناء في ادخار المصروف وإكمال الواجبات المنزلية.</p>
+          <div className={`text-center space-y-4 p-8 md:p-10 reveal reveal-delay-2 border rounded-[32px] hover:scale-105 transition-all duration-300 shadow-xl ${cardBgClass}`}>
+            <div className="w-16 h-16 rounded-2xl bg-purple-600 text-white flex items-center justify-center text-2xl font-black mx-auto shadow-lg">٢</div>
+            <h4 className="font-black text-2xl text-white">أسند المهام والتحديات 📜</h4>
+            <p className="text-sm font-bold text-slate-200 leading-relaxed">يضع الأب المهام ويفعل دوري التوفير الأسبوعي، ليبدأ الأبناء في ادخار المصروف وإكمال الواجبات المنزلية.</p>
           </div>
 
-          <div className={`text-center space-y-3 p-8 reveal reveal-delay-3 border rounded-[32px] hover:scale-105 transition-all duration-300 shadow-xl ${cardBgClass}`}>
-            <div className="w-14 h-14 rounded-2xl bg-emerald-600 text-white flex items-center justify-center text-xl font-black mx-auto shadow-md">٣</div>
-            <h4 className="font-black text-xl text-[#0C2341] dark:text-white">شاهد التطور 🏰</h4>
-            <p className="text-xs font-bold text-slate-800 dark:text-slate-200 leading-relaxed">تتحول هذه الأرقام والمدخرات إلى مبانٍ وقلاع وقرى ثلاثية الأبعاد تنمو أمام أعينهم وتوجههم ذكياً.</p>
+          <div className={`text-center space-y-4 p-8 md:p-10 reveal reveal-delay-3 border rounded-[32px] hover:scale-105 transition-all duration-300 shadow-xl ${cardBgClass}`}>
+            <div className="w-16 h-16 rounded-2xl bg-emerald-600 text-white flex items-center justify-center text-2xl font-black mx-auto shadow-lg">٣</div>
+            <h4 className="font-black text-2xl text-white">شاهد التطور 🏰</h4>
+            <p className="text-sm font-bold text-slate-200 leading-relaxed">تتحول هذه الأرقام والمدخرات إلى مبانٍ وقلاع وقرى ثلاثية الأبعاد تنمو أمام أعينهم وتوجههم ذكياً.</p>
           </div>
 
         </div>
@@ -750,20 +703,20 @@ export default function LandingPage() {
 
       {/* Call to Action Banner */}
       <section className="max-w-6xl mx-auto px-6 py-12 z-10 relative reveal">
-        <div className="bg-gradient-to-r from-[#0C2341]/95 via-[#1A365D]/95 to-[#5F57C7]/95 backdrop-blur-3xl border border-white/30 rounded-[36px] p-10 md:p-14 text-white text-center shadow-[0_30px_70px_rgba(12,35,65,0.4)] relative overflow-hidden">
+        <div className="bg-gradient-to-r from-[#0C2341]/95 via-[#1A365D]/95 to-[#5F57C7]/95 backdrop-blur-3xl border border-white/20 rounded-[36px] p-10 md:p-14 text-white text-center shadow-[0_30px_70px_rgba(0,0,0,0.5)] relative overflow-hidden">
           {/* Decorative glowing circles inside */}
           <div className="absolute -left-20 -bottom-20 h-56 w-56 rounded-full bg-[#C66E4E]/30 blur-3xl pointer-events-none"></div>
           <div className="absolute -right-20 -top-20 h-56 w-56 rounded-full bg-white/15 blur-3xl pointer-events-none"></div>
           
           <div className="max-w-2xl mx-auto space-y-6 relative z-10">
-            <h3 className="text-2xl md:text-3xl font-black text-white">جاهز لبناء مستقبل أطفالك المالي؟ 🍃</h3>
-            <p className="text-sm text-slate-100 leading-relaxed font-extrabold">
-              انضم إلى آلاف العائلات السعودية ودع أطفالك يبنون أولى خطواتهم الاستثمارية والادخارية اليوم بطريقة تفاعلية وممتعة.
+            <h3 className="text-3xl md:text-4xl font-black text-white">جاهز لبناء مستقبل أطفالك المالي؟ 🍃</h3>
+            <p className="text-base text-slate-100 leading-relaxed font-bold">
+              انضم إلى آلاف العائلات ودع أطفالك يبنون أولى خطواتهم الاستثمارية والادخارية اليوم بطريقة تفاعلية وممتعة.
             </p>
             <div className="pt-4">
               <button
                 onClick={() => navigate('/login')}
-                className="px-8 py-4 bg-[#C66E4E] hover:bg-[#a65638] text-white text-sm font-black rounded-2xl shadow-xl transition-all hover:scale-105 active:scale-95 cursor-pointer font-sans"
+                className="px-10 py-5 bg-[#C66E4E] hover:bg-[#a65638] text-white text-base font-black rounded-2xl shadow-2xl transition-all hover:scale-105 active:scale-95 cursor-pointer font-sans"
               >
                 سجل عائلتك مجاناً الآن 🚀
               </button>
@@ -774,11 +727,11 @@ export default function LandingPage() {
 
       {/* Footer */}
       <footer className="py-12 z-10 relative text-center space-y-4">
-        <div className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-white/60 dark:border-white/20 shadow-lg">
+        <div className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-slate-950/80 backdrop-blur-xl border border-white/20 shadow-lg text-white">
           <span className="animate-float text-xl">🍃</span>
-          <span className="text-xs md:text-sm font-black text-[#0C2341] dark:text-white">نماء العائلي - بوابة الحوكمة والاستثمار المشترك</span>
+          <span className="text-sm font-black">نماء العائلي - بوابة الحوكمة والاستثمار المشترك</span>
         </div>
-        <p className="text-[11px] font-bold text-slate-700 dark:text-slate-300">
+        <p className="text-xs font-bold text-slate-400">
           &copy; {new Date().getFullYear()} نماء. جميع الحقوق محفوظة لفريق GOTL.
         </p>
       </footer>
