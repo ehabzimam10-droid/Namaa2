@@ -67,10 +67,11 @@ export default function LandingPage() {
   const navigate = useNavigate();
   const [darkMode, setDarkMode] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [scrollProgress, setScrollProgress] = useState(0); // 0 (top/starter village) to 1 (bottom/grand castle)
+  const [scrollProgress, setScrollProgress] = useState(0);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const imagesRef = useRef<HTMLImageElement[]>([]);
-  const [imagesLoaded, setImagesLoaded] = useState(false);
+  const lastFrameIndexRef = useRef<number>(-1);
+  const rafIdRef = useRef<number | null>(null);
 
   const TOTAL_FRAMES = 240;
 
@@ -89,65 +90,48 @@ export default function LandingPage() {
     }));
   };
 
-  // Preload all 240 frames
+  // Preload frames
   useEffect(() => {
-    let loadedCount = 0;
     const loadedImages: HTMLImageElement[] = [];
-
     for (let i = 1; i <= TOTAL_FRAMES; i++) {
       const img = new Image();
       const numStr = String(i).padStart(3, '0');
       img.src = `/village_frames/ezgif-frame-${numStr}.jpg`;
-      img.onload = () => {
-        loadedCount++;
-        if (loadedCount === TOTAL_FRAMES) {
-          setImagesLoaded(true);
-        }
-      };
       loadedImages.push(img);
     }
     imagesRef.current = loadedImages;
   }, []);
 
-  // Scroll listener for frame animation
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrollY = window.scrollY;
-      const maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
-      const progress = Math.min(1, Math.max(0, scrollY / maxScroll));
-      setScrollProgress(progress);
+  // Canvas Sizing (ONLY on resize or mount, NOT on scroll)
+  const updateCanvasSize = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    if (canvas.width !== width || canvas.height !== height) {
+      canvas.width = width;
+      canvas.height = height;
+      lastFrameIndexRef.current = -1; // force redraw
+    }
+  };
 
-      if (scrollY > 40) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
-      }
-    };
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll();
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  // Draw current frame on canvas whenever scrollProgress or window resize changes
-  useEffect(() => {
+  // High-performance canvas draw function using requestAnimationFrame
+  const renderFrame = (progress: number) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // Frame index: Top of page (progress = 0) is frame 0 (basic village)
-    // Bottom of page (progress = 1) is frame 239 (grand castle)
-    const frameIndex = Math.min(TOTAL_FRAMES - 1, Math.floor(scrollProgress * (TOTAL_FRAMES - 1)));
-    const img = imagesRef.current[frameIndex];
+    const frameIndex = Math.min(TOTAL_FRAMES - 1, Math.max(0, Math.floor(progress * (TOTAL_FRAMES - 1))));
+    if (frameIndex === lastFrameIndexRef.current) return; // avoid duplicate frame redraws
 
+    const img = imagesRef.current[frameIndex];
     if (!img || !img.complete) return;
 
-    const width = window.innerWidth;
-    const height = window.innerHeight;
-    canvas.width = width;
-    canvas.height = height;
+    lastFrameIndexRef.current = frameIndex;
 
-    // Object-fit: cover implementation on canvas
+    const width = canvas.width;
+    const height = canvas.height;
     const imgAspect = img.width / img.height;
     const canvasAspect = width / height;
     let renderW = width;
@@ -165,45 +149,51 @@ export default function LandingPage() {
 
     ctx.clearRect(0, 0, width, height);
     ctx.drawImage(img, offsetX, offsetY, renderW, renderH);
-  }, [scrollProgress, imagesLoaded]);
+  };
 
-  // Handle resize
+  // Scroll listener optimized with requestAnimationFrame
   useEffect(() => {
-    const handleResize = () => {
-      const canvas = canvasRef.current;
-      if (!canvas) return;
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return;
-      const frameIndex = Math.min(TOTAL_FRAMES - 1, Math.floor(scrollProgress * (TOTAL_FRAMES - 1)));
-      const img = imagesRef.current[frameIndex];
-      if (!img || !img.complete) return;
+    updateCanvasSize();
 
-      const width = window.innerWidth;
-      const height = window.innerHeight;
-      canvas.width = width;
-      canvas.height = height;
+    const handleScroll = () => {
+      if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
 
-      const imgAspect = img.width / img.height;
-      const canvasAspect = width / height;
-      let renderW = width;
-      let renderH = height;
-      let offsetX = 0;
-      let offsetY = 0;
+      rafIdRef.current = requestAnimationFrame(() => {
+        const scrollY = window.scrollY;
+        const maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+        const progress = Math.min(1, Math.max(0, scrollY / maxScroll));
+        
+        setScrollProgress(progress);
+        renderFrame(progress);
 
-      if (canvasAspect > imgAspect) {
-        renderH = width / imgAspect;
-        offsetY = (height - renderH) / 2;
-      } else {
-        renderW = height * imgAspect;
-        offsetX = (width - renderW) / 2;
-      }
-
-      ctx.clearRect(0, 0, width, height);
-      ctx.drawImage(img, offsetX, offsetY, renderW, renderH);
+        if (scrollY > 40) {
+          setIsScrolled(true);
+        } else {
+          setIsScrolled(false);
+        }
+      });
     };
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, [scrollProgress]);
+
+    const handleResize = () => {
+      updateCanvasSize();
+      const scrollY = window.scrollY;
+      const maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+      const progress = Math.min(1, Math.max(0, scrollY / maxScroll));
+      renderFrame(progress);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('resize', handleResize, { passive: true });
+
+    // Initial render
+    handleScroll();
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleResize);
+      if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
+    };
+  }, []);
 
   // Current village status label
   const villageStatus = useMemo(() => {
@@ -240,52 +230,54 @@ export default function LandingPage() {
   };
 
   const bgClass = darkMode ? 'bg-slate-950 text-slate-100' : 'bg-[#F7F5EE] text-[#0C2341]';
-  const cardBgClass = darkMode
-    ? 'bg-slate-900/85 backdrop-blur-2xl border border-white/20 text-white shadow-[0_20px_50px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.2)] hover:bg-slate-900/95 hover:border-white/30'
-    : 'bg-white/85 backdrop-blur-2xl border border-white/90 text-[#0C2341] shadow-[0_20px_50px_rgba(12,35,65,0.15),inset_0_1px_0_rgba(255,255,255,0.9)] hover:bg-white/95 hover:border-white';
 
-  const headerClasses = `fixed left-0 right-0 mx-auto z-50 backdrop-blur-2xl transition-premium ${
+  // Authentic Frosted Liquid Glass Cards (translucent & blurred so background shows through smoothly)
+  const cardBgClass = darkMode
+    ? 'bg-slate-950/65 backdrop-blur-xl border border-white/20 text-white shadow-[0_20px_50px_rgba(0,0,0,0.6)] hover:bg-slate-900/75 transition-all'
+    : 'bg-white/45 backdrop-blur-xl border border-white/80 text-[#0C2341] shadow-[0_20px_50px_rgba(12,35,65,0.12)] hover:bg-white/60 transition-all';
+
+  const headerClasses = `fixed left-0 right-0 mx-auto z-50 backdrop-blur-xl transition-premium ${
     isScrolled
       ? `top-4 w-[92%] max-w-4xl rounded-full border shadow-2xl px-6 py-2.5 ${
           darkMode 
-            ? 'bg-slate-900/85 border-white/20 text-slate-100 shadow-black/40' 
-            : 'bg-white/85 border-white/90 text-[#0C2341] shadow-slate-900/10'
+            ? 'bg-slate-950/70 border-white/20 text-slate-100 shadow-black/50' 
+            : 'bg-white/55 border-white/80 text-[#0C2341] shadow-slate-900/10'
         }`
       : `top-0 w-full rounded-none border-b px-4 py-3.5 md:px-8 md:py-5 ${
           darkMode 
-            ? 'bg-slate-950/80 border-white/10 text-slate-100' 
-            : 'bg-[#F7F5EE]/80 border-[#0C2341]/10 text-[#0C2341]'
+            ? 'bg-slate-950/60 border-white/10 text-slate-100' 
+            : 'bg-[#F7F5EE]/60 border-[#0C2341]/10 text-[#0C2341]'
         }`
   }`;
 
   return (
     <div dir="rtl" className={`min-h-screen relative transition-colors duration-500 font-sans overflow-x-hidden ${bgClass}`}>
       
-      {/* 1. Clear HTML5 Canvas rendering 240 village frames without milky white overlay */}
+      {/* 1. Ultra-fast HTML5 Canvas rendering 240 frames on scroll with 100% background transparency */}
       <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
         <canvas
           ref={canvasRef}
-          className="w-full h-full object-cover transition-opacity duration-500"
-          style={{ opacity: 0.95 }}
+          className="w-full h-full object-cover transition-opacity duration-300"
+          style={{ opacity: 1.0 }}
         />
 
-        {/* Subtle vignette gradient for natural depth without fogging */}
+        {/* Very light subtle gradient to preserve crispness of the village frames */}
         <div
           className={`absolute inset-0 transition-colors duration-700 pointer-events-none ${
             darkMode
-              ? 'bg-gradient-to-b from-slate-950/40 via-transparent to-slate-950/70'
-              : 'bg-gradient-to-b from-black/10 via-transparent to-black/30'
+              ? 'bg-gradient-to-b from-slate-950/40 via-transparent to-slate-950/60'
+              : 'bg-gradient-to-b from-black/10 via-transparent to-black/20'
           }`}
         />
       </div>
 
       {/* Floating Interactive Village Level Indicator Badge (Apple Liquid Glass) */}
-      <div className="fixed bottom-6 right-6 z-40 hidden md:flex items-center gap-3 bg-white/90 dark:bg-slate-900/90 backdrop-blur-2xl border border-white/80 dark:border-white/20 px-4 py-2.5 rounded-full shadow-2xl animate-fade-in font-sans">
+      <div className="fixed bottom-6 right-6 z-40 hidden md:flex items-center gap-3 bg-white/60 dark:bg-slate-900/70 backdrop-blur-xl border border-white/80 dark:border-white/20 px-4 py-2.5 rounded-full shadow-2xl animate-fade-in font-sans">
         <span className="text-base animate-bounce">
           {villageStatus.icon}
         </span>
         <div className="text-right">
-          <span className="text-[9px] font-bold text-slate-500 dark:text-slate-400 block leading-tight">مستوى القرية بالخلفية (محاكاة التمرير)</span>
+          <span className="text-[9px] font-extrabold text-slate-700 dark:text-slate-300 block leading-tight">مستوى القرية بالخلفية (محاكاة التمرير)</span>
           <span className="text-xs font-black text-[#C66E4E] dark:text-[#E88D6A]">
             {villageStatus.label}
           </span>
@@ -549,7 +541,7 @@ export default function LandingPage() {
       {/* Bento Grid Features Section */}
       <section id="features" className="max-w-6xl mx-auto px-6 py-20 z-10 relative space-y-12">
         {/* Section Header Card */}
-        <div className="max-w-xl mx-auto p-6 md:p-8 rounded-[32px] backdrop-blur-2xl text-center space-y-3 reveal border shadow-2xl bg-white/85 dark:bg-slate-900/85 border-white/90 dark:border-white/20">
+        <div className="max-w-xl mx-auto p-6 md:p-8 rounded-[32px] backdrop-blur-xl text-center space-y-3 reveal border shadow-2xl bg-white/45 dark:bg-slate-900/60 border-white/80 dark:border-white/20">
           <span className="text-xs font-black text-[#C66E4E] tracking-widest block">أركان المنصة الأساسية</span>
           <h2 className="text-2xl md:text-3xl font-black text-[#0C2341] dark:text-white">تصميم ذكي ومزايا تفاعلية متكاملة</h2>
           <p className="text-sm font-bold text-slate-800 dark:text-slate-200">
@@ -625,7 +617,7 @@ export default function LandingPage() {
       <section id="showcase" className="max-w-6xl mx-auto px-6 py-20 z-10 relative space-y-16">
         
         {/* Section Header Card */}
-        <div className="max-w-xl mx-auto p-6 md:p-8 rounded-[32px] backdrop-blur-2xl text-center space-y-3 reveal border shadow-2xl bg-white/85 dark:bg-slate-900/85 border-white/90 dark:border-white/20">
+        <div className="max-w-xl mx-auto p-6 md:p-8 rounded-[32px] backdrop-blur-xl text-center space-y-3 reveal border shadow-2xl bg-white/45 dark:bg-slate-900/60 border-white/80 dark:border-white/20">
           <span className="text-xs font-black text-[#5F57C7] dark:text-[#8B84D7] tracking-widest block">دليل المزايا والوظائف</span>
           <h2 className="text-2xl md:text-3xl font-black text-[#0C2341] dark:text-white">تجربة متكاملة للأبناء والآباء</h2>
           <p className="text-sm font-bold text-slate-800 dark:text-slate-200">
@@ -705,7 +697,7 @@ export default function LandingPage() {
       {/* How it works Section */}
       <section id="how-it-works" className="max-w-6xl mx-auto px-6 py-20 z-10 relative space-y-12">
         {/* Section Header Card */}
-        <div className="max-w-xl mx-auto p-6 md:p-8 rounded-[32px] backdrop-blur-2xl text-center space-y-3 reveal border shadow-2xl bg-white/85 dark:bg-slate-900/85 border-white/90 dark:border-white/20">
+        <div className="max-w-xl mx-auto p-6 md:p-8 rounded-[32px] backdrop-blur-xl text-center space-y-3 reveal border shadow-2xl bg-white/45 dark:bg-slate-900/60 border-white/80 dark:border-white/20">
           <span className="text-xs font-black text-[#C66E4E] tracking-widest block">سهل وبسيط</span>
           <h2 className="text-2xl md:text-3xl font-black text-[#0C2341] dark:text-white">خطوات بسيطة لبناء الوعي المالي</h2>
         </div>
