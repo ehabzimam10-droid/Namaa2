@@ -231,22 +231,22 @@ export default function LandingPage() {
 
   const bgClass = darkMode ? 'bg-slate-950 text-slate-100' : 'bg-[#F7F5EE] text-[#0C2341]';
 
-  // Authentic Frosted Liquid Glass Cards (translucent & blurred so background shows through smoothly)
+  // Authentic Frosted Liquid Glass Cards (translucent & blurred so background shows through smoothly with minimal white tint)
   const cardBgClass = darkMode
-    ? 'bg-slate-950/65 backdrop-blur-xl border border-white/20 text-white shadow-[0_20px_50px_rgba(0,0,0,0.6)] hover:bg-slate-900/75 transition-all'
-    : 'bg-white/45 backdrop-blur-xl border border-white/80 text-[#0C2341] shadow-[0_20px_50px_rgba(12,35,65,0.12)] hover:bg-white/60 transition-all';
+    ? 'bg-slate-950/60 backdrop-blur-md border border-white/15 text-white shadow-[0_16px_36px_rgba(0,0,0,0.5)] hover:bg-slate-900/70 transition-all'
+    : 'bg-white/20 backdrop-blur-md border border-white/50 text-[#0C2341] shadow-[0_16px_36px_rgba(12,35,65,0.1)] hover:bg-white/30 transition-all';
 
-  const headerClasses = `fixed left-0 right-0 mx-auto z-50 backdrop-blur-xl transition-premium ${
+  const headerClasses = `fixed left-0 right-0 mx-auto z-50 backdrop-blur-md transition-premium ${
     isScrolled
       ? `top-4 w-[92%] max-w-4xl rounded-full border shadow-2xl px-6 py-2.5 ${
           darkMode 
             ? 'bg-slate-950/70 border-white/20 text-slate-100 shadow-black/50' 
-            : 'bg-white/55 border-white/80 text-[#0C2341] shadow-slate-900/10'
+            : 'bg-white/30 border-white/60 text-[#0C2341] shadow-slate-900/10'
         }`
       : `top-0 w-full rounded-none border-b px-4 py-3.5 md:px-8 md:py-5 ${
           darkMode 
             ? 'bg-slate-950/60 border-white/10 text-slate-100' 
-            : 'bg-[#F7F5EE]/60 border-[#0C2341]/10 text-[#0C2341]'
+            : 'bg-[#F7F5EE]/40 border-[#0C2341]/10 text-[#0C2341]'
         }`
   }`;
 
@@ -272,7 +272,7 @@ export default function LandingPage() {
       </div>
 
       {/* Floating Interactive Village Level Indicator Badge (Apple Liquid Glass) */}
-      <div className="fixed bottom-6 right-6 z-40 hidden md:flex items-center gap-3 bg-white/60 dark:bg-slate-900/70 backdrop-blur-xl border border-white/80 dark:border-white/20 px-4 py-2.5 rounded-full shadow-2xl animate-fade-in font-sans">
+      <div className="fixed bottom-6 right-6 z-40 hidden md:flex items-center gap-3 bg-white/30 dark:bg-slate-900/70 backdrop-blur-md border border-white/60 dark:border-white/20 px-4 py-2.5 rounded-full shadow-2xl animate-fade-in font-sans">
         <span className="text-base animate-bounce">
           {villageStatus.icon}
         </span>
@@ -411,9 +411,6 @@ export default function LandingPage() {
         
         {/* Left Content Card */}
         <div className={`p-8 md:p-10 rounded-[36px] backdrop-blur-2xl space-y-6 text-right reveal ${cardBgClass}`}>
-          <span className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#C66E4E]/15 text-[#C66E4E] text-xs md:text-sm font-black animate-pulse-ring border border-[#C66E4E]/30">
-            🏛️ شراكة تعليمية مبتكرة مع مصرف الإنماء
-          </span>
           <h1 className="text-3xl md:text-5xl font-black leading-tight text-[#0C2341] dark:text-white">
             ابنِ وعي أطفالك المالي عبر <br />
             <span className="bg-gradient-to-r from-[#C66E4E] to-[#8B84D7] bg-clip-text text-transparent animate-pulse-ring">
@@ -541,7 +538,7 @@ export default function LandingPage() {
       {/* Bento Grid Features Section */}
       <section id="features" className="max-w-6xl mx-auto px-6 py-20 z-10 relative space-y-12">
         {/* Section Header Card */}
-        <div className="max-w-xl mx-auto p-6 md:p-8 rounded-[32px] backdrop-blur-xl text-center space-y-3 reveal border shadow-2xl bg-white/45 dark:bg-slate-900/60 border-white/80 dark:border-white/20">
+        <div className="max-w-xl mx-auto p-6 md:p-8 rounded-[32px] backdrop-blur-md text-center space-y-3 reveal border shadow-xl bg-white/20 dark:bg-slate-900/50 border-white/50 dark:border-white/15">
           <span className="text-xs font-black text-[#C66E4E] tracking-widest block">أركان المنصة الأساسية</span>
           <h2 className="text-2xl md:text-3xl font-black text-[#0C2341] dark:text-white">تصميم ذكي ومزايا تفاعلية متكاملة</h2>
           <p className="text-sm font-bold text-slate-800 dark:text-slate-200">
@@ -617,7 +614,7 @@ export default function LandingPage() {
       <section id="showcase" className="max-w-6xl mx-auto px-6 py-20 z-10 relative space-y-16">
         
         {/* Section Header Card */}
-        <div className="max-w-xl mx-auto p-6 md:p-8 rounded-[32px] backdrop-blur-xl text-center space-y-3 reveal border shadow-2xl bg-white/45 dark:bg-slate-900/60 border-white/80 dark:border-white/20">
+        <div className="max-w-xl mx-auto p-6 md:p-8 rounded-[32px] backdrop-blur-md text-center space-y-3 reveal border shadow-xl bg-white/20 dark:bg-slate-900/50 border-white/50 dark:border-white/15">
           <span className="text-xs font-black text-[#5F57C7] dark:text-[#8B84D7] tracking-widest block">دليل المزايا والوظائف</span>
           <h2 className="text-2xl md:text-3xl font-black text-[#0C2341] dark:text-white">تجربة متكاملة للأبناء والآباء</h2>
           <p className="text-sm font-bold text-slate-800 dark:text-slate-200">
@@ -697,7 +694,7 @@ export default function LandingPage() {
       {/* How it works Section */}
       <section id="how-it-works" className="max-w-6xl mx-auto px-6 py-20 z-10 relative space-y-12">
         {/* Section Header Card */}
-        <div className="max-w-xl mx-auto p-6 md:p-8 rounded-[32px] backdrop-blur-xl text-center space-y-3 reveal border shadow-2xl bg-white/45 dark:bg-slate-900/60 border-white/80 dark:border-white/20">
+        <div className="max-w-xl mx-auto p-6 md:p-8 rounded-[32px] backdrop-blur-md text-center space-y-3 reveal border shadow-xl bg-white/20 dark:bg-slate-900/50 border-white/50 dark:border-white/15">
           <span className="text-xs font-black text-[#C66E4E] tracking-widest block">سهل وبسيط</span>
           <h2 className="text-2xl md:text-3xl font-black text-[#0C2341] dark:text-white">خطوات بسيطة لبناء الوعي المالي</h2>
         </div>
