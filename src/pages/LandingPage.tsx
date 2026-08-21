@@ -229,19 +229,30 @@ export default function LandingPage() {
     }
   };
 
-  const bgClass = darkMode ? 'bg-slate-950 text-slate-100' : 'bg-slate-950 text-white';
+  // Day vs Night Mode styles
+  const bgClass = darkMode ? 'bg-[#060B14] text-white' : 'bg-[#0E1726]/20 text-white';
 
-  // Windows 11 Acrylic / Start Menu Dark Frosted Glass (Zero white tint, ultra-crisp white text)
-  const cardBgClass = 'bg-slate-950/75 backdrop-blur-2xl border border-white/15 text-white shadow-[0_20px_50px_rgba(0,0,0,0.6)] hover:bg-slate-900/85 hover:border-white/25 transition-all';
+  // Windows 11 Acrylic / Notification / Start Menu Dark Frosted Glass (Zero white milky tint, high-contrast readable text)
+  const cardBgClass = darkMode
+    ? 'bg-slate-950/80 backdrop-blur-2xl border border-purple-500/25 text-white shadow-[0_20px_50px_rgba(0,0,0,0.7)] hover:bg-slate-950/90 hover:border-purple-500/40 transition-all'
+    : 'bg-slate-900/65 backdrop-blur-2xl border border-white/20 text-white shadow-[0_20px_50px_rgba(0,0,0,0.4)] hover:bg-slate-900/75 hover:border-white/30 transition-all';
 
   const headerClasses = `fixed left-0 right-0 mx-auto z-50 backdrop-blur-2xl transition-premium ${
     isScrolled
-      ? 'top-4 w-[92%] max-w-4xl rounded-full border border-white/15 bg-slate-950/80 text-white shadow-2xl shadow-black/60 px-6 py-3'
-      : 'top-0 w-full rounded-none border-b border-white/10 bg-slate-950/75 text-white px-4 py-4 md:px-8 md:py-5'
+      ? `top-4 w-[92%] max-w-4xl rounded-full border shadow-2xl px-6 py-3 ${
+          darkMode 
+            ? 'border-purple-500/30 bg-slate-950/85 text-white shadow-black/80' 
+            : 'border-white/20 bg-slate-900/75 text-white shadow-black/40'
+        }`
+      : `top-0 w-full rounded-none border-b px-4 py-4 md:px-8 md:py-5 ${
+          darkMode 
+            ? 'border-white/10 bg-slate-950/80 text-white' 
+            : 'border-white/10 bg-slate-900/60 text-white'
+        }`
   }`;
 
   return (
-    <div dir="rtl" className={`min-h-screen relative transition-colors duration-500 font-sans overflow-x-hidden ${bgClass}`}>
+    <div dir="rtl" className={`min-h-screen relative transition-colors duration-700 font-sans overflow-x-hidden ${bgClass}`}>
       
       {/* 1. Ultra-fast HTML5 Canvas rendering 240 frames on scroll with 100% background transparency */}
       <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
@@ -251,12 +262,20 @@ export default function LandingPage() {
           style={{ opacity: 1.0 }}
         />
 
-        {/* Very subtle vignette for natural depth */}
-        <div className="absolute inset-0 bg-gradient-to-b from-slate-950/40 via-transparent to-slate-950/70 pointer-events-none" />
+        {/* Dynamic Day / Night ambience lighting overlay */}
+        <div
+          className={`absolute inset-0 transition-colors duration-700 pointer-events-none ${
+            darkMode
+              ? 'bg-gradient-to-b from-slate-950/70 via-slate-950/40 to-slate-950/85'
+              : 'bg-gradient-to-b from-black/5 via-transparent to-black/20'
+          }`}
+        />
       </div>
 
       {/* Floating Interactive Village Level Indicator Badge (Windows Acrylic Glass) */}
-      <div className="fixed bottom-6 right-6 z-40 hidden md:flex items-center gap-3 bg-slate-950/80 backdrop-blur-2xl border border-white/20 text-white px-5 py-3 rounded-full shadow-2xl animate-fade-in font-sans">
+      <div className={`fixed bottom-6 right-6 z-40 hidden md:flex items-center gap-3 backdrop-blur-2xl border text-white px-5 py-3 rounded-full shadow-2xl animate-fade-in font-sans ${
+        darkMode ? 'bg-slate-950/85 border-purple-500/30' : 'bg-slate-900/80 border-white/20'
+      }`}>
         <span className="text-xl animate-bounce">
           {villageStatus.icon}
         </span>
@@ -349,22 +368,26 @@ export default function LandingPage() {
           {/* Actions */}
           <div className="flex items-center gap-3">
             
-            {/* Theme Toggle Button */}
+            {/* Day / Night Theme Toggle Button */}
             <button
               onClick={() => setDarkMode(!darkMode)}
-              className="p-2.5 rounded-xl border border-white/20 bg-slate-900/80 text-yellow-300 hover:bg-slate-800 transition-all active:scale-95 cursor-pointer flex items-center justify-center"
-              title={darkMode ? 'تفعيل الوضع المضيء' : 'تفعيل الوضع المظلم'}
+              className="px-3.5 py-2 rounded-xl border border-white/20 bg-slate-900/80 hover:bg-slate-800 text-white transition-all active:scale-95 cursor-pointer flex items-center gap-2 text-xs font-black shadow-lg"
+              title={darkMode ? 'التبديل إلى الوضع النهاري' : 'التبديل إلى الوضع الليلي'}
             >
               {darkMode ? (
-                // Sun Icon
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m0 13.5V21M4.75 4.75l1.59 1.59m11.32 11.32l1.59 1.59M3 12h2.25m13.5 0H21M4.75 19.25l1.59-1.59m11.32-11.32l1.59-1.59M12 7.5a4.5 4.5 0 100 9 4.5 4.5 0 000-9z" />
-                </svg>
+                <>
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4 text-yellow-300">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m0 13.5V21M4.75 4.75l1.59 1.59m11.32 11.32l1.59 1.59M3 12h2.25m13.5 0H21M4.75 19.25l1.59-1.59m11.32-11.32l1.59-1.59M12 7.5a4.5 4.5 0 100 9 4.5 4.5 0 000-9z" />
+                  </svg>
+                  <span>الوضع النهاري ☀️</span>
+                </>
               ) : (
-                // Moon Icon
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
-                </svg>
+                <>
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4 text-purple-300">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+                  </svg>
+                  <span>الوضع الليلي 🌙</span>
+                </>
               )}
             </button>
 
