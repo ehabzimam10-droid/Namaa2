@@ -1,67 +1,78 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-// Mini vector buildings for the landing page interactive simulation card
-const BankSVG = ({ level }: { level: number }) => (
-  <svg className="transition-all duration-500 ease-out hover:scale-105 cursor-pointer origin-bottom" width="40" height={30 + level * 7} viewBox="0 0 50 90" fill="none">
-    <rect x="5" y="80" width="40" height="10" rx="2" fill="#C66E4E" />
-    <rect x="9" y="40" width="6" height="40" fill="#a65638" opacity="0.8" />
-    <rect x="22" y="40" width="6" height="40" fill="#a65638" opacity="0.8" />
-    <rect x="35" y="40" width="6" height="40" fill="#a65638" opacity="0.8" />
-    <polygon points="2,40 25,12 48,40" fill="#C66E4E" />
-    {level >= 4 && <circle cx="25" cy="5" r="4" fill="#FBBF24" className="animate-bounce" />}
-  </svg>
-);
+export type BuildingType = 'bank' | 'market' | 'castle' | 'farm' | 'windmill';
 
-const MarketSVG = ({ level }: { level: number }) => (
-  <svg className="transition-all duration-500 ease-out hover:scale-105 cursor-pointer origin-bottom" width="40" height={30 + level * 7} viewBox="0 0 50 90" fill="none">
-    <rect x="5" y="48" width="40" height="42" rx="4" fill="#8B84D7" />
-    <rect x="15" y="62" width="20" height="28" rx="2" fill="#5F57C7" />
-    <rect x="2" y="38" width="46" height="12" rx="3" fill="#C66E4E" />
-    {level >= 4 && <polygon points="25,38 25,10 38,18" fill="#FBBF24" />}
-    {level >= 4 && <line x1="25" y1="38" x2="25" y2="10" stroke="#FBBF24" strokeWidth="2" />}
-  </svg>
-);
+export interface BuildingInfoItem {
+  id: BuildingType;
+  name: string;
+  pillar: string;
+  icon: string;
+  image: string;
+  accentColor: string;
+  badgeClass: string;
+  description: string;
+  impact: string;
+}
 
-const FarmSVG = ({ level }: { level: number }) => (
-  <svg className="transition-all duration-500 ease-out hover:scale-105 cursor-pointer origin-bottom" width="40" height={30 + level * 7} viewBox="0 0 50 90" fill="none">
-    <rect x="22" y="42" width="6" height="48" fill="#a65638" rx="2" />
-    <circle cx="25" cy="35" r={8 + level * 2} fill="#10B981" opacity="0.9" />
-    {level >= 3 && <circle cx="17" cy="28" r="7" fill="#059669" opacity="0.8" />}
-    {level >= 3 && <circle cx="33" cy="30" r="7" fill="#059669" opacity="0.8" />}
-    {level >= 4 && <circle cx="25" cy="22" r="2" fill="#EF4444" />}
-    {level >= 4 && <circle cx="16" cy="32" r="2" fill="#EF4444" />}
-    {level >= 4 && <circle cx="34" cy="26" r="2" fill="#EF4444" />}
-  </svg>
-);
-
-const WindmillSVG = ({ level }: { level: number }) => (
-  <svg className="transition-all duration-500 ease-out hover:scale-105 cursor-pointer origin-bottom" width="40" height={30 + level * 7} viewBox="0 0 50 90" fill="none">
-    <polygon points="12,90 18,32 32,32 38,90" fill="#6B7280" />
-    <circle cx="25" cy="55" r="4" fill="#374151" />
-    <g style={{ animation: `windmill-spin ${6.5 - level}s linear infinite` }}>
-      <circle cx="0" cy="0" r="3" fill="#FBBF24" />
-      <line x1="0" y1="0" x2="0" y2="-22" stroke="#FBBF24" strokeWidth="2" strokeLinecap="round" />
-      <line x1="0" y1="0" x2="0" y2="22" stroke="#FBBF24" strokeWidth="2" strokeLinecap="round" />
-      <line x1="0" y1="0" x2="-22" y2="0" stroke="#FBBF24" strokeWidth="2" strokeLinecap="round" />
-      <line x1="0" y1="0" x2="22" y2="0" stroke="#FBBF24" strokeWidth="2" strokeLinecap="round" />
-    </g>
-  </svg>
-);
-
-const CastleSVG = ({ level }: { level: number }) => (
-  <svg className="transition-all duration-500 ease-out hover:scale-105 cursor-pointer origin-bottom" width="50" height={30 + level * 7} viewBox="0 0 60 90" fill="none">
-    <rect x="5" y="32" width="12" height="58" fill="#4B5563" rx="1" />
-    <polygon points="5,32 11,12 17,32" fill="#EF4444" />
-    <rect x="43" y="32" width="12" height="58" fill="#4B5563" rx="1" />
-    <polygon points="43,32 49,12 55,32" fill="#EF4444" />
-    <rect x="15" y="44" width="30" height="46" fill="#374151" rx="1" />
-    <rect x="18" y="37" width="5" height="7" fill="#374151" />
-    <rect x="27" y="37" width="5" height="7" fill="#374151" />
-    <rect x="36" y="37" width="5" height="7" fill="#374151" />
-    <path d="M24 90V76c0-3.3 2.7-6 6-6s6 2.7 6 6v14" fill="#1F2937" />
-  </svg>
-);
+// Building configuration data for the interactive 3D Kingdom Explorer
+const BUILDINGS_INFO: Record<BuildingType, BuildingInfoItem> = {
+  bank: {
+    id: 'bank',
+    name: 'بنك ومخزن المدخرات',
+    pillar: 'الادخار والتوفير الذكي',
+    icon: '💰',
+    image: '/assets/buildings/bank.jpg',
+    accentColor: '#D97706',
+    badgeClass: 'bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30',
+    description: 'يتطور البنك وتزداد خزائنه الذهبية كلما حافظ الطفل على حصالته وقفل السحب لتحقيق أهدافه المستقبلية.',
+    impact: 'تنمية عادة الصبر وتأجيل الرغبات المالية'
+  },
+  market: {
+    id: 'market',
+    name: 'سوق الاستثمار والتجارة',
+    pillar: 'الاستثمار والشراكة العائلية',
+    icon: '📈',
+    image: '/assets/buildings/market.jpg',
+    accentColor: '#2563EB',
+    badgeClass: 'bg-blue-500/15 text-blue-700 dark:text-blue-300 border-blue-500/30',
+    description: 'تتوسع دكاكين ومتاجر السوق حين يشارك الطفل بجزء من مدخراته مع والده في مشاريع استثمارية بعوائد حقيقية.',
+    impact: 'فهم حركة رأس المال ومضاعفة الأرباح'
+  },
+  castle: {
+    id: 'castle',
+    name: 'قلعة المملكة العائلية',
+    pillar: 'التطور ودوري العائلة الأسبوعي',
+    icon: '🏰',
+    image: '/assets/buildings/castle.jpg',
+    accentColor: '#7C3AED',
+    badgeClass: 'bg-purple-500/15 text-purple-700 dark:text-purple-300 border-purple-500/30',
+    description: 'الرمز العام لهيبة وازدهار القرية وتتويج المتصدر في دوري نماء العائلي لحصد الأوسمة التقديرية.',
+    impact: 'تعزيز الفخر والمنافسة الإيجابية بين الإخوة'
+  },
+  farm: {
+    id: 'farm',
+    name: 'مزرعة وواحة الخير',
+    pillar: 'الصدقة والعطاء الإنساني',
+    icon: '🌳',
+    image: '/assets/buildings/farm.jpg',
+    accentColor: '#059669',
+    badgeClass: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30',
+    description: 'تزهر أشجار المزرعة وتفيض ينابيعها حين يخصص الطفل جزءاً من مصروفه للتبرع ومساعدة المحتاجين بموافقة الوالد.',
+    impact: 'ترسيخ البركة والمسؤولية الاجتماعية'
+  },
+  windmill: {
+    id: 'windmill',
+    name: 'طاحونة وورشة التحديات',
+    pillar: 'المهام اليومية والإنتاجية',
+    icon: '🌀',
+    image: '/assets/buildings/windmill.jpg',
+    accentColor: '#C66E4E',
+    badgeClass: 'bg-orange-500/15 text-orange-700 dark:text-orange-300 border-orange-500/30',
+    description: 'تدور شفرات الطاحونة بقوة مع كل مهمة دراسية أو منزلية ينجزها الطفل ويرسل صورتها لوالده لكسب المكافآت.',
+    impact: 'ربط الجهد الحقيقي بالعائد المالي'
+  }
+};
 
 export default function LandingPage() {
   const navigate = useNavigate();
@@ -75,16 +86,18 @@ export default function LandingPage() {
 
   const TOTAL_FRAMES = 240;
 
-  const [demoLevels, setDemoLevels] = useState({
+  // Selected building for the interactive 3D Explorer
+  const [selectedBuildingKey, setSelectedBuildingKey] = useState<BuildingType>('bank');
+  const [buildingLevels, setBuildingLevels] = useState<Record<BuildingType, number>>({
     bank: 4,      
     market: 2,    
+    castle: 3,    
     farm: 3,      
     windmill: 5,  
-    castle: 3,    
   });
 
-  const incrementLevel = (key: keyof typeof demoLevels) => {
-    setDemoLevels((prev) => ({
+  const incrementBuildingLevel = (key: BuildingType) => {
+    setBuildingLevels((prev) => ({
       ...prev,
       [key]: prev[key] >= 5 ? 1 : prev[key] + 1,
     }));
@@ -231,24 +244,27 @@ export default function LandingPage() {
 
   const bgClass = darkMode ? 'bg-slate-950 text-slate-100' : 'bg-[#F7F5EE] text-[#0C2341]';
 
-  // Authentic Frosted Liquid Glass Cards (translucent & blurred so background shows through smoothly with minimal white tint)
+  // Authentic Frosted Liquid Glass Cards
   const cardBgClass = darkMode
-    ? 'bg-slate-950/60 backdrop-blur-md border border-white/15 text-white shadow-[0_16px_36px_rgba(0,0,0,0.5)] hover:bg-slate-900/70 transition-all'
-    : 'bg-white/20 backdrop-blur-md border border-white/50 text-[#0C2341] shadow-[0_16px_36px_rgba(12,35,65,0.1)] hover:bg-white/30 transition-all';
+    ? 'bg-slate-900/80 backdrop-blur-xl border border-white/15 text-white shadow-[0_20px_50px_rgba(0,0,0,0.6)] hover:bg-slate-900/90 transition-all'
+    : 'bg-white/80 backdrop-blur-xl border border-white/80 text-[#0C2341] shadow-[0_20px_50px_rgba(12,35,65,0.12)] hover:bg-white/90 transition-all';
 
-  const headerClasses = `fixed left-0 right-0 mx-auto z-50 backdrop-blur-md transition-premium ${
+  const headerClasses = `fixed left-0 right-0 mx-auto z-50 backdrop-blur-xl transition-premium ${
     isScrolled
       ? `top-4 w-[92%] max-w-4xl rounded-full border shadow-2xl px-6 py-2.5 ${
           darkMode 
-            ? 'bg-slate-950/70 border-white/20 text-slate-100 shadow-black/50' 
-            : 'bg-white/30 border-white/60 text-[#0C2341] shadow-slate-900/10'
+            ? 'bg-slate-950/80 border-white/20 text-slate-100 shadow-black/50' 
+            : 'bg-white/80 border-white/80 text-[#0C2341] shadow-slate-900/10'
         }`
       : `top-0 w-full rounded-none border-b px-4 py-3.5 md:px-8 md:py-5 ${
           darkMode 
-            ? 'bg-slate-950/60 border-white/10 text-slate-100' 
-            : 'bg-[#F7F5EE]/40 border-[#0C2341]/10 text-[#0C2341]'
+            ? 'bg-slate-950/70 border-white/10 text-slate-100' 
+            : 'bg-[#F7F5EE]/70 border-[#0C2341]/10 text-[#0C2341]'
         }`
   }`;
+
+  const currentBuilding = BUILDINGS_INFO[selectedBuildingKey];
+  const currentBuildingLevel = buildingLevels[selectedBuildingKey];
 
   return (
     <div dir="rtl" className={`min-h-screen relative transition-colors duration-500 font-sans overflow-x-hidden ${bgClass}`}>
@@ -261,18 +277,18 @@ export default function LandingPage() {
           style={{ opacity: 1.0 }}
         />
 
-        {/* Very light subtle gradient to preserve crispness of the village frames */}
+        {/* Subtle gradient overlay to enhance visual depth */}
         <div
           className={`absolute inset-0 transition-colors duration-700 pointer-events-none ${
             darkMode
-              ? 'bg-gradient-to-b from-slate-950/40 via-transparent to-slate-950/60'
-              : 'bg-gradient-to-b from-black/10 via-transparent to-black/20'
+              ? 'bg-gradient-to-b from-slate-950/50 via-transparent to-slate-950/70'
+              : 'bg-gradient-to-b from-black/15 via-transparent to-black/25'
           }`}
         />
       </div>
 
       {/* Floating Interactive Village Level Indicator Badge (Apple Liquid Glass) */}
-      <div className="fixed bottom-6 right-6 z-40 hidden md:flex items-center gap-3 bg-white/30 dark:bg-slate-900/70 backdrop-blur-md border border-white/60 dark:border-white/20 px-4 py-2.5 rounded-full shadow-2xl animate-fade-in font-sans">
+      <div className="fixed bottom-6 right-6 z-40 hidden md:flex items-center gap-3 bg-white/85 dark:bg-slate-900/85 backdrop-blur-xl border border-white/80 dark:border-white/20 px-4 py-2.5 rounded-full shadow-2xl animate-fade-in font-sans">
         <span className="text-base animate-bounce">
           {villageStatus.icon}
         </span>
@@ -327,11 +343,16 @@ export default function LandingPage() {
         .transition-premium {
           transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        @keyframes windmill-spin {
-          0% { transform: translate(25px, 32px) rotate(0deg); }
-          100% { transform: translate(25px, 32px) rotate(360deg); }
-        }
         
+        /* Hide scrollbar for tabs on mobile */
+        .no-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        .no-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+
         html {
           scroll-behavior: smooth;
         }
@@ -339,15 +360,9 @@ export default function LandingPage() {
 
       {/* Decorative blurred background blobs */}
       <div className="absolute inset-0 pointer-events-none opacity-30 z-0 overflow-hidden">
-        <div className="absolute top-[-10%] right-[-5%] w-[600px] h-[600px] rounded-full bg-[#C66E4E]/12 blur-[150px]"></div>
-        <div className="absolute bottom-[20%] left-[-10%] w-[500px] h-[500px] rounded-full bg-[#8B84D7]/12 blur-[150px]"></div>
+        <div className="absolute top-[-10%] right-[-5%] w-[600px] h-[600px] rounded-full bg-[#C66E4E]/15 blur-[150px]"></div>
+        <div className="absolute bottom-[20%] left-[-10%] w-[500px] h-[500px] rounded-full bg-[#8B84D7]/15 blur-[150px]"></div>
       </div>
-
-      {/* Floating particles for extra depth */}
-      <div className="absolute top-28 right-[10%] text-3xl animate-float opacity-30 select-none">🍃</div>
-      <div className="absolute top-96 left-[8%] text-3xl animate-float-delayed opacity-20 select-none">💰</div>
-      <div className="absolute bottom-40 right-[15%] text-2xl animate-float opacity-25 select-none">🌳</div>
-      <div className="absolute bottom-96 left-[12%] text-3xl animate-float-delayed opacity-20 select-none">💎</div>
 
       {/* Floating / Glassmorphic Header */}
       <header className={headerClasses}>
@@ -407,21 +422,27 @@ export default function LandingPage() {
       </header>
 
       {/* Hero Section */}
-      <section className="relative max-w-6xl mx-auto px-6 pt-32 pb-20 md:pt-40 md:pb-28 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center z-10">
+      <section className="relative max-w-6xl mx-auto px-6 pt-32 pb-20 md:pt-40 md:pb-28 grid grid-cols-1 lg:grid-cols-2 gap-10 items-center z-10">
         
         {/* Left Content Card */}
-        <div className={`p-8 md:p-10 rounded-[36px] backdrop-blur-2xl space-y-6 text-right reveal ${cardBgClass}`}>
-          <h1 className="text-3xl md:text-5xl font-black leading-tight text-[#0C2341] dark:text-white">
-            ابنِ وعي أطفالك المالي عبر <br />
-            <span className="bg-gradient-to-r from-[#C66E4E] to-[#8B84D7] bg-clip-text text-transparent animate-pulse-ring">
-              مملكة افتراضية ثلاثية الأبعاد
+        <div className={`p-8 md:p-10 rounded-[36px] space-y-6 text-right reveal ${cardBgClass}`}>
+          <div className="space-y-3">
+            <span className="inline-block px-3.5 py-1.5 rounded-full bg-[#C66E4E]/15 text-[#C66E4E] dark:text-[#FFA07A] text-xs font-black border border-[#C66E4E]/30">
+              🌱 الجيل القادم من الوعي المالي العائلي
             </span>
-          </h1>
+            <h1 className="text-3xl md:text-5xl font-black leading-tight text-[#0C2341] dark:text-white drop-shadow-sm">
+              ابنِ وعي أطفالك المالي عبر <br />
+              <span className="bg-gradient-to-r from-[#C66E4E] via-[#8B84D7] to-[#0C2341] dark:from-[#FFA07A] dark:to-[#C4B5FD] bg-clip-text text-transparent font-black block mt-2">
+                مملكة افتراضية ثلاثية الأبعاد
+              </span>
+            </h1>
+          </div>
+
           <p className="text-sm md:text-base leading-relaxed font-bold text-slate-800 dark:text-slate-200">
             نماء هي منصة مالية عائلية متكاملة تدمج بين محاكاة الألعاب ثلاثية الأبعاد والذكاء الاصطناعي لتدريب الأطفال على الادخار والاستثمار ومشاركة الخير والمبادرة في مهام المنزل بطريقة ممتعة وفاعلة.
           </p>
           
-          <div className="flex gap-4 pt-4">
+          <div className="flex flex-wrap gap-4 pt-4">
             <button
               onClick={() => navigate('/login')}
               className="px-7 py-4 bg-[#C66E4E] hover:bg-[#a65638] text-white text-sm font-black rounded-2xl shadow-xl transition-all hover:scale-105 active:scale-95 cursor-pointer font-sans"
@@ -432,8 +453,8 @@ export default function LandingPage() {
               onClick={() => scrollToSection('features')}
               className={`px-6 py-4 border rounded-2xl text-sm font-black transition-all active:scale-95 flex items-center justify-center hover:scale-105 cursor-pointer ${
                 darkMode 
-                  ? 'border-white/20 hover:bg-white/10 text-white' 
-                  : 'border-slate-300 hover:bg-slate-100 text-[#0C2341]'
+                  ? 'border-white/20 hover:bg-white/10 text-white bg-slate-800/60' 
+                  : 'border-slate-300 hover:bg-slate-100 text-[#0C2341] bg-white/70 shadow-sm'
               }`}
             >
               استكشف المزايا ⬇️
@@ -441,92 +462,97 @@ export default function LandingPage() {
           </div>
         </div>
 
-        {/* Right Visual Card */}
-        <div className="relative flex justify-center items-center reveal reveal-delay-2">
-          <div className="absolute inset-0 bg-gradient-to-r from-[#8B84D7]/20 to-[#C66E4E]/20 rounded-full blur-[80px] pointer-events-none"></div>
+        {/* Right Visual: Interactive 3D Kingdom Building Explorer (Nano Banana Pro 3D Assets) */}
+        <div className="relative flex justify-center items-center reveal reveal-delay-2 w-full">
+          <div className="absolute inset-0 bg-gradient-to-r from-[#8B84D7]/25 to-[#C66E4E]/25 rounded-full blur-[80px] pointer-events-none"></div>
           
-          {/* Card Mockup representing the 3D visual */}
-          <div className={`relative w-full max-w-md p-6 rounded-[32px] border shadow-2xl transition-all duration-500 hover:scale-[1.03] hover:-translate-y-2 ${cardBgClass}`}>
+          {/* Main 3D Interactive Card */}
+          <div className={`relative w-full max-w-lg p-6 md:p-8 rounded-[36px] border transition-all duration-500 shadow-2xl ${cardBgClass}`}>
             
-            {/* Visual Header */}
-            <div className="flex justify-between items-center border-b border-slate-200 dark:border-white/10 pb-4 mb-4 flex-row-reverse">
-              <span className="text-xl animate-float">🏰</span>
+            {/* Card Top Bar */}
+            <div className="flex justify-between items-center border-b border-slate-200/80 dark:border-white/10 pb-4 mb-4">
+              <div className="flex items-center gap-2">
+                <span className={`text-[10px] md:text-xs font-black px-3 py-1 rounded-full border ${currentBuilding.badgeClass}`}>
+                  {currentBuilding.pillar}
+                </span>
+              </div>
               <div className="text-right">
-                <span className="text-[10px] text-slate-500 dark:text-slate-400 font-bold block">مملكة نماء العائلية</span>
-                <span className="text-xs font-black text-[#0C2341] dark:text-white block">القرية ثلاثية الأبعاد (3D)</span>
+                <span className="text-[10px] text-slate-500 dark:text-slate-400 font-bold block">مستكشف مباني المملكة (3D)</span>
+                <span className="text-sm font-black text-[#0C2341] dark:text-white flex items-center gap-1.5 justify-end">
+                  {currentBuilding.name} {currentBuilding.icon}
+                </span>
               </div>
             </div>
 
-            {/* Simulated 3D Graphic */}
-            <div className="h-48 w-full bg-[#0D1527] rounded-2xl border border-white/10 overflow-hidden flex flex-col justify-end p-4 relative shadow-inner">
+            {/* 3D Asset Preview Display Area */}
+            <div className="relative w-full h-56 md:h-64 rounded-2xl overflow-hidden bg-gradient-to-b from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900 border border-slate-200/80 dark:border-white/10 shadow-inner flex items-center justify-center group">
               
-              {/* Stars animation */}
-              <div className="absolute inset-0 pointer-events-none opacity-40">
-                <div className="absolute top-4 left-6 w-1 h-1 bg-white rounded-full"></div>
-                <div className="absolute top-10 right-12 w-1.5 h-1.5 bg-yellow-200 rounded-full"></div>
-                <div className="absolute top-24 left-20 w-1 h-1 bg-white rounded-full"></div>
+              {/* Background ambient lighting */}
+              <div className="absolute inset-0 bg-gradient-to-tr from-amber-500/10 via-transparent to-purple-500/10 pointer-events-none"></div>
+              
+              {/* High-Resolution 3D Building Render (Nano Banana Pro) */}
+              <img
+                src={currentBuilding.image}
+                alt={currentBuilding.name}
+                className="w-full h-full object-contain p-2 transition-all duration-700 group-hover:scale-105 select-none drop-shadow-2xl"
+              />
+
+              {/* Floating Level Badge */}
+              <div className="absolute top-3 right-3 bg-slate-900/85 backdrop-blur-md text-white border border-white/20 px-3 py-1 rounded-full text-xs font-black shadow-lg flex items-center gap-1.5">
+                <span className="text-amber-400">★</span>
+                <span>المستوى {currentBuildingLevel} / 5</span>
               </div>
 
-              {/* Graphic elements */}
-              <div className="w-full flex justify-around items-end z-10 pb-1">
-                <div className="flex flex-col items-center gap-1">
-                  <BankSVG level={demoLevels.bank} />
-                  <span className="text-[8px] text-slate-300 font-bold">الادخار</span>
-                </div>
-                <div className="flex flex-col items-center gap-1">
-                  <MarketSVG level={demoLevels.market} />
-                  <span className="text-[8px] text-slate-300 font-bold">الاستثمار</span>
-                </div>
-                <div className="flex flex-col items-center gap-1">
-                  <CastleSVG level={demoLevels.castle} />
-                  <span className="text-[8px] text-slate-300 font-bold animate-pulse-ring">القلعة</span>
-                </div>
-                <div className="flex flex-col items-center gap-1">
-                  <FarmSVG level={demoLevels.farm} />
-                  <span className="text-[8px] text-slate-300 font-bold">الخير</span>
-                </div>
-                <div className="flex flex-col items-center gap-1">
-                  <WindmillSVG level={demoLevels.windmill} />
-                  <span className="text-[8px] text-slate-300 font-bold">المهام</span>
-                </div>
-              </div>
-              <div className="w-full h-4 bg-emerald-700/60 rounded-b-lg border-t border-emerald-600/30"></div>
+              {/* Interactive Upgrade Trigger */}
+              <button
+                onClick={() => incrementBuildingLevel(selectedBuildingKey)}
+                className="absolute bottom-3 left-3 bg-[#C66E4E] hover:bg-[#a65638] text-white px-4 py-2 rounded-xl text-xs font-black shadow-xl transition-all hover:scale-105 active:scale-95 cursor-pointer flex items-center gap-1.5"
+                title="انقر لترقية المبنى وتجربة تأثير التطور"
+              >
+                <span>🚀 ترقية المبنى</span>
+                <span className="text-[10px] bg-black/20 px-1.5 py-0.5 rounded-md">+{currentBuildingLevel}</span>
+              </button>
             </div>
 
-            {/* Values indicators (Clickable to adjust levels) */}
-            <div className="space-y-2 mt-4 select-none">
-              <span className="text-[9px] text-[#C66E4E] font-extrabold block text-right">💡 انقر على الأزرار بالأسفل لتطوير مباني القرية وتجربتها:</span>
-              <div className="grid grid-cols-5 gap-1 text-[8px] text-center">
-                <button 
-                  onClick={() => incrementLevel('bank')}
-                  className="bg-[#C66E4E]/15 hover:bg-[#C66E4E]/30 p-2 rounded-xl text-[#C66E4E] font-black transition-all hover:scale-105 active:scale-95 cursor-pointer border border-[#C66E4E]/30"
-                >
-                  💰 الادخار ({demoLevels.bank}/5)
-                </button>
-                <button 
-                  onClick={() => incrementLevel('market')}
-                  className="bg-amber-500/15 hover:bg-amber-500/30 p-2 rounded-xl text-amber-700 dark:text-amber-400 font-black transition-all hover:scale-105 active:scale-95 cursor-pointer border border-amber-500/30"
-                >
-                  📈 الاستثمار ({demoLevels.market}/5)
-                </button>
-                <button 
-                  onClick={() => incrementLevel('castle')}
-                  className="bg-purple-500/15 hover:bg-purple-500/30 p-2 rounded-xl text-purple-700 dark:text-purple-400 font-black transition-all hover:scale-105 active:scale-95 cursor-pointer border border-purple-500/30"
-                >
-                  🏰 القلعة ({demoLevels.castle}/5)
-                </button>
-                <button 
-                  onClick={() => incrementLevel('farm')}
-                  className="bg-emerald-500/15 hover:bg-emerald-500/30 p-2 rounded-xl text-emerald-700 dark:text-emerald-400 font-black transition-all hover:scale-105 active:scale-95 cursor-pointer border border-emerald-500/30"
-                >
-                  🌳 الخير ({demoLevels.farm}/5)
-                </button>
-                <button 
-                  onClick={() => incrementLevel('windmill')}
-                  className="bg-[#8B84D7]/15 hover:bg-[#8B84D7]/30 p-2 rounded-xl text-[#5F57C7] dark:text-[#8B84D7] font-black transition-all hover:scale-105 active:scale-95 cursor-pointer border border-[#8B84D7]/30"
-                >
-                  🌀 المهام ({demoLevels.windmill}/5)
-                </button>
+            {/* Building Info & Educational Impact */}
+            <div className="mt-4 space-y-3">
+              <p className="text-xs font-bold text-slate-700 dark:text-slate-300 leading-relaxed text-right">
+                {currentBuilding.description}
+              </p>
+              
+              <div className="p-3 rounded-xl bg-slate-100/80 dark:bg-slate-800/80 border border-slate-200/60 dark:border-white/10 flex items-center justify-between text-right">
+                <span className="text-[11px] font-black text-emerald-700 dark:text-emerald-400">
+                  {currentBuilding.impact}
+                </span>
+                <span className="text-[10px] text-slate-500 dark:text-slate-400 font-bold">الأثر المالي:</span>
+              </div>
+            </div>
+
+            {/* 5 Building Selector Tabs (Responsive, High-contrast, Mobile-Friendly) */}
+            <div className="mt-5 pt-4 border-t border-slate-200/80 dark:border-white/10 space-y-2">
+              <span className="text-[10px] text-slate-500 dark:text-slate-400 font-extrabold block text-right">
+                💡 اختر المبنى للاستكشاف والترقية:
+              </span>
+              
+              <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar md:grid md:grid-cols-5 md:overflow-visible">
+                {(Object.keys(BUILDINGS_INFO) as Array<keyof typeof BUILDINGS_INFO>).map((key) => {
+                  const b = BUILDINGS_INFO[key];
+                  const isSelected = selectedBuildingKey === key;
+                  return (
+                    <button
+                      key={key}
+                      onClick={() => setSelectedBuildingKey(key)}
+                      className={`px-3 py-2 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1 shrink-0 cursor-pointer ${
+                        isSelected
+                          ? 'bg-[#0C2341] dark:bg-white text-white dark:text-[#0C2341] shadow-lg scale-105 border border-transparent'
+                          : 'bg-white/80 dark:bg-slate-800/80 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-white/15 hover:bg-white dark:hover:bg-slate-700'
+                      }`}
+                    >
+                      <span>{b.icon}</span>
+                      <span className="truncate">{key === 'bank' ? 'الادخار' : key === 'market' ? 'الاستثمار' : key === 'castle' ? 'القلعة' : key === 'farm' ? 'الخير' : 'المهام'}</span>
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
