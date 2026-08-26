@@ -12,6 +12,11 @@ dist
 dist-ssr
 *.local
 
+# Environment / secrets — never commit real keys
+.env
+.env.*
+!.env.example
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
@@ -30,3 +35,5 @@ test-results/
 tsconfig.e2e.json
 playwright.config.ts
 tests/
+Namaa2.git/
+*.zip
