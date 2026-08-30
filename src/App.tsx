@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Outlet } from 'react-router-dom';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 import LoginPage from './pages/LoginPage';
 import KidDashboard from './pages/KidDashboard';
 import FatherDashboard from './pages/FatherDashboard';
@@ -59,6 +60,7 @@ function App() {
 
   return (
     <BrowserRouter>
+      <SpeedInsights />
       {toast.show && (
         <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[1000] bg-white border border-stone-200/80 px-6 py-3 rounded-full shadow-2xl flex items-center gap-3 max-w-md text-right animate-bounce">
           <span className="text-base shrink-0">
